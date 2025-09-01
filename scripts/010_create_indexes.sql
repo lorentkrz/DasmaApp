@@ -1,0 +1,19 @@
+-- Create indexes for better performance
+create index if not exists idx_weddings_owner_id on public.weddings(owner_id);
+create index if not exists idx_wedding_collaborators_wedding_id on public.wedding_collaborators(wedding_id);
+create index if not exists idx_wedding_collaborators_user_id on public.wedding_collaborators(user_id);
+create index if not exists idx_guests_wedding_id on public.guests(wedding_id);
+create index if not exists idx_guests_rsvp_status on public.guests(rsvp_status);
+create index if not exists idx_wedding_tables_wedding_id on public.wedding_tables(wedding_id);
+create index if not exists idx_budget_categories_wedding_id on public.budget_categories(wedding_id);
+create index if not exists idx_expenses_wedding_id on public.expenses(wedding_id);
+create index if not exists idx_expenses_category_id on public.expenses(category_id);
+create index if not exists idx_vendors_wedding_id on public.vendors(wedding_id);
+create index if not exists idx_task_boards_wedding_id on public.task_boards(wedding_id);
+create index if not exists idx_tasks_wedding_id on public.tasks(wedding_id);
+create index if not exists idx_tasks_board_id on public.tasks(board_id);
+create index if not exists idx_tasks_assigned_to on public.tasks(assigned_to);
+create index if not exists idx_invitation_templates_wedding_id on public.invitation_templates(wedding_id);
+create index if not exists idx_invitations_wedding_id on public.invitations(wedding_id);
+create index if not exists idx_invitations_guest_id on public.invitations(guest_id);
+create index if not exists idx_invitations_unique_token on public.invitations(unique_token);
