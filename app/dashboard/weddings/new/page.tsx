@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Heart, ArrowLeft } from "lucide-react"
+import { Calendar, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 export default function NewWeddingPage() {
@@ -81,105 +81,105 @@ export default function NewWeddingPage() {
 
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Heart className="h-8 w-8 text-primary" />
+              <div className="p-3 bg-slate-100 rounded-full">
+                <Calendar className="h-8 w-8 text-slate-600" />
               </div>
             </div>
-            <h1 className="text-3xl font-bold mb-2">Create Your Wedding</h1>
-            <p className="text-muted-foreground">Let's start planning your perfect day by setting up the basics</p>
+            <h1 className="text-3xl font-bold mb-2 text-slate-800">Krijoni Dasmën Tuaj</h1>
+            <p className="text-gray-600">Filloni planifikimin e ditës suaj të përkryer duke vendosur bazat</p>
           </div>
 
-          <Card className="border-primary/20">
+          <Card className="border-slate-200 rounded-2xl shadow-xl bg-white/90 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle>Wedding Details</CardTitle>
-              <CardDescription>Fill in the essential information about your wedding</CardDescription>
+              <CardTitle>Detajet e Dasmës</CardTitle>
+              <CardDescription>Plotësoni informacionet themelore për dasmën tuaj</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="brideName">Bride's Name *</Label>
+                    <Label htmlFor="brideName">Emri i Nuses *</Label>
                     <Input
                       id="brideName"
                       type="text"
                       required
                       value={formData.brideName}
                       onChange={(e) => handleInputChange("brideName", e.target.value)}
-                      className="border-primary/20 focus:border-primary"
+                      className="border-slate-200 focus:border-slate-400 rounded-xl"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="groomName">Groom's Name *</Label>
+                    <Label htmlFor="groomName">Emri i Dhëndrit *</Label>
                     <Input
                       id="groomName"
                       type="text"
                       required
                       value={formData.groomName}
                       onChange={(e) => handleInputChange("groomName", e.target.value)}
-                      className="border-primary/20 focus:border-primary"
+                      className="border-slate-200 focus:border-slate-400 rounded-xl"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="weddingDate">Wedding Date *</Label>
+                  <Label htmlFor="weddingDate">Data e Dasmës *</Label>
                   <Input
                     id="weddingDate"
                     type="date"
                     required
                     value={formData.weddingDate}
                     onChange={(e) => handleInputChange("weddingDate", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="venueName">Venue Name</Label>
+                  <Label htmlFor="venueName">Emri i Vendit</Label>
                   <Input
                     id="venueName"
                     type="text"
-                    placeholder="e.g., Grand Ballroom"
+                    placeholder="p.sh., Salla e Madhe"
                     value={formData.venueName}
                     onChange={(e) => handleInputChange("venueName", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="venueAddress">Venue Address</Label>
+                  <Label htmlFor="venueAddress">Adresa e Vendit</Label>
                   <Textarea
                     id="venueAddress"
-                    placeholder="Full venue address"
+                    placeholder="Adresa e plotë e vendit"
                     value={formData.venueAddress}
                     onChange={(e) => handleInputChange("venueAddress", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="guestCountEstimate">Estimated Guest Count</Label>
+                    <Label htmlFor="guestCountEstimate">Numri i Mysafirëve (vlerësim)</Label>
                     <Input
                       id="guestCountEstimate"
                       type="number"
                       min="0"
-                      placeholder="e.g., 150"
+                      placeholder="p.sh., 150"
                       value={formData.guestCountEstimate}
                       onChange={(e) => handleInputChange("guestCountEstimate", e.target.value)}
-                      className="border-primary/20 focus:border-primary"
+                      className="border-slate-200 focus:border-slate-400 rounded-xl"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="budgetTotal">Total Budget</Label>
+                    <Label htmlFor="budgetTotal">Buxheti Total</Label>
                     <Input
                       id="budgetTotal"
                       type="number"
                       min="0"
                       step="0.01"
-                      placeholder="e.g., 25000"
+                      placeholder="p.sh., 25000"
                       value={formData.budgetTotal}
                       onChange={(e) => handleInputChange("budgetTotal", e.target.value)}
-                      className="border-primary/20 focus:border-primary"
+                      className="border-slate-200 focus:border-slate-400 rounded-xl"
                     />
                   </div>
                 </div>
@@ -192,10 +192,10 @@ export default function NewWeddingPage() {
 
                 <div className="flex gap-4">
                   <Button type="submit" disabled={isLoading} className="flex-1">
-                    {isLoading ? "Creating..." : "Create Wedding"}
+                    {isLoading ? "Duke krijuar..." : "Krijo Dasmë"}
                   </Button>
                   <Button type="button" variant="outline" asChild>
-                    <Link href="/dashboard">Cancel</Link>
+                    <Link href="/dashboard">Anulo</Link>
                   </Button>
                 </div>
               </form>

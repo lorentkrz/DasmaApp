@@ -37,8 +37,8 @@ export default async function NewTaskPage({
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-amber-900">Add New Task</h1>
-        <p className="text-amber-700">Create a new wedding planning task</p>
+        <h1 className="text-3xl font-bold text-slate-800">Shto Detyrë të Re</h1>
+        <p className="text-gray-600">Krijoni një detyrë të re për planifikimin e dasmës</p>
       </div>
 
       <TaskForm wedding={wedding} boards={boards || []} defaultBoardId={defaultBoardId} />

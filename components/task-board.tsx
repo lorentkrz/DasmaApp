@@ -8,14 +8,16 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Search, Filter, Calendar, AlertCircle, CheckCircle2, Clock, Plus } from "lucide-react"
 import { createBrowserClient } from "@/lib/supabase/client"
+import { TaskAddModal } from "@/components/task-add-modal"
 import Link from "next/link"
 
 interface TaskBoardProps {
   boards: any[]
   tasks: any[]
+  weddingId?: string
 }
 
-export function TaskBoard({ boards, tasks }: TaskBoardProps) {
+export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedPriority, setSelectedPriority] = useState("all")
   const [draggedTask, setDraggedTask] = useState<any>(null)
@@ -150,54 +152,54 @@ export function TaskBoard({ boards, tasks }: TaskBoardProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Search and Filter */}
-      <Card className="border-slate-200">
-        <CardContent className="py-3">
-          <div className="flex items-center gap-3">
+    <div className="space-y-6">
+      {/* Enhanced Search and Filter */}
+      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+        <CardContent className="py-4">
+          <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
               <Input
-                placeholder="Search tasks"
+                placeholder="Kërko detyra..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 h-8 text-sm"
+                className="pl-10 h-12 text-sm bg-white/70 border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-300 focus:border-slate-300"
               />
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Filter className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center gap-3 text-sm">
+              <Filter className="h-5 w-5 text-slate-400" />
               <select
                 value={selectedPriority}
                 onChange={(e) => setSelectedPriority(e.target.value)}
-                className="px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500"
+                className="px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 bg-white/70"
               >
-                <option value="all">All</option>
-                <option value="urgent">Urgent</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
+                <option value="all">Të gjitha</option>
+                <option value="urgent">Urgjente</option>
+                <option value="high">Të larta</option>
+                <option value="medium">Mesatare</option>
+                <option value="low">Të ulëta</option>
               </select>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Task Board */}
-      <div className="flex gap-4 overflow-x-auto pb-1 pr-1" style={{ scrollbarWidth: "thin" }}>
+      {/* Enhanced Task Board */}
+      <div className="flex gap-6 overflow-x-auto pb-4 pr-4" style={{ scrollbarWidth: "thin" }}>
         {tasksByBoard.map((column) => (
           <div
             key={column.id}
-            className="flex-shrink-0 w-[240px] sm:w-[260px] flex flex-col"
+            className="flex-shrink-0 w-[280px] sm:w-[300px] flex flex-col"
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, column.id)}
           >
-            {/* Column Header */}
+            {/* Enhanced Column Header */}
             <Card
-              className={`border-slate-200 ${getBoardAccent(column.color)}`}
+              className={`bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl ${getBoardAccent(column.color)}`}
               style={{ borderTopColor: column.color || undefined }}
             >
-              <CardHeader className="py-2 sticky top-0 bg-slate-50 z-10 rounded-t-md">
-                <div className="flex items-center justify-between gap-2">
+              <CardHeader className="py-4 sticky top-0 bg-gradient-to-r from-white/95 to-gray-50/95 z-10 rounded-t-2xl">
+                <div className="flex items-center justify-between gap-3">
                   {renamingBoardId === column.id ? (
                     <Input
                       autoFocus
@@ -208,61 +210,80 @@ export function TaskBoard({ boards, tasks }: TaskBoardProps) {
                         if (e.key === "Enter") saveBoardName(column)
                         if (e.key === "Escape") setRenamingBoardId(null)
                       }}
-                      className="h-7 text-sm"
+                      className="h-8 text-sm rounded-xl"
                     />
                   ) : (
                     <button
-                      className="text-left"
+                      className="text-left flex items-center gap-2"
                       onClick={() => startRenaming(column)}
                       title="Click to rename"
                     >
-                      <CardTitle className="text-[13px] font-semibold text-slate-900 tracking-tight">{column.name}</CardTitle>
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: column.color || '#6b7280' }}></div>
+                      <CardTitle className="text-sm font-bold text-gray-800 tracking-tight">
+                        {column.name === 'To Do' ? 'Për t\'u bërë' :
+                         column.name === 'In Progress' ? 'Në proces' :
+                         column.name === 'Review' ? 'Rishikim' :
+                         column.name === 'Done' ? 'Përfunduar' : column.name}
+                      </CardTitle>
                     </button>
                   )}
-                  <Badge variant="secondary" className="bg-white/60 text-xs">
+                  <Badge variant="outline" className="bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 border-slate-200 font-bold">
                     {column.count}
                   </Badge>
                 </div>
               </CardHeader>
             </Card>
 
-            {/* Tasks */}
-            <div className="space-y-2 mt-2 overflow-y-auto pr-1 max-h-[70vh]" style={{ scrollbarWidth: "thin" }}>
+            {/* Enhanced Tasks */}
+            <div className="space-y-3 mt-4 overflow-y-auto pr-2 max-h-[70vh]" style={{ scrollbarWidth: "thin" }}>
               {column.tasks.map((task: any) => (
                 <Card
                   key={task.id}
-                  className="border-slate-200 hover:shadow-sm transition-shadow cursor-move"
+                  className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all cursor-move rounded-xl transform hover:scale-[1.02]"
                   draggable
                   onDragStart={(e) => handleDragStart(e, task)}
                 >
-                  <CardContent className="p-2.5">
-                    <div className="space-y-2">
-                      {/* Task Header */}
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      {/* Enhanced Task Header */}
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-medium text-[13px] text-slate-900 line-clamp-2">{task.title}</h3>
+                        <h3 className="font-semibold text-sm text-gray-800 line-clamp-2 leading-relaxed">{task.title}</h3>
                         <div className="flex items-center gap-1">
-                          {getPriorityDot(task.priority)}
+                          <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs font-medium border-0`}>
+                            {task.priority === 'urgent' ? 'Urgjente' : 
+                             task.priority === 'high' ? 'E lartë' :
+                             task.priority === 'medium' ? 'Mesatare' :
+                             task.priority === 'low' ? 'E ulët' : 'Mesatare'}
+                          </Badge>
                         </div>
                       </div>
 
-                      {/* Task Description */}
-                      {task.description && <p className="text-xs text-gray-600 line-clamp-2">{task.description}</p>}
+                      {/* Enhanced Task Description */}
+                      {task.description && (
+                        <p className="text-xs text-gray-600 line-clamp-2 bg-gray-50 px-3 py-2 rounded-lg">
+                          {task.description}
+                        </p>
+                      )}
 
-                      {/* Task Footer */}
-                      <div className="flex items-center justify-end text-[10px] text-gray-500">
+                      {/* Enhanced Task Footer */}
+                      <div className="flex items-center justify-between text-xs">
                         {task.due_date && (
-                          <div className={`flex items-center gap-1 ${isOverdue(task.due_date) ? "text-red-600" : ""}`}>
+                          <div className={`flex items-center gap-2 px-2 py-1 rounded-lg ${
+                            isOverdue(task.due_date) 
+                              ? "bg-red-50 text-red-700" 
+                              : "bg-blue-50 text-blue-700"
+                          }`}>
                             <Calendar className="h-3 w-3" />
-                            <span>{new Date(task.due_date).toLocaleDateString()}</span>
+                            <span>{new Date(task.due_date).toLocaleDateString('sq-AL')}</span>
                           </div>
                         )}
                       </div>
 
-                      {/* Overdue Warning */}
+                      {/* Enhanced Overdue Warning */}
                       {task.due_date && isOverdue(task.due_date) && (
-                        <div className="flex items-center gap-1 text-red-600 text-[10px]">
-                          <AlertCircle className="h-3 w-3" />
-                          <span>Overdue</span>
+                        <div className="flex items-center gap-2 text-red-600 text-xs bg-red-50 px-3 py-2 rounded-lg">
+                          <AlertCircle className="h-4 w-4" />
+                          <span className="font-medium">Vonuar!</span>
                         </div>
                       )}
                     </div>
@@ -270,17 +291,14 @@ export function TaskBoard({ boards, tasks }: TaskBoardProps) {
                 </Card>
               ))}
 
-              {/* Add Task Button (preselect this column) */}
-              <Link href={`/dashboard/tasks/new?board=${column.id}`}>
-                <Card className="border-dashed border border-slate-300 hover:border-slate-400 transition-colors">
-                  <CardContent className="p-2">
-                    <div className="flex items-center justify-center gap-2 text-slate-600 hover:text-slate-700 text-xs">
-                      <Plus className="h-3 w-3" />
-                      <span>Add Task</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+              {/* Enhanced Add Task Button */}
+              {weddingId && (
+                <TaskAddModal 
+                  boardId={column.id} 
+                  boardName={column.name}
+                  weddingId={weddingId}
+                />
+              )}
             </div>
           </div>
         ))}

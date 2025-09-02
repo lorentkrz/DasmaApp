@@ -17,8 +17,8 @@ export default async function NewVendorPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-amber-900">Add New Vendor</h1>
-        <p className="text-amber-700">Add a vendor to your wedding team</p>
+        <h1 className="text-3xl font-bold text-slate-800">Shto Ofrues të Ri</h1>
+        <p className="text-gray-600">Shtoni një ofrues shërbimi në ekipin tuaj të dasmës</p>
       </div>
 
       <VendorForm wedding={wedding} />

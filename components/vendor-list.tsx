@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Filter, Edit, Trash2, Phone, Mail, MapPin, Star } from "lucide-react"
+import { Search, Filter, Edit, Trash2, Phone, Mail, MapPin, Star, Store } from "lucide-react"
 import Link from "next/link"
 
 interface VendorListProps {
@@ -46,12 +46,29 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
 
   const getStatusColor = (status: string) => {
     const colors: { [key: string]: string } = {
-      considering: "bg-gray-100 text-gray-800",
-      contacted: "bg-blue-100 text-blue-800",
-      booked: "bg-green-100 text-green-800",
-      cancelled: "bg-red-100 text-red-800",
+      considering: "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300 shadow-sm",
+      contacted: "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-300 shadow-sm",
+      booked: "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border-emerald-300 shadow-sm",
+      cancelled: "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300 shadow-sm",
     }
-    return colors[status] || "bg-gray-100 text-gray-800"
+    return colors[status] || "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300 shadow-sm"
+  }
+
+  const getCategoryColor = (category: string) => {
+    const colors: { [key: string]: string } = {
+      photographer: "bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 border-purple-300 shadow-sm",
+      videographer: "bg-gradient-to-r from-indigo-100 to-blue-100 text-indigo-800 border-indigo-300 shadow-sm",
+      florist: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300 shadow-sm",
+      caterer: "bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border-orange-300 shadow-sm",
+      venue: "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300 shadow-sm",
+      dj: "bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800 border-blue-300 shadow-sm",
+      band: "bg-gradient-to-r from-teal-100 to-emerald-100 text-teal-800 border-teal-300 shadow-sm",
+      baker: "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300 shadow-sm",
+      decorator: "bg-gradient-to-r from-violet-100 to-purple-100 text-violet-800 border-violet-300 shadow-sm",
+      transportation: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300 shadow-sm",
+      other: "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300 shadow-sm",
+    }
+    return colors[category] || "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300 shadow-sm"
   }
 
   const renderStars = (rating: number) => {
@@ -62,29 +79,29 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
 
   return (
     <div className="space-y-6">
-      {/* Search and Filter */}
-      <Card className="border-slate-200">
+      {/* Enhanced Search and Filter */}
+      <Card className="rounded-2xl border-0 shadow-xl bg-white/90 backdrop-blur-sm">
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
               <Input
-                placeholder="Search vendors..."
+                placeholder="Kërko shitës sipas emrit, kompanisë apo personit të kontaktit..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-12 h-12 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm focus:border-slate-300 focus:ring-slate-200 shadow-lg"
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center space-x-3">
+              <Filter className="h-5 w-5 text-slate-400" />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500"
+                className="px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 bg-white/80 backdrop-blur-sm shadow-lg font-medium"
               >
                 {VENDOR_CATEGORIES.map((category) => (
                   <option key={category} value={category}>
-                    {category === "all" ? "All Categories" : labelize(category)}
+                    {category === "all" ? "Të gjitha kategoritë" : labelize(category)}
                   </option>
                 ))}
               </select>
@@ -93,124 +110,152 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
         </CardContent>
       </Card>
 
-      {/* Vendor Grid */}
+      {/* Enhanced Vendor Grid */}
       {filteredVendors.length === 0 ? (
-        <Card className="border-slate-200">
+        <Card className="rounded-2xl border-0 shadow-xl bg-white/90 backdrop-blur-sm">
           <CardContent className="text-center py-12">
-            <div className="text-gray-500">
-              <div className="h-12 w-12 mx-auto mb-4 text-gray-300">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-16 h-16 bg-gradient-to-r from-slate-100 to-gray-100 rounded-full flex items-center justify-center">
+                <Store className="h-8 w-8 text-slate-400" />
               </div>
-              <p className="text-lg font-medium">No vendors found</p>
-              <p className="text-sm">Add your first vendor to start managing your wedding team</p>
+              <div className="space-y-2">
+                <p className="text-lg font-medium text-gray-700">
+                  Nuk u gjetën shitës
+                </p>
+                <p className="text-gray-500">
+                  <span>Shërbimet tuaja të veçanta për dasmën e përsosër</span> filluar menaxhimin e ekipit të dasmës
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredVendors.map((vendor) => (
-            <Card key={vendor.id} className="border-slate-200 hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
+            <Card key={vendor.id} className="rounded-2xl border-0 shadow-xl bg-white/90 backdrop-blur-sm hover:shadow-2xl transition-all transform hover:scale-105">
+              <CardHeader className="pb-4 bg-gradient-to-r from-slate-100/30 to-gray-100/30 rounded-t-2xl">
                 <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg text-slate-900">{vendor.name}</CardTitle>
-                    {vendor.company && <p className="text-sm text-gray-600">{vendor.company}</p>}
+                  <div>
+                    <CardTitle className="text-xl font-bold text-gray-900">{vendor.name}</CardTitle>
+                    {vendor.company && <p className="text-sm text-gray-600 font-medium">{vendor.company}</p>}
                   </div>
-                  <Badge className="bg-gray-100 text-gray-800">{labelize(vendor.category)}</Badge>
+                  <Badge variant="outline" className={`${getCategoryColor(vendor.category)} font-medium`}>
+                    {labelize(vendor.category)}
+                  </Badge>
                 </div>
 
                 {vendor.rating && (
-                  <div className="flex items-center space-x-1 mt-2">
+                  <div className="flex items-center space-x-1 mt-3">
                     {renderStars(vendor.rating)}
-                    <span className="text-sm text-gray-600 ml-2">({vendor.rating}/5)</span>
+                    <span className="text-sm text-gray-600 ml-2 font-medium">({vendor.rating}/5)</span>
                   </div>
                 )}
               </CardHeader>
 
-              <CardContent className="space-y-4">
-                {/* Contact Information */}
-                <div className="space-y-2">
+              <CardContent className="space-y-5 p-6">
+                {/* Enhanced Contact Information */}
+                <div className="space-y-3">
                   {vendor.contact_person && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <div className="w-4 h-4 rounded-full bg-amber-100 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-amber-600" />
+                    <div className="flex items-center space-x-3 text-sm text-gray-600">
+                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
+                        <div className="w-2 h-2 rounded-full bg-gray-600" />
                       </div>
-                      <span>{vendor.contact_person}</span>
+                      <span className="font-medium">{vendor.contact_person}</span>
                     </div>
                   )}
 
                   {vendor.phone && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <Phone className="h-4 w-4" />
-                      <a href={`tel:${vendor.phone}`} className="hover:underline">
+                    <div className="flex items-center space-x-3 text-sm text-gray-600">
+                      <Phone className="h-4 w-4 text-gray-400" />
+                      <a href={`tel:${vendor.phone}`} className="hover:underline font-medium">
                         {vendor.phone}
                       </a>
                     </div>
                   )}
 
                   {vendor.email && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <Mail className="h-4 w-4" />
-                      <a href={`mailto:${vendor.email}`} className="hover:underline">
+                    <div className="flex items-center space-x-3 text-sm text-gray-600">
+                      <Mail className="h-4 w-4 text-gray-400" />
+                      <a href={`mailto:${vendor.email}`} className="hover:underline font-medium">
                         {vendor.email}
                       </a>
                     </div>
                   )}
 
                   {vendor.address && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <MapPin className="h-4 w-4" />
-                      <span>{vendor.address}</span>
+                    <div className="flex items-center space-x-3 text-sm text-gray-600">
+                      <MapPin className="h-4 w-4 text-gray-400" />
+                      <span className="font-medium">{vendor.address}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Status and Price */}
-                <div className="flex items-center justify-between">
-                  <Badge className={getStatusColor(vendor.status)}>{vendor.status}</Badge>
-                  {vendor.contract_amount && (
-                    <span className="text-sm font-medium text-gray-900">${Number(vendor.contract_amount).toLocaleString()}</span>
-                  )}
+                {/* Enhanced Status and Price */}
+                <div className="flex items-center justify-between bg-gray-50/50 p-3 rounded-xl">
+                  <Badge variant="outline" className={`${getStatusColor(vendor.status)} font-medium`}>
+                    {vendor.status === 'considering' ? 'Duke menduar' : 
+                     vendor.status === 'confirmed' ? 'Konfirmuar' :
+                     vendor.status === 'booked' ? 'Rezervuar' :
+                     vendor.status === 'cancelled' ? 'Anulluar' : vendor.status}
+                  </Badge>
+                  <div className="flex flex-col items-end">
+                    {vendor.contract_amount && (
+                      <span className="text-lg font-bold text-gray-900">${Number(vendor.contract_amount).toLocaleString()}</span>
+                    )}
+                    {vendor.deposit_amount && (
+                      <span className="text-xs text-gray-500">Depozitë: ${Number(vendor.deposit_amount).toLocaleString()}</span>
+                    )}
+                  </div>
                 </div>
 
-                {/* Notes */}
-                {vendor.notes && <p className="text-sm text-gray-600 line-clamp-2">{vendor.notes}</p>}
+                {/* Enhanced Notes */}
+                {vendor.notes && (
+                  <p className="text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg line-clamp-2">
+                    {vendor.notes}
+                  </p>
+                )}
 
-                {/* Actions */}
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                {/* Enhanced Actions */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200/50">
                   <div className="flex items-center space-x-2">
                     {onEdit ? (
-                      <Button variant="outline" size="sm" onClick={() => onEdit(vendor)}>
-                        <Edit className="h-4 w-4" />
+                      <Button variant="outline" size="sm" onClick={() => onEdit(vendor)} className="rounded-xl hover:bg-blue-50 border-blue-200">
+                        <Edit className="h-4 w-4 text-blue-500" />
                       </Button>
                     ) : (
                       <Link href={`/dashboard/vendors/${vendor.id}/edit`}>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4" />
+                        <Button variant="outline" size="sm" className="rounded-xl hover:bg-blue-50 border-blue-200">
+                          <Edit className="h-4 w-4 text-blue-500" />
                         </Button>
                       </Link>
                     )}
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 bg-transparent">
+                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-xl">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
 
                   {vendor.final_payment_due && (
-                    <span className="text-xs text-gray-500">
-                      Final due: {new Date(vendor.final_payment_due).toLocaleDateString()}
+                    <span className="text-xs text-gray-600 bg-amber-50 px-2 py-1 rounded-md">
+                      Afati: {new Date(vendor.final_payment_due).toLocaleDateString('sq-AL')}
                     </span>
                   )}
                 </div>
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+      
+      {/* Enhanced Footer */}
+      {filteredVendors.length > 0 && (
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg text-center">
+          <div className="flex items-center justify-center gap-2">
+            <Store className="h-5 w-5 text-slate-500" />
+            <span className="text-gray-700 font-medium">
+              Duke shfaqur <span className="font-bold text-slate-600">{filteredVendors.length}</span> nga <span className="font-bold text-gray-800">{vendors.length}</span> shitës
+            </span>
+            <Store className="h-4 w-4 text-slate-400" />
+          </div>
         </div>
       )}
     </div>

@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
+  MessageCircle,
 } from "lucide-react"
 
 interface Wedding {
@@ -34,39 +35,44 @@ interface DashboardSidebarProps {
 
 const navigation = [
   {
-    name: "Dashboard",
+    name: "Paneli Kryesor",
     href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
-    name: "Guests",
+    name: "Mysafirët",
     href: "/dashboard/guests",
     icon: Users,
   },
   {
-    name: "Tasks",
+    name: "Detyrat",
     href: "/dashboard/tasks",
     icon: CheckSquare,
   },
   {
-    name: "Budget",
+    name: "Buxheti",
     href: "/dashboard/budget",
     icon: DollarSign,
   },
   {
-    name: "Vendors",
+    name: "Contracts",
     href: "/dashboard/vendors",
     icon: Heart,
   },
   {
-    name: "Seating Chart",
+    name: "Plani i Uljes",
     href: "/dashboard/seating",
     icon: MapPin,
   },
   {
-    name: "Invitations",
+    name: "Ftesat",
     href: "/dashboard/invitations",
     icon: Mail,
+  },
+  {
+    name: "WhatsApp",
+    href: "/dashboard/whatsapp",
+    icon: MessageCircle,
   },
 ]
 
@@ -77,18 +83,18 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
   return (
     <div
       className={cn(
-        "flex flex-col bg-card border-r border-border transition-all duration-300",
+        "flex flex-col bg-white border-r border-gray-200 transition-all duration-300",
         collapsed ? "w-16" : "w-64",
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Heart className="h-5 w-5 text-primary" />
+            <div className="p-2 bg-rose-100 rounded-lg">
+              <Heart className="h-5 w-5 text-rose-600" />
             </div>
-            <span className="font-bold text-primary">Wedding ERP</span>
+            <span className="font-bold text-gray-800">Planifikuesi i Dasmave</span>
           </div>
         )}
         <Button variant="ghost" size="sm" onClick={() => setCollapsed(!collapsed)} className="h-8 w-8 p-0">
@@ -101,19 +107,19 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
           {/* Current Wedding */}
           {weddings.length > 0 && (
             <div>
-              {!collapsed && <h3 className="text-sm font-medium text-muted-foreground mb-3">Current Wedding</h3>}
-              <div className={cn("p-3 bg-primary/5 border border-primary/20 rounded-lg", collapsed && "p-2")}>
+              {!collapsed && <h3 className="text-sm font-medium text-gray-500 mb-3">Dasma Aktuale</h3>}
+              <div className={cn("p-3 bg-rose-50 border border-rose-200 rounded-lg", collapsed && "p-2")}>
                 {!collapsed ? (
                   <div>
-                    <p className="font-medium text-sm text-balance">
+                    <p className="font-medium text-sm text-balance text-gray-800">
                       {weddings[0].bride_name} & {weddings[0].groom_name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(weddings[0].wedding_date).toLocaleDateString()}
+                    <p className="text-xs text-gray-500">
+                      {new Date(weddings[0].wedding_date).toLocaleDateString('sq-AL')}
                     </p>
                   </div>
                 ) : (
-                  <Heart className="h-4 w-4 text-primary mx-auto" />
+                  <Heart className="h-4 w-4 text-rose-600 mx-auto" />
                 )}
               </div>
             </div>
@@ -121,7 +127,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
 
           {/* Navigation */}
           <nav>
-            {!collapsed && <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>}
+            {!collapsed && <h3 className="text-sm font-medium text-gray-500 mb-3">Navigimi</h3>}
             <ul className="space-y-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
@@ -132,8 +138,8 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors",
                         isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-accent",
+                          ? "bg-rose-600 text-white"
+                          : "text-gray-600 hover:text-gray-800 hover:bg-gray-100",
                         collapsed && "justify-center px-2",
                       )}
                     >
@@ -149,19 +155,19 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
           {/* Quick Actions */}
           {!collapsed && (
             <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Quick Actions</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">Veprime të Shpejta</h3>
               <div className="space-y-2">
                 <Button asChild variant="outline" size="sm" className="w-full justify-start bg-transparent">
                   <Link href="/dashboard/weddings/new">
                     <Plus className="h-4 w-4 mr-2" />
-                    New Wedding
+                    Dasmë e Re
                   </Link>
                 </Button>
                 {weddings.length > 1 && (
                   <Button asChild variant="outline" size="sm" className="w-full justify-start bg-transparent">
                     <Link href="/dashboard/weddings">
                       <Calendar className="h-4 w-4 mr-2" />
-                      Switch Wedding
+                      Ndrysho Dasmën
                     </Link>
                   </Button>
                 )}
@@ -181,7 +187,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
         >
           <Link href="/dashboard/settings">
             <Settings className="h-4 w-4" />
-            {!collapsed && <span className="ml-2">Settings</span>}
+            {!collapsed && <span className="ml-2">Cilësimet</span>}
           </Link>
         </Button>
       </div>

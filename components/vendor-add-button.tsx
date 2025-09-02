@@ -21,11 +21,14 @@ export function VendorAddButton({ wedding }: VendorAddButtonProps) {
           Add Vendor
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Vendor</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Plus className="h-5 w-5 text-indigo-600" />
+            Shto Ofrues të Ri
+          </DialogTitle>
         </DialogHeader>
-        <VendorForm wedding={wedding} />
+        <VendorForm wedding={wedding} onSuccess={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   )

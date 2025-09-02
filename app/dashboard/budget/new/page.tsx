@@ -31,8 +31,8 @@ export default async function NewExpensePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 px-4 md:px-0 pt-2">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900 tracking-tight">Add New Expense</h1>
-        <p className="text-sm text-slate-600">Track a new wedding expense</p>
+        <h1 className="text-xl font-semibold text-slate-900 tracking-tight">Shto Shpenzim të Ri</h1>
+        <p className="text-sm text-slate-600">Regjistroni një shpenzim të ri për dasmën</p>
       </div>
 
       <ExpenseForm wedding={wedding} categories={categories || []} />

@@ -21,7 +21,7 @@ export default async function AuthErrorPage({
                 <Heart className="h-8 w-8 text-primary" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-primary">Wedding ERP</h1>
+            <h1 className="text-2xl font-bold text-primary">Planifikuesi i Dasmave</h1>
           </div>
 
           <Card className="border-destructive/20">
@@ -31,21 +31,21 @@ export default async function AuthErrorPage({
                   <AlertCircle className="h-8 w-8 text-destructive" />
                 </div>
               </div>
-              <CardTitle className="text-2xl">Authentication Error</CardTitle>
+              <CardTitle className="text-2xl">Gabim në Mirëfillësimin e Të Dhënave</CardTitle>
             </CardHeader>
             <CardContent className="text-center">
               <div className="space-y-4">
                 {params?.error ? (
-                  <p className="text-sm text-muted-foreground">Error: {params.error}</p>
+                  <p className="text-sm text-muted-foreground">Gabim: {params.error}</p>
                 ) : (
-                  <p className="text-sm text-muted-foreground">An authentication error occurred. Please try again.</p>
+                  <p className="text-sm text-muted-foreground">Ndodhi një gabim gjatë mirëfillësimit të të dhënave. Ju lutemi provoni përsëri.</p>
                 )}
                 <div className="pt-4 space-y-2">
                   <Button asChild className="w-full">
-                    <Link href="/auth/login">Try Again</Link>
+                    <Link href="/auth/login">Provoni Përsëri</Link>
                   </Button>
                   <Button asChild variant="outline" className="w-full bg-transparent">
-                    <Link href="/">Go Home</Link>
+                    <Link href="/">Kthehu në Faqen Kryesore</Link>
                   </Button>
                 </div>
               </div>

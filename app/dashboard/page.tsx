@@ -4,48 +4,49 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Heart, Users, Calendar, DollarSign, CheckCircle, Clock, AlertCircle, Plus, ArrowRight } from "lucide-react"
+import { Users, Calendar, DollarSign, CheckCircle, Clock, AlertCircle, Plus, ArrowRight, MapPin, Utensils } from "lucide-react"
 import Link from "next/link"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
-  if (error || !user) {
-    redirect("/auth/login")
-  }
+  const { data: { user }, error } = await supabase.auth.getUser()
+  if (error || !user) redirect("/auth/login")
 
-  // Fetch accessible weddings (RLS enforces owner or collaborator)
   const { data: weddings } = await supabase
     .from("weddings")
     .select("*")
     .order("created_at", { ascending: false })
-    .limit(1)
 
-  // If no weddings, show onboarding
   if (!weddings || weddings.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
-        <div className="container mx-auto px-6 py-12">
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="flex justify-center mb-6">
-              <div className="p-4 bg-primary/10 rounded-full">
-                <Heart className="h-12 w-12 text-primary" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-slate-200/20 to-gray-200/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-stone-200/20 to-slate-200/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-gray-200/15 to-stone-200/15 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-1/3 w-28 h-28 bg-slate-300/30 rounded-full blur-xl animate-pulse delay-500"></div>
+        </div>
+        
+        <div className="relative container mx-auto px-6 py-12">
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                <div className="w-24 h-24 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center shadow-2xl">
+                  <Calendar className="h-12 w-12 text-white" />
+                </div>
               </div>
             </div>
-            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Welcome to Your Wedding Journey
+            <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-slate-700 via-gray-700 to-slate-600 bg-clip-text text-transparent">
+              Mirësevini në Planifikuesin e Dasmës
             </h1>
-            <p className="text-xl text-muted-foreground mb-8">
-              Let's start planning your perfect day! Create your first wedding to begin organizing everything.
+            <p className="text-2xl text-gray-700 mb-8 leading-relaxed">
+              Filloni udhëtimin tuaj drejt dasmës së ëndrrave! Organizoni gjithçka në mënyrë të lehtë dhe të bukur.
             </p>
-            <Button asChild size="lg" className="text-lg px-8">
+            <Button asChild size="lg" className="text-xl px-12 py-6 rounded-2xl font-bold bg-gradient-to-r from-slate-600 to-gray-700 hover:from-slate-700 hover:to-gray-800 shadow-2xl transform hover:scale-105 transition-all duration-300">
               <Link href="/dashboard/weddings/new">
-                <Plus className="h-5 w-5 mr-2" />
-                Create Your Wedding
+                Krijoni Dasmën Tuaj të Parë
               </Link>
             </Button>
           </div>
@@ -54,10 +55,8 @@ export default async function DashboardPage() {
     )
   }
 
-  // Get the most recent wedding for dashboard stats
   const currentWedding = weddings[0]
 
-  // Fetch dashboard stats for the current wedding
   const [{ data: guests }, { data: tasks }, { data: vendors }, { data: expenses }] = await Promise.all([
     supabase.from("guests").select("*").eq("wedding_id", currentWedding.id),
     supabase.from("tasks").select("*").eq("wedding_id", currentWedding.id),
@@ -65,7 +64,6 @@ export default async function DashboardPage() {
     supabase.from("expenses").select("amount").eq("wedding_id", currentWedding.id),
   ])
 
-  // Calculate stats
   const guestStats = {
     total: guests?.length || 0,
     confirmed: guests?.filter((g) => g.rsvp_status === "attending").length || 0,
@@ -91,214 +89,289 @@ export default async function DashboardPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
-      <div className="container mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-balance mb-2">
-              {currentWedding.bride_name} & {currentWedding.groom_name}
-            </h1>
-            <div className="flex items-center gap-4 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                <span>{new Date(currentWedding.wedding_date).toLocaleDateString()}</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-40 h-40 bg-slate-200/15 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-60 right-16 w-32 h-32 bg-gray-200/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-40 left-1/4 w-36 h-36 bg-stone-200/18 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        <div className="absolute bottom-60 right-1/3 w-28 h-28 bg-slate-300/25 rounded-full blur-xl animate-pulse delay-500"></div>
+      </div>
+      
+      <div className="relative container mx-auto px-6 py-8">
+        {/* Enhanced Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center shadow-lg">
+                <Calendar className="h-6 w-6 text-white" />
               </div>
-              <Badge variant={daysUntilWedding > 30 ? "secondary" : daysUntilWedding > 7 ? "default" : "destructive"}>
-                {daysUntilWedding > 0 ? `${daysUntilWedding} days to go` : "Wedding Day!"}
-              </Badge>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-700 via-gray-700 to-slate-600 bg-clip-text text-transparent">
+                {currentWedding.bride_name} & {currentWedding.groom_name}
+              </h1>
+            </div>
+            <div className="flex items-center gap-6 text-gray-600">
+              <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 shadow-md">
+                <Calendar className="h-5 w-5 text-slate-500" />
+                <span className="font-semibold">{new Date(currentWedding.wedding_date).toLocaleDateString('sq-AL', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 shadow-md">
+                <MapPin className="h-5 w-5 text-gray-500" />
+                <Badge 
+                  variant={daysUntilWedding > 30 ? "secondary" : daysUntilWedding > 7 ? "default" : "destructive"}
+                  className="text-lg px-4 py-2 rounded-full font-bold shadow-lg"
+                >
+                  {daysUntilWedding > 0 ? `${daysUntilWedding} ditë të mbetura` : "Sot është Dita Juaj e Madhe!"}
+                </Badge>
+              </div>
             </div>
           </div>
-          <div className="flex gap-2 mt-4 md:mt-0">
+          <div className="flex gap-3 mt-6 md:mt-0">
             {weddings.length > 1 && (
-              <Button variant="outline" asChild>
-                <Link href="/dashboard/weddings">Switch Wedding</Link>
+              <Button variant="outline" className="rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50" size="sm" asChild>
+                <Link href="/dashboard/weddings">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Ndrysho Dasmën
+                </Link>
               </Button>
             )}
-            <Button asChild>
+            <Button asChild className="rounded-xl bg-gradient-to-r from-slate-600 to-gray-700 hover:from-slate-700 hover:to-gray-800 shadow-lg transform hover:scale-105 transition-all duration-200">
               <Link href="/dashboard/weddings/new">
                 <Plus className="h-4 w-4 mr-2" />
-                New Wedding
+                Krijo Dasmë të Re
               </Link>
             </Button>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
+        {/* Stats Grid - Smaller and Cleaner */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Guests</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-gray-600">Mysafirët</CardTitle>
+              <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
                 {guestStats.confirmed}/{guestStats.total}
               </div>
-              <p className="text-xs text-muted-foreground">{guestStats.pending} pending responses</p>
+              <p className="text-xs text-gray-500">Konfirmuar: {guestStats.confirmed}</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tasks</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-gray-600">Detyrat</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
                 {taskStats.completed}/{taskStats.total}
               </div>
-              <p className="text-xs text-muted-foreground">
-                {taskStats.overdue > 0 && <span className="text-destructive">{taskStats.overdue} overdue</span>}
-                {taskStats.overdue === 0 && "All on track"}
-              </p>
+              <Progress 
+                value={taskStats.total > 0 ? (taskStats.completed / taskStats.total) * 100 : 0} 
+                className="h-2"
+              />
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Vendors</CardTitle>
-              <Heart className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-gray-600">Contracts</CardTitle>
+              <Utensils className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
                 {vendorStats.booked}/{vendorStats.total}
               </div>
-              <p className="text-xs text-muted-foreground">vendors booked</p>
+              <p className="text-xs text-gray-500">Të rezervuar: {vendorStats.booked}</p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Budget</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-gray-600">Buxheti</CardTitle>
+              <DollarSign className="h-4 w-4 text-amber-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${totalSpent.toLocaleString()}</div>
-              <Progress value={budgetProgress} className="mt-2" />
-              <p className="text-xs text-muted-foreground mt-1">
-                of ${currentWedding.budget_total?.toLocaleString() || 0} budget
-              </p>
+              <div className="text-xl font-bold text-gray-900 mb-1">
+                {new Intl.NumberFormat('sq-AL', { style: 'currency', currency: 'EUR' }).format(totalSpent)}
+              </div>
+              <Progress 
+                value={budgetProgress > 100 ? 100 : budgetProgress} 
+                className="h-2"
+              />
             </CardContent>
           </Card>
         </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <Link href="/dashboard/guests">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Manage Guests
-                  <ArrowRight className="h-4 w-4" />
-                </CardTitle>
-                <CardDescription>Add guests, track RSVPs, and manage seating</CardDescription>
-              </CardHeader>
-            </Link>
-          </Card>
+        {/* Enhanced Quick Actions - Wedding Themed */}
+        <div className="space-y-6 mb-10">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              Menaxhoni Dasmën Tuaj
+            </h2>
+            <p className="text-gray-600 text-lg">Gjithçka që ju nevojitet për dasmën e përkryer</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Priority Actions */}
+            <Card className="rounded-2xl border-0 shadow-xl bg-gradient-to-br from-white/90 to-blue-50/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer group">
+              <Link href="/dashboard/guests">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Users className="h-6 w-6 text-white" />
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-gray-800">Lista e Mysafirëve</CardTitle>
+                  <CardDescription className="text-gray-600">Menaxhoni të ftuarit dhe përgjigjet e tyre</CardDescription>
+                </CardHeader>
+              </Link>
+            </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <Link href="/dashboard/tasks">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Task Board
-                  <ArrowRight className="h-4 w-4" />
-                </CardTitle>
-                <CardDescription>Track your wedding planning progress</CardDescription>
-              </CardHeader>
-            </Link>
-          </Card>
+            <Card className="rounded-2xl border-0 shadow-xl bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer group">
+              <Link href="/dashboard/invitations">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Calendar className="h-6 w-6 text-white" />
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-slate-500 group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-gray-800">Ftesat</CardTitle>
+                  <CardDescription className="text-gray-600">Dërgoni ftesa dhe ndiqni përgjigjet</CardDescription>
+                </CardHeader>
+              </Link>
+            </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <Link href="/dashboard/budget">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Budget Tracker
-                  <ArrowRight className="h-4 w-4" />
-                </CardTitle>
-                <CardDescription>Monitor expenses and stay on budget</CardDescription>
-              </CardHeader>
-            </Link>
-          </Card>
+            <Card className="rounded-2xl border-0 shadow-xl bg-gradient-to-br from-white/90 to-stone-50/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer group">
+              <Link href="/dashboard/budget">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 bg-gradient-to-r from-stone-600 to-slate-700 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <DollarSign className="h-6 w-6 text-white" />
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-stone-500 group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-gray-800">Buxheti</CardTitle>
+                  <CardDescription className="text-gray-600">Kontrolloni shpenzimet dhe planifikoni buxhetin</CardDescription>
+                </CardHeader>
+              </Link>
+            </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <Link href="/dashboard/vendors">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Vendors
-                  <ArrowRight className="h-4 w-4" />
-                </CardTitle>
-                <CardDescription>Manage your wedding service providers</CardDescription>
-              </CardHeader>
-            </Link>
-          </Card>
+            <Card className="rounded-2xl border-0 shadow-xl bg-gradient-to-br from-white/90 to-gray-50/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer group">
+              <Link href="/dashboard/vendors">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 bg-gradient-to-r from-gray-600 to-slate-700 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Utensils className="h-6 w-6 text-white" />
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-gray-500 group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-gray-800">Contracts</CardTitle>
+                  <CardDescription className="text-gray-600">Rezervoni dhe menaxhoni kontratat</CardDescription>
+                </CardHeader>
+              </Link>
+            </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <Link href="/dashboard/seating">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Seating Chart
-                  <ArrowRight className="h-4 w-4" />
-                </CardTitle>
-                <CardDescription>Design your reception seating arrangement</CardDescription>
-              </CardHeader>
-            </Link>
-          </Card>
+            <Card className="rounded-2xl border-0 shadow-xl bg-gradient-to-br from-white/90 to-slate-50/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer group">
+              <Link href="/dashboard/seating">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <MapPin className="h-6 w-6 text-white" />
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-slate-500 group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-gray-800">Plani i Uljeve</CardTitle>
+                  <CardDescription className="text-gray-600">Organizoni vendet për mysafirët</CardDescription>
+                </CardHeader>
+              </Link>
+            </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <Link href="/dashboard/invitations">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Invitations
-                  <ArrowRight className="h-4 w-4" />
-                </CardTitle>
-                <CardDescription>Send invites and track responses</CardDescription>
-              </CardHeader>
-            </Link>
-          </Card>
+            <Card className="rounded-2xl border-0 shadow-xl bg-gradient-to-br from-white/90 to-stone-50/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer group">
+              <Link href="/dashboard/tasks">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-12 h-12 bg-gradient-to-r from-stone-600 to-slate-700 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <CheckCircle className="h-6 w-6 text-white" />
+                    </div>
+                    <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-stone-500 group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <CardTitle className="text-xl font-bold text-gray-800">Lista e Punëve</CardTitle>
+                  <CardDescription className="text-gray-600">Ndiqni përparimin e detyrave tuaja</CardDescription>
+                </CardHeader>
+              </Link>
+            </Card>
+          </div>
         </div>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Latest updates on your wedding planning</CardDescription>
+        {/* Enhanced Recent Activity */}
+        <Card className="rounded-2xl border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-slate-100/50 to-gray-100/50 rounded-t-2xl">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center">
+                <Clock className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-bold text-gray-800">Gjendja Aktuale</CardTitle>
+                <CardDescription className="text-gray-600 text-lg">
+                  {taskStats.completed} nga {taskStats.total} detyra të përfunduara
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <div className="space-y-4">
               {taskStats.overdue > 0 && (
-                <div className="flex items-center gap-3 p-3 bg-destructive/10 rounded-lg">
-                  <AlertCircle className="h-5 w-5 text-destructive" />
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-red-50 to-rose-50 rounded-xl border border-red-200/50">
+                  <div className="w-12 h-12 bg-gradient-to-r from-red-400 to-rose-400 rounded-full flex items-center justify-center">
+                    <AlertCircle className="h-6 w-6 text-white" />
+                  </div>
                   <div>
-                    <p className="font-medium text-destructive">Overdue Tasks</p>
-                    <p className="text-sm text-muted-foreground">
-                      You have {taskStats.overdue} overdue task{taskStats.overdue > 1 ? "s" : ""}
+                    <p className="font-bold text-red-700 text-lg">Detyra të Vonuara</p>
+                    <p className="text-red-600">
+                      Keni {taskStats.overdue} detyrë{taskStats.overdue > 1 ? " të vonuara" : " të vonuar"} që duhen përfunduar
                     </p>
                   </div>
                 </div>
               )}
 
               {guestStats.pending > 0 && (
-                <div className="flex items-center gap-3 p-3 bg-accent/10 rounded-lg">
-                  <Clock className="h-5 w-5 text-accent" />
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl border border-amber-200/50">
+                  <div className="w-12 h-12 bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-white" />
+                  </div>
                   <div>
-                    <p className="font-medium">Pending RSVPs</p>
-                    <p className="text-sm text-muted-foreground">
-                      {guestStats.pending} guest{guestStats.pending > 1 ? "s" : ""} haven't responded yet
+                    <p className="font-bold text-amber-700 text-lg">Në Pritje të Përgjigjes</p>
+                    <p className="text-amber-600">
+                      {guestStats.pending} mysafir{guestStats.pending > 1 ? "ë" : ""} ende nuk kanë dhënë përgjigje për ftesën
                     </p>
                   </div>
                 </div>
               )}
 
               {taskStats.overdue === 0 && guestStats.pending === 0 && (
-                <div className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg">
-                  <CheckCircle className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-200/50">
+                  <div className="w-12 h-12 bg-gradient-to-r from-emerald-400 to-green-400 rounded-full flex items-center justify-center">
+                    <CheckCircle className="h-6 w-6 text-white" />
+                  </div>
                   <div>
-                    <p className="font-medium">All Caught Up!</p>
-                    <p className="text-sm text-muted-foreground">No overdue tasks or pending items. Great job!</p>
+                    <p className="font-bold text-emerald-700 text-lg">Gjithçka në Rregull!</p>
+                    <p className="text-emerald-600">
+                      Nuk ka detyra të vonuara apo përgjigje të papërgjigjura. Vazhdoni punën e shkëlqyer!
+                    </p>
                   </div>
                 </div>
               )}
+
             </div>
           </CardContent>
         </Card>

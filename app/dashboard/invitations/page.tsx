@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { buildInvitationUrl } from "@/lib/utils"
-import { Send, Plus } from "lucide-react"
+import { Send, Plus, Heart, Sparkles, Mail, Users, CheckCircle } from "lucide-react"
 import { CopyButton } from "@/components/copy-button"
+import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
 import { revalidatePath } from "next/cache"
 
 export default async function InvitationsPage() {
@@ -125,73 +126,153 @@ export default async function InvitationsPage() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Invitations</h1>
-          <p className="text-muted-foreground">Generate and send RSVP links to your guests</p>
-        </div>
-        <form action={createMissingInvitations}>
-          <Button type="submit">
-            <Plus className="h-4 w-4 mr-2" />
-            Generate invitations for all guests
-          </Button>
-        </form>
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-rose-200/30 to-pink-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-amber-200/30 to-rose-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-pink-200/20 to-amber-200/20 rounded-full blur-3xl"></div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Invitation Links</CardTitle>
-          <CardDescription>Copy links or send via WhatsApp</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {(invitations || []).length === 0 ? (
-            <div className="text-sm text-muted-foreground">No invitations yet. Click the button above to create them.</div>
-          ) : (
-            <div className="space-y-3">
-              {(invitations || []).map((inv: any) => {
-                const url = buildInvitationUrl(inv.unique_token)
-                const isGroup = !!inv.group_id
-                let name = "Guest"
-                
-                if (isGroup && inv.group?.name) {
-                  name = `${inv.group.name} (Group)`
-                } else if (isGroup) {
-                  // If it's a group without a name, show the primary guest's name + "& Party"
-                  name = inv.guest?.first_name && inv.guest?.last_name 
-                    ? `${inv.guest.first_name} ${inv.guest.last_name} & Party` 
-                    : "Group Invitation"
-                } else {
-                  // Regular individual guest
-                  name = inv.guest?.first_name && inv.guest?.last_name 
-                    ? `${inv.guest.first_name} ${inv.guest.last_name}` 
-                    : "Guest"
-                }
-                
-                const phone = inv.guest?.phone
-                return (
-                  <div key={inv.id} className="flex items-center justify-between gap-3 border rounded-md p-3">
-                    <div className="min-w-0">
-                      <div className="font-medium truncate">{name}</div>
-                      <div className="text-xs text-muted-foreground truncate">{url}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CopyButton text={url} />
-                      {phone ? (
-                        <Button asChild variant="default">
-                          <Link href={`/dashboard/invitations/send/${inv.id}`}> 
-                            <Send className="h-4 w-4 mr-2" /> Send
-                          </Link>
-                        </Button>
-                      ) : null}
-                    </div>
-                  </div>
-                )
-              })}
+      <div className="container mx-auto px-6 py-8 relative z-10">
+        {/* Enhanced Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full flex items-center justify-center shadow-lg">
+                <Mail className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-amber-600 bg-clip-text text-transparent">
+                Ftesat e Dasmës
+              </h1>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <div className="bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg">
+              <p className="text-gray-700 font-medium text-lg">
+                Krijoni dhe dërgoni lidhjet RSVP për mysafirët tuaj
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 md:mt-0">
+            <form action={createMissingInvitations}>
+              <Button type="submit" size="lg" className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
+                <Plus className="h-5 w-5 mr-2" />
+                Krijo Ftesa për të Gjithë
+              </Button>
+            </form>
+          </div>
+        </div>
+
+        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-pink-100 via-rose-50 to-amber-100 py-8">
+            <div className="flex items-center gap-3">
+              <Mail className="h-8 w-8 text-pink-600" />
+              <div>
+                <CardTitle className="text-2xl font-bold text-gray-800">Lidhjet e Ftesave</CardTitle>
+                <CardDescription className="text-gray-600 text-lg mt-1">
+                  Kopjoni lidhjet ose dërgoni përmes WhatsApp
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6 p-8">
+            {(invitations || []).length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-20 h-20 bg-gradient-to-r from-pink-100 to-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Mail className="h-10 w-10 text-pink-500" />
+                </div>
+                <p className="text-lg text-gray-600 font-medium">
+                  Asnjë ftesë ende. Klikoni butonin më sipër për t'i krijuar ato.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {(invitations || []).map((inv: any) => {
+                  const url = buildInvitationUrl(inv.unique_token)
+                  const isGroup = !!inv.group_id
+                  let name = "Guest"
+                  
+                  if (isGroup && inv.group?.name) {
+                    name = `${inv.group.name} (Grup)`
+                  } else if (isGroup) {
+                    // If it's a group without a name, show the primary guest's name + "& Party"
+                    name = inv.guest?.first_name && inv.guest?.last_name 
+                      ? `${inv.guest.first_name} ${inv.guest.last_name} & Shoqëria` 
+                      : "Ftesë Grupi"
+                  } else {
+                    // Regular individual guest
+                    name = inv.guest?.first_name && inv.guest?.last_name 
+                      ? `${inv.guest.first_name} ${inv.guest.last_name}` 
+                      : "Mysafir"
+                  }
+                  
+                  const phone = inv.guest?.phone
+                  return (
+                    <div key={inv.id} className="flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          {isGroup ? (
+                            <Users className="h-4 w-4 text-purple-500" />
+                          ) : (
+                            <div className="w-4 h-4 bg-pink-400 rounded-full"></div>
+                          )}
+                          <div className="font-semibold text-gray-800">{name}</div>
+                          <div className="flex items-center gap-2">
+                            {inv.sent_at ? (
+                              <div className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
+                                <CheckCircle className="h-3 w-3" />
+                                Dërguar
+                              </div>
+                            ) : (
+                              <div className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">
+                                Pa dërguar
+                              </div>
+                            )}
+                            {inv.responded_at && (
+                              <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+                                Përgjigjur
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded font-mono truncate">
+                          {url}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CopyButton text={url} />
+                        {phone ? (
+                          <WhatsAppSendButton 
+                            invitationId={inv.id}
+                            guestName={name}
+                            phone={phone}
+                            isSent={!!inv.sent_at}
+                          />
+                        ) : null}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Footer */}
+        {(invitations || []).length > 0 && (
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg text-center mt-8">
+            <div className="flex items-center justify-center gap-2">
+              <Mail className="h-5 w-5 text-pink-500" />
+              <span className="text-gray-700 font-medium">
+                Gjithsej <span className="font-bold text-pink-600">{(invitations || []).length}</span> ftesa të krijuara
+              </span>
+              <Heart className="h-4 w-4 text-rose-400" fill="currentColor" />
+            </div>
+            <p className="text-sm text-gray-600 mt-2">
+              💕 Çdo ftesë është e krijuar me dashuri për ditën tuaj të veçantë
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

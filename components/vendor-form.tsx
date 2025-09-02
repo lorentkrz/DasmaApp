@@ -16,6 +16,7 @@ import Link from "next/link"
 interface VendorFormProps {
   wedding: any
   vendor?: any
+  onSuccess?: () => void
 }
 
 // Match DB enum values (see scripts/007_create_vendors.sql)
@@ -35,7 +36,7 @@ const VENDOR_CATEGORY_VALUES = [
 
 const VENDOR_STATUS_VALUES = ["considering", "contacted", "booked", "cancelled"] as const
 
-export function VendorForm({ wedding, vendor }: VendorFormProps) {
+export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
   const router = useRouter()
   const supabase = createBrowserClient()
   const [loading, setLoading] = useState(false)
@@ -96,7 +97,11 @@ export function VendorForm({ wedding, vendor }: VendorFormProps) {
         if (error) throw error
       }
 
-      router.push("/dashboard/vendors")
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        router.push("/dashboard/vendors")
+      }
       router.refresh()
     } catch (error) {
       console.error("Error saving vendor:", error)

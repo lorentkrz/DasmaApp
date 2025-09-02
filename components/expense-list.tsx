@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Filter, Edit, Trash2, Receipt } from "lucide-react"
+import { Search, Filter, Edit, Trash2, Receipt, DollarSign } from "lucide-react"
 import Link from "next/link"
 
 interface ExpenseListProps {
@@ -33,112 +33,152 @@ export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) 
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
-      Venue: "bg-amber-100 text-amber-800",
-      Catering: "bg-rose-100 text-rose-800",
-      Photography: "bg-purple-100 text-purple-800",
-      Flowers: "bg-pink-100 text-pink-800",
-      "Music/DJ": "bg-blue-100 text-blue-800",
-      Attire: "bg-green-100 text-green-800",
-      Transportation: "bg-orange-100 text-orange-800",
-      Decorations: "bg-teal-100 text-teal-800",
-      Miscellaneous: "bg-gray-100 text-gray-800",
+      Venue: "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300 shadow-sm",
+      Catering: "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-300 shadow-sm",
+      Photography: "bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 border-purple-300 shadow-sm",
+      Flowers: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300 shadow-sm",
+      "Music/DJ": "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-300 shadow-sm",
+      Attire: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300 shadow-sm",
+      Transportation: "bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border-orange-300 shadow-sm",
+      Decorations: "bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-800 border-teal-300 shadow-sm",
+      Miscellaneous: "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300 shadow-sm",
     }
-    return colors[category] || "bg-gray-100 text-gray-800"
+    return colors[category] || "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300 shadow-sm"
   }
 
   return (
-    <Card className="border-slate-200">
-      <CardHeader>
-        <CardTitle className="text-slate-900">Recent Expenses</CardTitle>
+    <Card className="rounded-2xl border-0 shadow-xl bg-white/90 backdrop-blur-sm">
+      <CardHeader className="bg-gradient-to-r from-emerald-100/50 to-green-100/50 rounded-t-2xl">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-emerald-400 to-green-400 rounded-full flex items-center justify-center">
+            <Receipt className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <CardTitle className="text-2xl font-bold text-gray-800">Shpenzimet e Fundit</CardTitle>
+            <p className="text-gray-600">Gjurmoni të gjitha shpenzimet për dasmën tuaj</p>
+          </div>
+        </div>
 
-        {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        {/* Enhanced Search and Filter */}
+        <div className="flex flex-col sm:flex-row gap-4 mt-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
             <Input
-              placeholder="Search expenses..."
+              placeholder="Kërko shpenzime sipas përshkrimit apo shitësit..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-12 h-12 rounded-xl border-slate-200 bg-white/80 backdrop-blur-sm focus:border-slate-300 focus:ring-slate-200 shadow-lg"
             />
           </div>
-          <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-gray-400" />
+          <div className="flex items-center space-x-3">
+            <Filter className="h-5 w-5 text-slate-400" />
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500"
+              className="px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 bg-white/80 backdrop-blur-sm shadow-lg font-medium"
             >
               {categoryNames.map((name) => (
                 <option key={name} value={name}>
-                  {name === "all" ? "All Categories" : name}
+                  {name === "all" ? "Të gjitha kategoritë" : name}
                 </option>
               ))}
             </select>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         {filteredExpenses.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <Receipt className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>No expenses found</p>
-            <p className="text-sm">Add your first expense to start tracking your budget</p>
+          <div className="text-center py-12">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-16 h-16 bg-gradient-to-r from-emerald-100 to-green-100 rounded-full flex items-center justify-center">
+                <Receipt className="h-8 w-8 text-emerald-400" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-lg font-medium text-gray-700">
+                  Nuk u gjetën shpenzime
+                </p>
+                <p className="text-gray-500">
+                  Nuk ka shpenzime të regjistruara endetë filluar gjurmimin e buxhetit
+                </p>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredExpenses.map((expense) => (
               <div
                 key={expense.id}
-                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                className="flex items-center justify-between p-6 border border-slate-100/50 rounded-2xl hover:bg-slate-50/30 transition-all shadow-lg bg-white/50 backdrop-blur-sm"
               >
                 <div className="flex-1">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-4">
                     <div>
-                      <h3 className="font-medium text-gray-900">{expense.description}</h3>
-                      <div className="flex items-center space-x-2 mt-1">
+                      <h3 className="font-bold text-gray-900 text-lg">{expense.description}</h3>
+                      <div className="flex items-center space-x-3 mt-2">
                         {expense.category_id && (
-                          <Badge className={getCategoryColor(categoryMap.get(expense.category_id)?.name || "Miscellaneous")}>
-                            {categoryMap.get(expense.category_id)?.name || "Uncategorized"}
+                          <Badge variant="outline" className={`${getCategoryColor(categoryMap.get(expense.category_id)?.name || "Miscellaneous")} font-medium`}>
+                            {categoryMap.get(expense.category_id)?.name || "Pa kategori"}
                           </Badge>
                         )}
-                        {expense.vendor && <span className="text-sm text-gray-500">• {expense.vendor}</span>}
-                        <span className="text-sm text-gray-500">
-                          • {new Date(expense.expense_date).toLocaleDateString()}
+                        {expense.vendor && (
+                          <span className="text-sm text-gray-600 bg-blue-50 px-3 py-1 rounded-lg">
+                            {expense.description}
+                          </span>
+                        )}
+                        <span className="text-sm text-gray-600 bg-amber-50 px-3 py-1 rounded-lg">
+                          {new Date(expense.date).toLocaleDateString('sq-AL')}
                         </span>
                       </div>
                     </div>
                   </div>
-                  {expense.notes && <p className="text-sm text-gray-600 mt-2">{expense.notes}</p>}
+                  {expense.notes && (
+                    <p className="text-sm text-gray-600 mt-3 bg-gray-50 px-3 py-2 rounded-lg">
+                      {expense.notes}
+                    </p>
+                  )}
                 </div>
 
-                <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <div className="text-lg font-semibold text-gray-900">${Number(expense.amount).toLocaleString()}</div>
-                    <div className={`text-sm ${expense.payment_status === "paid" ? "text-green-600" : "text-orange-600"}`}>
-                      {expense.payment_status === "paid" ? "Paid" : "Pending"}
+                <div className="flex items-center space-x-6">
+                  <div className="text-center">
+                    <div className="text-2xl mb-2"><DollarSign className="h-8 w-8 mx-auto text-slate-600" /></div> 
+                    <div className="text-2xl font-bold text-gray-900">${Number(expense.amount).toLocaleString()}</div>
+                    <div className={`text-sm font-medium px-3 py-1 rounded-lg ${expense.payment_status === "paid" ? "text-emerald-700 bg-emerald-50" : "text-amber-700 bg-amber-50"}`}>
+                      {expense.payment_status === "paid" ? "Paguar" : "Në pritje"}
                     </div>
                   </div>
 
                   <div className="flex items-center space-x-2">
                     {onEdit ? (
-                      <Button variant="outline" size="sm" onClick={() => onEdit(expense)}>
-                        <Edit className="h-4 w-4" />
+                      <Button variant="outline" size="sm" onClick={() => onEdit(expense)} className="rounded-xl hover:bg-blue-50 border-blue-200">
+                        <Edit className="h-4 w-4 text-blue-500" />
                       </Button>
                     ) : (
                       <Link href={`/dashboard/budget/${expense.id}/edit`}>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4" />
+                        <Button variant="outline" size="sm" className="rounded-xl hover:bg-blue-50 border-blue-200">
+                          <Edit className="h-4 w-4 text-blue-500" />
                         </Button>
                       </Link>
                     )}
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 bg-transparent">
+                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-xl">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        
+        {/* Enhanced Footer */}
+        {filteredExpenses.length > 0 && (
+          <div className="mt-8 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <DollarSign className="h-5 w-5 text-emerald-500" />
+              <span className="text-gray-700 font-medium">
+                Duke shfaqur <span className="font-bold text-emerald-600">{filteredExpenses.length}</span> nga <span className="font-bold text-gray-800">{expenses.length}</span> shpenzime
+              </span>
+              <DollarSign className="h-4 w-4 text-slate-400" />
+            </div>
           </div>
         )}
       </CardContent>

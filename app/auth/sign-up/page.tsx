@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Heart } from "lucide-react"
+import { Heart, Sparkles, Lock, Mail, User } from "lucide-react"
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -29,13 +29,13 @@ export default function SignUpPage() {
     setError(null)
 
     if (password !== repeatPassword) {
-      setError("Passwords do not match")
+      setError("Fjalëkalimet nuk përputhen")
       setIsLoading(false)
       return
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long")
+      setError("Fjalëkalimi duhet të jetë së paku 6 karaktere")
       setIsLoading(false)
       return
     }
@@ -45,7 +45,6 @@ export default function SignUpPage() {
         email,
         password,
         options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
           data: {
             first_name: firstName,
             last_name: lastName,
@@ -62,108 +61,156 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-accent/5 p-6">
-      <div className="w-full max-w-md">
-        <div className="flex flex-col gap-6">
-          {/* Logo */}
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Heart className="h-8 w-8 text-primary" />
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-32 h-32 bg-rose-200/20 rounded-full blur-2xl animate-pulse"></div>
+        <div className="absolute top-40 right-16 w-24 h-24 bg-amber-200/30 rounded-full blur-xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-32 left-1/4 w-28 h-28 bg-pink-200/25 rounded-full blur-xl animate-pulse delay-2000"></div>
+        <div className="absolute bottom-20 right-1/3 w-20 h-20 bg-rose-300/30 rounded-full blur-lg animate-pulse delay-500"></div>
+      </div>
+      
+      <div className="relative flex items-center justify-center p-6 min-h-screen">
+        <div className="w-full max-w-lg">
+          <div className="flex flex-col gap-8">
+            {/* Enhanced Logo Section */}
+            <div className="text-center space-y-4">
+              <div className="flex justify-center items-center mb-4">
+                <div className="relative">
+                  <div className="w-20 h-20 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full flex items-center justify-center shadow-xl">
+                    <Heart className="h-10 w-10 text-white animate-pulse" fill="currentColor" />
+                  </div>
+                  <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-amber-400 animate-bounce" />
+                </div>
               </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 bg-clip-text text-transparent">
+                Planifikuesi i Dasmave
+              </h1>
+              <p className="text-gray-600 text-lg">Filloni udhëtimin tuaj drejt dasmës së ëndrrave</p>
             </div>
-            <h1 className="text-2xl font-bold text-primary">Wedding ERP</h1>
-            <p className="text-muted-foreground">Plan your perfect day</p>
-          </div>
 
-          <Card className="border-primary/20">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Create Account</CardTitle>
-              <CardDescription>Start planning your dream wedding today</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSignUp}>
-                <div className="flex flex-col gap-4">
+            <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden backdrop-blur-sm bg-white/95">
+              <CardHeader className="bg-gradient-to-r from-rose-100/50 to-pink-100/50 py-8 text-center">
+                <CardTitle className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                  <Sparkles className="h-6 w-6 text-amber-500" />
+                  Krijoni Llogarinë Tuaj
+                  <Sparkles className="h-6 w-6 text-amber-500" />
+                </CardTitle>
+                <CardDescription className="text-gray-600 text-lg">
+                  Bashkohuni me ne për të planifikuar dasmën e përkryer
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-8">
+                <form onSubmit={handleSignUp} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="firstName">First Name</Label>
+                    <div className="space-y-3">
+                      <Label htmlFor="first-name" className="text-gray-700 font-semibold flex items-center gap-2">
+                        <User className="h-4 w-4 text-rose-500" />
+                        Emri
+                      </Label>
                       <Input
-                        id="firstName"
-                        type="text"
-                        placeholder="Jane"
-                        required
+                        id="first-name"
+                        placeholder="Emri juaj"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className="border-primary/20 focus:border-primary"
+                        required
+                        className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
                       />
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="lastName">Last Name</Label>
+                    <div className="space-y-3">
+                      <Label htmlFor="last-name" className="text-gray-700 font-semibold flex items-center gap-2">
+                        <User className="h-4 w-4 text-rose-500" />
+                        Mbiemri
+                      </Label>
                       <Input
-                        id="lastName"
-                        type="text"
-                        placeholder="Doe"
-                        required
+                        id="last-name"
+                        placeholder="Mbiemri juaj"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="border-primary/20 focus:border-primary"
+                        required
+                        className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
                       />
                     </div>
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="email" className="text-gray-700 font-semibold flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-rose-500" />
+                      Adresa e Email-it
+                    </Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="bride@example.com"
-                      required
+                      placeholder="shembull@email.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="border-primary/20 focus:border-primary"
+                      required
+                      className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
                     />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="password" className="text-gray-700 font-semibold flex items-center gap-2">
+                      <Lock className="h-4 w-4 text-rose-500" />
+                      Fjalëkalimi
+                    </Label>
                     <Input
                       id="password"
                       type="password"
-                      placeholder="At least 6 characters"
-                      required
+                      placeholder="Së paku 6 karaktere"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="border-primary/20 focus:border-primary"
+                      required
+                      className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
                     />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="repeat-password">Confirm Password</Label>
+                  <div className="space-y-3">
+                    <Label htmlFor="repeat-password" className="text-gray-700 font-semibold flex items-center gap-2">
+                      <Lock className="h-4 w-4 text-rose-500" />
+                      Konfirmoni Fjalëkalimin
+                    </Label>
                     <Input
                       id="repeat-password"
                       type="password"
-                      placeholder="Repeat your password"
-                      required
+                      placeholder="Përsëritni fjalëkalimin"
                       value={repeatPassword}
                       onChange={(e) => setRepeatPassword(e.target.value)}
-                      className="border-primary/20 focus:border-primary"
+                      required
+                      className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
                     />
                   </div>
                   {error && (
-                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                      <p className="text-sm text-destructive">{error}</p>
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                      <p className="text-sm text-red-700 font-medium">{error}</p>
                     </div>
                   )}
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Creating account..." : "Create Account"}
+                  <Button 
+                    type="submit" 
+                    className="w-full rounded-2xl font-bold py-4 text-lg bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-xl transform hover:scale-105 transition-all duration-300" 
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Po krijohet llogaria...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5" />
+                        Filloni Udhëtimin Tuaj
+                      </div>
+                    )}
                   </Button>
+                </form>
+                <div className="mt-6 text-center">
+                  <p className="text-gray-600">
+                    Keni tashmë një llogari?{' '}
+                    <Link href="/auth/login" className="text-rose-600 hover:text-rose-700 font-semibold hover:underline">
+                      Hyni në llogarinë tuaj
+                    </Link>
+                  </p>
                 </div>
-                <div className="mt-6 text-center text-sm">
-                  Already have an account?{" "}
-                  <Link href="/auth/login" className="text-primary hover:text-primary/80 underline underline-offset-4">
-                    Sign in
-                  </Link>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

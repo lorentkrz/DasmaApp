@@ -15,7 +15,7 @@ export default function SignUpSuccessPage() {
                 <Heart className="h-8 w-8 text-primary" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-primary">Wedding ERP</h1>
+            <h1 className="text-2xl font-bold text-primary">Planifikuesi i Dasmave</h1>
           </div>
 
           <Card className="border-primary/20">
@@ -25,18 +25,18 @@ export default function SignUpSuccessPage() {
                   <Mail className="h-8 w-8 text-accent" />
                 </div>
               </div>
-              <CardTitle className="text-2xl">Check Your Email</CardTitle>
-              <CardDescription>We've sent you a confirmation link to complete your registration</CardDescription>
+              <CardTitle className="text-2xl">Kontrolloni Email-in tuaj</CardTitle>
+              <CardDescription>Ju kemi dërguar një lidhje konfirmimi për të përfunduar regjistrimin</CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Please check your email and click the confirmation link to activate your account. Once confirmed, you
-                  can start planning your perfect wedding!
+                  Ju lutemi kontrolloni email-in tuaj dhe klikoni në lidhjen e konfirmimit për të aktivizuar llogarinë tuaj. Pasi të konfirmoni, 
+                  mund të filloni të planifikoni dasmën tuaj të përsosur!
                 </p>
                 <div className="pt-4">
                   <Button asChild variant="outline" className="w-full bg-transparent">
-                    <Link href="/auth/login">Back to Sign In</Link>
+                    <Link href="/auth/login">Kthehu te Hyrja</Link>
                   </Button>
                 </div>
               </div>

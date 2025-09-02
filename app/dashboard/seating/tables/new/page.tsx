@@ -95,20 +95,20 @@ export default function NewTablePage() {
               <Plus className="h-8 w-8 text-primary" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold mb-2">Add New Table</h1>
-          <p className="text-muted-foreground">Create a new table for your reception seating</p>
+          <h1 className="text-3xl font-bold mb-2 text-slate-800">Shto Tavolinë të Re</h1>
+          <p className="text-gray-600">Krijoni një tavolinë të re për uljet në pritje</p>
         </div>
 
         <Card className="border-primary/20">
           <CardHeader>
-            <CardTitle>Table Details</CardTitle>
-            <CardDescription>Configure your new reception table</CardDescription>
+            <CardTitle>Detajet e Tavolinës</CardTitle>
+            <CardDescription>Konfiguroni tavolinën tuaj të re për pritje</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="tableNumber">Table Number *</Label>
+                  <Label htmlFor="tableNumber">Numri i Tavolinës *</Label>
                   <Input
                     id="tableNumber"
                     type="number"
@@ -116,25 +116,25 @@ export default function NewTablePage() {
                     required
                     value={formData.tableNumber}
                     onChange={(e) => handleInputChange("tableNumber", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tableName">Table Name</Label>
+                  <Label htmlFor="tableName">Emri i Tavolinës</Label>
                   <Input
                     id="tableName"
                     type="text"
-                    placeholder="e.g., Family Table"
+                    placeholder="p.sh., Tavolina e Familjes"
                     value={formData.tableName}
                     onChange={(e) => handleInputChange("tableName", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="capacity">Capacity *</Label>
+                  <Label htmlFor="capacity">Kapaciteti *</Label>
                   <Input
                     id="capacity"
                     type="number"
@@ -143,29 +143,29 @@ export default function NewTablePage() {
                     required
                     value={formData.capacity}
                     onChange={(e) => handleInputChange("capacity", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tableType">Table Type *</Label>
+                  <Label htmlFor="tableType">Lloji i Tavolinës *</Label>
                   <Select value={formData.tableType} onValueChange={(value) => handleInputChange("tableType", value)}>
-                    <SelectTrigger className="border-primary/20 focus:border-primary">
+                    <SelectTrigger className="border-slate-200 focus:border-slate-400 rounded-xl">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="round">Round</SelectItem>
-                      <SelectItem value="rectangular">Rectangular</SelectItem>
-                      <SelectItem value="square">Square</SelectItem>
+                      <SelectItem value="round">Rrethore</SelectItem>
+                      <SelectItem value="rectangular">Drejtkëndore</SelectItem>
+                      <SelectItem value="square">Katror</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
+                <Label htmlFor="notes">Shënime</Label>
                 <Textarea
                   id="notes"
-                  placeholder="Any special notes about this table"
+                  placeholder="Shënime të veçanta për këtë tavolinë"
                   value={formData.notes}
                   onChange={(e) => handleInputChange("notes", e.target.value)}
                   className="border-primary/20 focus:border-primary"
@@ -180,10 +180,10 @@ export default function NewTablePage() {
 
               <div className="flex gap-4">
                 <Button type="submit" disabled={isLoading} className="flex-1">
-                  {isLoading ? "Creating..." : "Create Table"}
+                  {isLoading ? "Duke krijuar..." : "Krijo Tavolinë"}
                 </Button>
                 <Button type="button" variant="outline" asChild>
-                  <Link href="/dashboard/seating/tables">Cancel</Link>
+                  <Link href="/dashboard/seating/tables">Anulo</Link>
                 </Button>
               </div>
             </form>

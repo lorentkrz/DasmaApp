@@ -11,18 +11,19 @@ export default async function DashboardLayout({
 }) {
   const supabase = await createClient()
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
+  const { data: { user }, error } = await supabase.auth.getUser()
   if (error || !user) {
     redirect("/auth/login")
   }
 
-  // Fetch user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Merr profilin e përdoruesit
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single()
 
-  // Fetch user's weddings for navigation
+  // Merr dasmat e përdoruesit për navigim
   const { data: weddings } = await supabase
     .from("weddings")
     .select("id, bride_name, groom_name, wedding_date")

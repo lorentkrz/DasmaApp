@@ -69,13 +69,13 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
             <DropdownMenuItem asChild>
               <button className="w-full flex items-center">
                 <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>Profili</span>
               </button>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <button className="w-full flex items-center">
                 <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+                <span>Cilësimet</span>
               </button>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -85,7 +85,7 @@ export function DashboardHeader({ user, profile }: DashboardHeaderProps) {
                 onClick={handleSignOut}
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Sign out</span>
+                <span>Dilni</span>
               </button>
             </DropdownMenuItem>
           </DropdownMenuContent>

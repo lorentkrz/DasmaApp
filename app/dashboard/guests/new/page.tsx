@@ -149,7 +149,14 @@ export default function NewGuestPage() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-slate-200/20 to-gray-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-stone-200/20 to-slate-200/20 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div className="container mx-auto px-6 py-8 relative z-10">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -163,42 +170,49 @@ export default function NewGuestPage() {
 
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <UserPlus className="h-8 w-8 text-primary" />
+            <div className="w-16 h-16 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center shadow-lg">
+              <UserPlus className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold mb-2">Add New Guest</h1>
-          <p className="text-muted-foreground">Add a guest to your wedding list</p>
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-slate-700 to-gray-800 bg-clip-text text-transparent">Shto Mysafir të Ri</h1>
+          <p className="text-gray-600 text-lg">Shtoni një mysafir në listën tuaj të dasmës</p>
         </div>
 
-        <Card className="border-primary/20">
-          <CardHeader>
-            <CardTitle>Guest Information</CardTitle>
-            <CardDescription>Fill in the guest details</CardDescription>
+        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-slate-100 via-gray-50 to-stone-100 py-8">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center">
+                <UserPlus className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-bold text-gray-800">Informacionet e Mysafirit</CardTitle>
+                <CardDescription className="text-gray-600">Plotësoni detajet e mysafirit të ri</CardDescription>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName">Emri *</Label>
                   <Input
                     id="firstName"
                     type="text"
                     required
                     value={formData.firstName}
                     onChange={(e) => handleInputChange("firstName", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName">Mbiemri *</Label>
                   <Input
                     id="lastName"
                     type="text"
                     required
                     value={formData.lastName}
                     onChange={(e) => handleInputChange("lastName", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
               </div>
@@ -211,26 +225,26 @@ export default function NewGuestPage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="phone">Telefoni</Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
-                    className="border-primary/20 focus:border-primary"
+                    className="border-slate-200 focus:border-slate-400 rounded-xl"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
+                <Label htmlFor="address">Adresa</Label>
                 <Textarea
                   id="address"
-                  placeholder="Full address"
+                  placeholder="Adresa e plotë"
                   value={formData.address}
                   onChange={(e) => handleInputChange("address", e.target.value)}
                   className="border-primary/20 focus:border-primary"
@@ -238,24 +252,24 @@ export default function NewGuestPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="guestType">Guest Type</Label>
+                <Label htmlFor="guestType">Lloji i mysafirit</Label>
                 <Select value={formData.guestType} onValueChange={(value) => handleInputChange("guestType", value)}>
                   <SelectTrigger className="border-primary/20 focus:border-primary">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="adult">Adult</SelectItem>
-                    <SelectItem value="child">Child</SelectItem>
-                    <SelectItem value="infant">Infant</SelectItem>
+                    <SelectItem value="adult">I rritur</SelectItem>
+                    <SelectItem value="child">Fëmijë</SelectItem>
+                    <SelectItem value="infant">Foshnjë</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="dietaryRestrictions">Dietary Restrictions</Label>
+                <Label htmlFor="dietaryRestrictions">Kufizime ushqimore</Label>
                 <Textarea
                   id="dietaryRestrictions"
-                  placeholder="Any dietary restrictions or allergies"
+                  placeholder="Kufizime ushqimore ose alergji"
                   value={formData.dietaryRestrictions}
                   onChange={(e) => handleInputChange("dietaryRestrictions", e.target.value)}
                   className="border-primary/20 focus:border-primary"
@@ -269,7 +283,7 @@ export default function NewGuestPage() {
                     checked={formData.plusOneAllowed}
                     onCheckedChange={(checked) => handleInputChange("plusOneAllowed", checked as boolean)}
                   />
-                  <Label htmlFor="plusOneAllowed">Allow plus one</Label>
+                  <Label htmlFor="plusOneAllowed">Lejo shoqërues</Label>
                 </div>
 
                 {formData.plusOneAllowed && (
@@ -281,7 +295,7 @@ export default function NewGuestPage() {
                       placeholder="Plus one's name"
                       value={formData.plusOneName}
                       onChange={(e) => handleInputChange("plusOneName", e.target.value)}
-                      className="border-primary/20 focus:border-primary"
+                      className="border-slate-200 focus:border-slate-400 rounded-xl"
                     />
                   </div>
                 )}
@@ -345,6 +359,7 @@ export default function NewGuestPage() {
           </CardContent>
         </Card>
       </div>
+    </div>
     </div>
   )
 }
