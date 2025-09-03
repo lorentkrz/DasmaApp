@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server"
-import { randomBytes } from "crypto"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,6 +7,9 @@ import { buildInvitationUrl } from "@/lib/utils"
 import { Send, Plus, Heart, Sparkles, Mail, Users, CheckCircle } from "lucide-react"
 import { CopyButton } from "@/components/copy-button"
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
+import { InvitationTemplateForm } from "@/components/invitation-template-form"
+import { InvitationAnalytics } from "@/components/invitation-analytics"
+import { InvitationManagement } from "@/components/invitation-management"
 import { revalidatePath } from "next/cache"
 
 export default async function InvitationsPage() {
@@ -28,20 +30,126 @@ export default async function InvitationsPage() {
   if (!weddings || weddings.length === 0) redirect("/dashboard/weddings/new")
   const currentWedding = weddings[0]
 
-  // invitations with guest and group info
-  const { data: invitations } = await supabase
+  // Try simpler query first to avoid RLS issues
+  const { data: rawInvitations, error: invitationsError } = await supabase
     .from("invitations")
     .select(`
       id, 
-      unique_token, 
+      token, 
+      unique_token,
       sent_at, 
+      opened_at,
       responded_at, 
-      guest:guest_id(first_name, last_name, phone),
+      reminder_sent_at,
+      invitation_type,
+      template_id,
+      guest_id,
       group_id,
-      group:group_id(primary_guest_id, name)
+      wedding_id,
+      created_at
     `)
     .eq("wedding_id", currentWedding.id)
     .order("created_at", { ascending: false })
+
+  // Check for errors and handle them gracefully
+  if (invitationsError) {
+    console.error('Invitations query error:', invitationsError)
+    // Return error page or fallback
+    return (
+      <div className="container mx-auto py-6">
+        <Card className="border-red-200 bg-red-50">
+          <CardHeader>
+            <CardTitle className="text-red-800">Error Loading Invitations</CardTitle>
+            <CardDescription className="text-red-600">
+              {invitationsError.message || 'Failed to load invitations data'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link href="/dashboard">Return to Dashboard</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Get all guests for the current wedding
+  const { data: guests } = await supabase
+    .from("guests")
+    .select("id, first_name, last_name, phone, group_id, rsvp_status, plus_one_allowed, plus_one_name, guest_type")
+    .eq("wedding_id", currentWedding.id)
+    .order("first_name")
+
+  // Get all guest groups
+  const { data: groups } = await supabase
+    .from("guest_groups")
+    .select("id, name, primary_guest_id")
+    .eq("wedding_id", currentWedding.id)
+
+  // Get invitation templates
+  const { data: templates } = await supabase
+    .from("invitation_templates")
+    .select("*")
+    .eq("wedding_id", currentWedding.id)
+    .order("created_at", { ascending: false })
+
+  // Manually fetch guest and group data to avoid RLS join issues
+  const guestIds = rawInvitations?.map(inv => inv.guest_id).filter(Boolean) || []
+  const groupIds = rawInvitations?.map(inv => inv.group_id).filter(Boolean) || []
+
+  // Fetch guests separately
+  const { data: invitationGuests } = guestIds.length > 0 ? await supabase
+    .from("guests")
+    .select("id, first_name, last_name, phone, rsvp_status, plus_one_allowed, plus_one_name")
+    .in("id", guestIds) : { data: [] }
+
+  // Fetch groups separately  
+  const { data: invitationGroups } = groupIds.length > 0 ? await supabase
+    .from("guest_groups")
+    .select("id, name, primary_guest_id")
+    .in("id", groupIds) : { data: [] }
+
+  // Transform the data to match our interface
+  const invitations = rawInvitations?.map((inv: any) => {
+    const guest = invitationGuests?.find(g => g.id === inv.guest_id)
+    const group = invitationGroups?.find(g => g.id === inv.group_id)
+    
+    return {
+      ...inv,
+      token: inv.token || inv.unique_token,
+      guest,
+      group
+    }
+  })
+
+  // Debug logging
+  console.log('Debug - Raw invitations:', rawInvitations)
+  console.log('Debug - Invitations error:', invitationsError)
+  console.log('Debug - Transformed invitations:', invitations)
+  console.log('Debug - Guests count:', guests?.length)
+  console.log('Debug - Groups count:', groups?.length)
+  console.log('Debug - Current wedding ID:', currentWedding.id)
+  
+  // Test direct query
+  const { data: testInvitations, error: testError } = await supabase
+    .from('invitations')
+    .select('*')
+    .eq('wedding_id', currentWedding.id)
+  
+  console.log('Debug - Direct invitations query:', testInvitations)
+  console.log('Debug - Direct query error:', testError)
+
+  // Calculate invitation statistics
+  const stats = {
+    total: invitations?.length || 0,
+    sent: invitations?.filter(inv => inv.sent_at)?.length || 0,
+    responded: invitations?.filter(inv => inv.responded_at)?.length || 0,
+    attending: guests?.filter(g => g.rsvp_status === 'attending')?.length || 0,
+    notAttending: guests?.filter(g => g.rsvp_status === 'not_attending')?.length || 0,
+    maybe: guests?.filter(g => g.rsvp_status === 'maybe')?.length || 0,
+    pending: guests?.filter(g => g.rsvp_status === 'pending')?.length || 0
+  }
 
   async function createMissingInvitations() {
     "use server"
@@ -88,21 +196,21 @@ export default async function InvitationsPage() {
         
         // If this is the primary guest of the group and group doesn't have an invitation yet
         if (primaryGuestIds.has(guest.id) && !existingGroupIds.has(guest.group_id)) {
+          // Rely on DB default to generate token
           invitationsToCreate.push({
             wedding_id: currentWedding.id,
             guest_id: guest.id,
             group_id: guest.group_id,
-            unique_token: randomBytes(32).toString("base64url"),
           })
           processedGroupIds.add(guest.group_id)
         }
       } 
       // If guest is not in a group and doesn't have an invitation
       else if (!existingGuestIds.has(guest.id)) {
+        // Rely on DB default to generate token
         invitationsToCreate.push({
           wedding_id: currentWedding.id,
           guest_id: guest.id,
-          unique_token: randomBytes(32).toString("base64url"),
         })
       }
     }
@@ -129,133 +237,55 @@ export default async function InvitationsPage() {
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 relative overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-rose-200/30 to-pink-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-amber-200/30 to-rose-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-pink-200/20 to-amber-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-rose-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-amber-200/20 to-yellow-200/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-pink-200/15 to-rose-200/15 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="container mx-auto px-6 py-8 relative z-10">
-        {/* Enhanced Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
+      <div className="container mx-auto px-4 md:px-6 py-6 md:py-8 relative z-10">
+        {/* Enhanced Header - Mobile Responsive */}
+        <div className="flex flex-col space-y-4 mb-6 md:mb-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full flex items-center justify-center shadow-lg">
-                <Mail className="h-6 w-6 text-white" />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full flex items-center justify-center shadow-lg">
+                <Mail className="h-5 w-5 md:h-6 md:w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-amber-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-red-600 bg-clip-text text-transparent">
                 Ftesat e Dasmës
               </h1>
+              <Sparkles className="h-6 w-6 md:h-8 md:w-8 text-amber-400 animate-bounce" />
             </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg">
-              <p className="text-gray-700 font-medium text-lg">
-                Krijoni dhe dërgoni lidhjet RSVP për mysafirët tuaj
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 md:px-6 py-2 md:py-3 shadow-lg">
+              <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
+              <p className="text-gray-700 font-medium text-base md:text-lg">
+                Dërgoni ftesa të bukura dhe ndiqni përgjigjet e mysafirëve tuaj
               </p>
+              <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
             </div>
           </div>
-          <div className="mt-6 md:mt-0">
+          <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
             <form action={createMissingInvitations}>
               <Button type="submit" size="lg" className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
                 <Plus className="h-5 w-5 mr-2" />
-                Krijo Ftesa për të Gjithë
+                Krijo Ftesa
               </Button>
             </form>
+            <InvitationTemplateForm 
+              weddingId={currentWedding.id} 
+            />
           </div>
         </div>
 
-        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-pink-100 via-rose-50 to-amber-100 py-8">
-            <div className="flex items-center gap-3">
-              <Mail className="h-8 w-8 text-pink-600" />
-              <div>
-                <CardTitle className="text-2xl font-bold text-gray-800">Lidhjet e Ftesave</CardTitle>
-                <CardDescription className="text-gray-600 text-lg mt-1">
-                  Kopjoni lidhjet ose dërgoni përmes WhatsApp
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6 p-8">
-            {(invitations || []).length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-20 h-20 bg-gradient-to-r from-pink-100 to-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-10 w-10 text-pink-500" />
-                </div>
-                <p className="text-lg text-gray-600 font-medium">
-                  Asnjë ftesë ende. Klikoni butonin më sipër për t'i krijuar ato.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {(invitations || []).map((inv: any) => {
-                  const url = buildInvitationUrl(inv.unique_token)
-                  const isGroup = !!inv.group_id
-                  let name = "Guest"
-                  
-                  if (isGroup && inv.group?.name) {
-                    name = `${inv.group.name} (Grup)`
-                  } else if (isGroup) {
-                    // If it's a group without a name, show the primary guest's name + "& Party"
-                    name = inv.guest?.first_name && inv.guest?.last_name 
-                      ? `${inv.guest.first_name} ${inv.guest.last_name} & Shoqëria` 
-                      : "Ftesë Grupi"
-                  } else {
-                    // Regular individual guest
-                    name = inv.guest?.first_name && inv.guest?.last_name 
-                      ? `${inv.guest.first_name} ${inv.guest.last_name}` 
-                      : "Mysafir"
-                  }
-                  
-                  const phone = inv.guest?.phone
-                  return (
-                    <div key={inv.id} className="flex items-center justify-between gap-4 bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          {isGroup ? (
-                            <Users className="h-4 w-4 text-purple-500" />
-                          ) : (
-                            <div className="w-4 h-4 bg-pink-400 rounded-full"></div>
-                          )}
-                          <div className="font-semibold text-gray-800">{name}</div>
-                          <div className="flex items-center gap-2">
-                            {inv.sent_at ? (
-                              <div className="flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
-                                <CheckCircle className="h-3 w-3" />
-                                Dërguar
-                              </div>
-                            ) : (
-                              <div className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-xs font-medium">
-                                Pa dërguar
-                              </div>
-                            )}
-                            {inv.responded_at && (
-                              <div className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
-                                Përgjigjur
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded font-mono truncate">
-                          {url}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CopyButton text={url} />
-                        {phone ? (
-                          <WhatsAppSendButton 
-                            invitationId={inv.id}
-                            guestName={name}
-                            phone={phone}
-                            isSent={!!inv.sent_at}
-                          />
-                        ) : null}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Invitation Analytics */}
+        <InvitationAnalytics stats={stats} />
+
+        {/* Invitation Management */}
+        <InvitationManagement
+          weddingId={currentWedding.id}
+          invitations={invitations || []}
+          guests={guests || []}
+          groups={groups || []}
+        />
 
         {/* Enhanced Footer */}
         {(invitations || []).length > 0 && (

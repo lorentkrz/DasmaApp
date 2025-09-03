@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Search, Filter, Calendar, AlertCircle, CheckCircle2, Clock, Plus } from "lucide-react"
-import { createBrowserClient } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/client"
 import { TaskAddModal } from "@/components/task-add-modal"
 import Link from "next/link"
 
@@ -23,7 +23,7 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
   const [draggedTask, setDraggedTask] = useState<any>(null)
   const [renamingBoardId, setRenamingBoardId] = useState<string | null>(null)
   const [tempBoardName, setTempBoardName] = useState("")
-  const supabase = createBrowserClient()
+  const supabase = createClient()
 
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch =

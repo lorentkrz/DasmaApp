@@ -32,10 +32,14 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-background">
-      <DashboardSidebar weddings={weddings || []} />
+      {/* Desktop Sidebar */}
+      <div className="hidden md:block">
+        <DashboardSidebar weddings={weddings || []} />
+      </div>
+      
       <div className="flex-1 flex flex-col overflow-hidden">
-        <DashboardHeader user={user} profile={profile} />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <DashboardHeader user={user} profile={profile} weddings={weddings || []} />
+        <main className="flex-1 overflow-y-auto px-4 md:px-6">{children}</main>
       </div>
     </div>
   )

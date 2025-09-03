@@ -1,0 +1,406 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Badge } from "@/components/ui/badge"
+import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/hooks/use-toast"
+import { User, Users, Calendar, CheckCircle, Trash2, Edit, Plus, Copy, MessageSquare, Eye, Bell, Mail, Sparkles, Heart, Send } from 'lucide-react'
+import { CopyButton } from "@/components/copy-button"
+import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
+import { buildInvitationUrl } from "@/lib/utils"
+
+interface Guest {
+  id: string
+  first_name: string
+  last_name: string
+  phone?: string
+  group_id?: string
+  rsvp_status?: string
+  plus_one_allowed?: boolean
+  plus_one_name?: string
+  guest_type?: string
+}
+
+interface Group {
+  id: string
+  name?: string
+  primary_guest_id: string
+}
+
+interface Invitation {
+  id: string
+  token?: string
+  unique_token?: string
+  sent_at?: string
+  opened_at?: string
+  responded_at?: string
+  reminder_sent_at?: string
+  invitation_type: string
+  template_id?: string
+  guest_id?: string
+  group_id?: string
+  guest?: Guest
+  group?: Group
+}
+
+interface InvitationManagementProps {
+  weddingId: string
+  invitations: Invitation[]
+  guests: Guest[]
+  groups: Group[]
+}
+
+export function InvitationManagement({ 
+  weddingId, 
+  invitations, 
+  guests, 
+  groups
+}: InvitationManagementProps) {
+  const [editingInvitation, setEditingInvitation] = useState<Invitation | null>(null)
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
+  const supabase = createClient()
+
+  const handleEdit = async (invitation: Invitation, updates: Partial<Invitation>) => {
+    setLoading(true)
+    try {
+      const { error } = await supabase
+        .from("invitations")
+        .update(updates)
+        .eq("id", invitation.id)
+
+      if (error) throw error
+
+      toast({
+        title: "Ftesa u përditësua!",
+        description: "Ndryshimet u ruajtën me sukses.",
+      })
+
+      setEditingInvitation(null)
+      window.location.reload()
+    } catch (error: any) {
+      toast({
+        title: "Gabim",
+        description: error.message,
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDelete = async (invitationId: string) => {
+    if (!confirm("A jeni të sigurt që doni të fshini këtë ftesë?")) return
+
+    setLoading(true)
+    try {
+      const { error } = await supabase
+        .from("invitations")
+        .delete()
+        .eq("id", invitationId)
+
+      if (error) throw error
+
+      toast({
+        title: "Ftesa u fshi!",
+        description: "Ftesa u fshi me sukses.",
+      })
+
+      window.location.reload()
+    } catch (error: any) {
+      toast({
+        title: "Gabim",
+        description: error.message,
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getInvitationName = (invitation: Invitation) => {
+    if (invitation.group_id && invitation.group?.name) {
+      return `${invitation.group.name} (Grup)`
+    } else if (invitation.group_id) {
+      return `${invitation.guest?.first_name} ${invitation.guest?.last_name} & Shoqëria`
+    } else {
+      return `${invitation.guest?.first_name} ${invitation.guest?.last_name}`
+    }
+  }
+
+  const getStatusBadge = (invitation: Invitation) => {
+    if (invitation.responded_at) {
+      return <Badge className="bg-blue-100 text-blue-700">Përgjigjur</Badge>
+    } else if (invitation.sent_at) {
+      return <Badge className="bg-green-100 text-green-700">Dërguar</Badge>
+    } else {
+      return <Badge variant="secondary">Pa dërguar</Badge>
+    }
+  }
+
+  const getTypeBadge = (type: string) => {
+    const types = {
+      rsvp: { label: "RSVP", color: "bg-rose-100 text-rose-700" },
+      save_the_date: { label: "Save the Date", color: "bg-amber-100 text-amber-700" },
+      thank_you: { label: "Faleminderit", color: "bg-purple-100 text-purple-700" }
+    }
+    const typeInfo = types[type as keyof typeof types] || types.rsvp
+    return <Badge className={typeInfo.color}>{typeInfo.label}</Badge>
+  }
+
+  return (
+    <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+      <CardHeader className="bg-gradient-to-r from-rose-100 via-pink-50 to-amber-100 rounded-t-2xl">
+        <CardTitle className="flex items-center gap-2 text-xl">
+          <Mail className="h-6 w-6 text-rose-600" />
+          Menaxhimi i Ftesave
+          <Sparkles className="h-5 w-5 text-amber-500" />
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-6">
+        <div className="space-y-4">
+          {invitations.map((invitation) => {
+            const target = invitation.guest || invitation.group
+            const targetName = invitation.guest 
+              ? `${invitation.guest.first_name} ${invitation.guest.last_name}`
+              : invitation.group?.name || 'Unknown'
+            const targetType = invitation.guest ? 'Individual' : 'Group'
+            
+            return (
+              <div key={invitation.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        {invitation.guest ? (
+                          <User className="h-4 w-4 text-blue-500" />
+                        ) : (
+                          <Users className="h-4 w-4 text-purple-500" />
+                        )}
+                        <span className="font-medium text-gray-900">{targetName}</span>
+                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                          {targetType}
+                        </span>
+                        {invitation.guest?.plus_one_allowed && (
+                          <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">
+                            +1 {invitation.guest.plus_one_name ? `(${invitation.guest.plus_one_name})` : ''}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
+                      {invitation.sent_at && (
+                        <span className="flex items-center gap-1">
+                          <Send className="h-3 w-3 text-green-500" />
+                          Dërguar: {new Date(invitation.sent_at).toLocaleDateString('en-US')}
+                        </span>
+                      )}
+                      {invitation.opened_at && (
+                        <span className="flex items-center gap-1">
+                          <Eye className="h-3 w-3 text-blue-500" />
+                          Hapur: {new Date(invitation.opened_at).toLocaleDateString('en-US')}
+                        </span>
+                      )}
+                      {invitation.responded_at && (
+                        <span className="flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3 text-green-500" />
+                          Përgjigjur: {new Date(invitation.responded_at).toLocaleDateString('en-US')}
+                        </span>
+                      )}
+                      {invitation.reminder_sent_at && (
+                        <span className="flex items-center gap-1">
+                          <Bell className="h-3 w-3 text-orange-500" />
+                          Kujtesë: {new Date(invitation.reminder_sent_at).toLocaleDateString('en-US')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {/* Copy Invitation Link */}
+                    <CopyButton text={buildInvitationUrl(invitation.token || invitation.unique_token || '')} />
+                    
+                    {/* WhatsApp Send Button - only if guest has phone */}
+                    {invitation.guest?.phone && (
+                      <WhatsAppSendButton
+                        invitationId={invitation.id}
+                        guestName={targetName}
+                        phone={invitation.guest.phone}
+                        isSent={!!invitation.sent_at}
+                      />
+                    )}
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditingInvitation(invitation)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            <Edit className="h-5 w-5 text-blue-500" />
+                            Përditëso Ftesën
+                          </DialogTitle>
+                        </DialogHeader>
+                        <EditInvitationForm
+                          invitation={invitation}
+                          guests={guests}
+                          groups={groups}
+                          onSave={(updates) => handleEdit(invitation, updates)}
+                          loading={loading}
+                        />
+                      </DialogContent>
+                    </Dialog>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(invitation.id)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+interface EditInvitationFormProps {
+  invitation: Invitation
+  guests: Guest[]
+  groups: Group[]
+  onSave: (updates: Partial<Invitation>) => void
+  loading: boolean
+}
+
+function EditInvitationForm({ invitation, guests, groups, onSave, loading }: EditInvitationFormProps) {
+  const [formData, setFormData] = useState({
+    invitation_type: invitation.invitation_type,
+    guest_id: invitation.guest_id || "",
+    group_id: invitation.group_id || "",
+    target_type: invitation.group_id ? "group" : "individual"
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    const updates: Partial<Invitation> = {
+      invitation_type: formData.invitation_type
+    }
+
+    if (formData.target_type === "group") {
+      updates.group_id = formData.group_id
+      updates.guest_id = undefined
+    } else {
+      updates.guest_id = formData.guest_id
+      updates.group_id = undefined
+    }
+
+    onSave(updates)
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label>Lloji i Ftesës</Label>
+        <Select
+          value={formData.invitation_type}
+          onValueChange={(value: "rsvp" | "save_the_date" | "thank_you") =>
+            setFormData(prev => ({ ...prev, invitation_type: value }))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="rsvp">RSVP - Konfirmim Pjesëmarrjeje</SelectItem>
+            <SelectItem value="save_the_date">Save the Date - Ruani Datën</SelectItem>
+            <SelectItem value="thank_you">Thank You - Faleminderit</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Destinacioni</Label>
+        <Select
+          value={formData.target_type}
+          onValueChange={(value: "individual" | "group") =>
+            setFormData(prev => ({ ...prev, target_type: value }))
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="individual">Mysafir Individual</SelectItem>
+            <SelectItem value="group">Grup Mysafirësh</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {formData.target_type === "individual" ? (
+        <div className="space-y-2">
+          <Label>Mysafiri</Label>
+          <Select
+            value={formData.guest_id}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, guest_id: value }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Zgjidhni mysafirin" />
+            </SelectTrigger>
+            <SelectContent>
+              {guests.map((guest) => (
+                <SelectItem key={guest.id} value={guest.id}>
+                  {guest.first_name} {guest.last_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <Label>Grupi</Label>
+          <Select
+            value={formData.group_id}
+            onValueChange={(value) => setFormData(prev => ({ ...prev, group_id: value }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Zgjidhni grupin" />
+            </SelectTrigger>
+            <SelectContent>
+              {groups.map((group) => (
+                <SelectItem key={group.id} value={group.id}>
+                  {group.name || `Grup ${group.id.slice(0, 8)}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      <div className="flex justify-end gap-3 pt-4">
+        <Button type="submit" disabled={loading} className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600">
+          {loading ? "Duke ruajtur..." : "Ruaj Ndryshimet"}
+          <Heart className="h-4 w-4 ml-2" fill="currentColor" />
+        </Button>
+      </div>
+    </form>
+  )
+}

@@ -18,7 +18,7 @@ export async function GET(
     .from("invitations")
     .select(`
       id, 
-      unique_token, 
+      token, 
       guest:guest_id(first_name, last_name, phone),
       wedding:wedding_id(bride_name, groom_name, wedding_date, venue_name)
     `)
@@ -41,7 +41,7 @@ export async function GET(
     return new Response(JSON.stringify({ error: "Guest phone missing" }), { status: 400 })
   }
 
-  const url = buildInvitationUrl(invitation.unique_token)
+  const url = buildInvitationUrl(invitation.token)
   const guestName = `${guest?.first_name} ${guest?.last_name}`
   const brideName = wedding?.bride_name || ""
   const groomName = wedding?.groom_name || ""
@@ -50,43 +50,61 @@ export async function GET(
 
   console.log('👤 Sending to:', guestName, 'Phone:', phone)
 
-  // Create personalized Albanian message
-  const message = `🌹 Ftesë për Dasmë 💒
-
-Të dashur ${guestName},
-
-Ju ftojmë me kënaqësi të madhe në dasmën tonë!
-
-👰 ${brideName} & 🤵 ${groomName}
-📅 ${weddingDate ? new Date(weddingDate).toLocaleDateString('sq-AL', { 
+  // Create beautiful personalized Albanian wedding message
+  const formattedDate = weddingDate ? new Date(weddingDate).toLocaleDateString('sq-AL', { 
     weekday: 'long', 
     year: 'numeric', 
     month: 'long', 
     day: 'numeric' 
-  }) : 'Data do të njoftohet'}
-📍 ${venue || 'Vendi do të njoftohet'}
+  }) : 'Data do të njoftohet së shpejti'
 
-Ju lutemi konfirmoni pjesëmarrjen tuaj këtu:
-${url}
+  const message = `💒✨ FTESË PËR DASMË ✨💒
 
-Me dashuri dhe respekt,
+🌹 I/E dashur ${guestName}, 🌹
+
+Me zemër të plotë gëzimi dhe dashuri, ju ftojmë të jeni pjesë e ditës më të bukur të jetës sonë!
+
+👰🏻 ${brideName} ❤️ ${groomName} 🤵🏻
+
+🗓️ Data: ${formattedDate}
+🏛️ Vendi: ${venue || 'Vendi do të njoftohet së shpejti'}
+
+Prania juaj do të na bëjë këtë ditë edhe më të veçantë dhe të paharrueshme. Së bashku do të festojmë dashurinë, familjen dhe miqësinë.
+
+🎉 Ju lutemi konfirmoni pjesëmarrjen tuaj këtu:
+👉 ${url}
+
+Me shumë dashuri dhe mirënjohje,
 ${brideName} & ${groomName} 💕
 
+🌸 Faleminderit që jeni pjesë e rrugëtimit tonë! 🌸
+
 ---
-Kjo ftesë është e personalizuar për ju. Ju lutemi mos e ndani me të tjerë.`
+✨ Kjo ftesë është e personalizuar veçanërisht për ju ✨`
 
   try {
     console.log('🚀 Getting WhatsApp service...')
     const whatsappService = getWhatsAppService()
     const status = whatsappService.getStatus()
     
-    console.log('📊 WhatsApp status before send:', status)
+    console.log('📊 WhatsApp status before send:', JSON.stringify(status, null, 2))
     
-    if (!status.ready) {
-      console.error('❌ WhatsApp not ready:', status)
+    // Check if client exists and try to refresh status
+    if (status.hasClient && !status.ready && !status.initializing) {
+      console.log('🔍 Client exists but not ready, refreshing status...')
+      await whatsappService.refreshStatus()
+    }
+    
+    // Re-check status after potential update
+    const updatedStatus = whatsappService.getStatus()
+    console.log('📊 Updated WhatsApp status:', JSON.stringify(updatedStatus, null, 2))
+    
+    if (!updatedStatus.ready) {
+      console.error('❌ WhatsApp not ready:', updatedStatus)
       return new Response(JSON.stringify({ 
         error: "WhatsApp not connected", 
-        details: "Please connect WhatsApp first in Dashboard → WhatsApp" 
+        details: "Please connect WhatsApp first in Dashboard → WhatsApp",
+        debug: updatedStatus
       }), { status: 400 })
     }
 

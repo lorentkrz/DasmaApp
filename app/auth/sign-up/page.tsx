@@ -70,39 +70,39 @@ export default function SignUpPage() {
         <div className="absolute bottom-20 right-1/3 w-20 h-20 bg-rose-300/30 rounded-full blur-lg animate-pulse delay-500"></div>
       </div>
       
-      <div className="relative flex items-center justify-center p-6 min-h-screen">
+      <div className="relative flex items-center justify-center p-4 md:p-6 min-h-screen">
         <div className="w-full max-w-lg">
-          <div className="flex flex-col gap-8">
-            {/* Enhanced Logo Section */}
-            <div className="text-center space-y-4">
-              <div className="flex justify-center items-center mb-4">
+          <div className="flex flex-col gap-6 md:gap-8">
+            {/* Enhanced Logo Section - Mobile Responsive */}
+            <div className="text-center space-y-3 md:space-y-4">
+              <div className="flex justify-center items-center mb-3 md:mb-4">
                 <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full flex items-center justify-center shadow-xl">
-                    <Heart className="h-10 w-10 text-white animate-pulse" fill="currentColor" />
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full flex items-center justify-center shadow-xl">
+                    <Heart className="h-8 w-8 md:h-10 md:w-10 text-white animate-pulse" fill="currentColor" />
                   </div>
-                  <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-amber-400 animate-bounce" />
+                  <Sparkles className="absolute -top-2 -right-2 h-5 w-5 md:h-6 md:w-6 text-amber-400 animate-bounce" />
                 </div>
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 bg-clip-text text-transparent">
                 Planifikuesi i Dasmave
               </h1>
-              <p className="text-gray-600 text-lg">Filloni udhëtimin tuaj drejt dasmës së ëndrrave</p>
+              <p className="text-gray-600 text-base md:text-lg px-4">Filloni udhëtimin tuaj drejt dasmës së ëndrrave</p>
             </div>
 
-            <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden backdrop-blur-sm bg-white/95">
-              <CardHeader className="bg-gradient-to-r from-rose-100/50 to-pink-100/50 py-8 text-center">
-                <CardTitle className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
-                  <Sparkles className="h-6 w-6 text-amber-500" />
+            <Card className="rounded-2xl md:rounded-3xl shadow-2xl border-0 overflow-hidden backdrop-blur-sm bg-white/95">
+              <CardHeader className="bg-gradient-to-r from-rose-100/50 to-pink-100/50 py-6 md:py-8 text-center">
+                <CardTitle className="text-xl md:text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                  <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-amber-500" />
                   Krijoni Llogarinë Tuaj
-                  <Sparkles className="h-6 w-6 text-amber-500" />
+                  <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-amber-500" />
                 </CardTitle>
-                <CardDescription className="text-gray-600 text-lg">
+                <CardDescription className="text-gray-600 text-base md:text-lg px-4">
                   Bashkohuni me ne për të planifikuar dasmën e përkryer
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-6 md:p-8">
                 <form onSubmit={handleSignUp} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <Label htmlFor="first-name" className="text-gray-700 font-semibold flex items-center gap-2">
                         <User className="h-4 w-4 text-rose-500" />
@@ -114,7 +114,7 @@ export default function SignUpPage() {
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         required
-                        className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
+                        className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3 text-base"
                       />
                     </div>
                     <div className="space-y-3">
@@ -128,7 +128,7 @@ export default function SignUpPage() {
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         required
-                        className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
+                        className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3 text-base"
                       />
                     </div>
                   </div>
@@ -144,7 +144,7 @@ export default function SignUpPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
+                      className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3 text-base"
                     />
                   </div>
                   <div className="space-y-3">
@@ -159,7 +159,7 @@ export default function SignUpPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
+                      className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3 text-base"
                     />
                   </div>
                   <div className="space-y-3">
@@ -174,7 +174,7 @@ export default function SignUpPage() {
                       value={repeatPassword}
                       onChange={(e) => setRepeatPassword(e.target.value)}
                       required
-                      className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3"
+                      className="rounded-xl border-rose-200 focus:border-rose-400 focus:ring-rose-400 py-3 text-base"
                     />
                   </div>
                   {error && (
@@ -184,7 +184,7 @@ export default function SignUpPage() {
                   )}
                   <Button 
                     type="submit" 
-                    className="w-full rounded-2xl font-bold py-4 text-lg bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-xl transform hover:scale-105 transition-all duration-300" 
+                    className="w-full rounded-2xl font-bold py-4 text-base md:text-lg bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 shadow-xl transform hover:scale-105 transition-all duration-300" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -194,14 +194,14 @@ export default function SignUpPage() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5" />
+                        <Sparkles className="h-4 w-4 md:h-5 md:w-5" />
                         Filloni Udhëtimin Tuaj
                       </div>
                     )}
                   </Button>
                 </form>
                 <div className="mt-6 text-center">
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-sm md:text-base px-4">
                     Keni tashmë një llogari?{' '}
                     <Link href="/auth/login" className="text-rose-600 hover:text-rose-700 font-semibold hover:underline">
                       Hyni në llogarinë tuaj

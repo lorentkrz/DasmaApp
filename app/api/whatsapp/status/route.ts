@@ -25,19 +25,25 @@ export async function GET() {
 }
 
 export async function POST() {
-  console.log('🌐 API POST /api/whatsapp/status called - STARTING INITIALIZATION')
+  console.log('🌐 API POST /api/whatsapp/status called - FORCE RESET')
   
   try {
+    // Force create new service instance to clear all state
+    const { getWhatsAppService } = await import('@/lib/whatsapp')
+    
+    // Clear the singleton instance
+    const whatsappModule = await import('@/lib/whatsapp')
+    ;(whatsappModule as any).whatsappService = null
+    
     const whatsappService = getWhatsAppService()
     
-    console.log('🚀 Calling whatsappService.initialize()...')
-    // Start initialization - don't await to return immediately
-    whatsappService.initialize().catch((error) => {
-      console.error('💥 Initialization failed in background:', error)
+    console.log('🚀 Calling whatsappService.restart()...')
+    whatsappService.restart().catch((error) => {
+      console.error('💥 Restart failed in background:', error)
     })
     
     const response = { 
-      message: "WhatsApp initialization started",
+      message: "WhatsApp force reset initiated",
       success: true
     }
     

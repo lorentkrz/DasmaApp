@@ -149,7 +149,7 @@ export function WhatsAppSetup() {
         <Card className="bg-white border border-gray-200">
           <CardContent className="p-6">
             <div className="text-center space-y-4">
-              <h4 className="font-medium text-gray-800">🔥 QR KOD I GJENERUAR!</h4>
+              <h4 className="font-medium text-gray-800"> QR KOD I GJENERUAR!</h4>
               <div className="bg-white p-4 rounded-lg inline-block border">
                 <QRCode
                   value={status.qrCode}
@@ -163,7 +163,6 @@ export function WhatsAppSetup() {
                 <p>2. Menuja → WhatsApp Web</p>
                 <p>3. Skanoni kodin</p>
               </div>
-              <p className="text-green-600 font-medium">QR Length: {status.qrCode.length}</p>
             </div>
           </CardContent>
         </Card>
@@ -190,7 +189,7 @@ export function WhatsAppSetup() {
           >
             <div className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
-              Lidhu me WhatsApp
+              {status.error ? 'Riprovo Lidhjen' : 'Lidhu me WhatsApp'}
             </div>
           </Button>
         )}
@@ -236,6 +235,13 @@ export function WhatsAppSetup() {
                 <span className="font-medium">Gabim në lidhje</span>
               </div>
               <p className="text-red-700 mt-1 text-sm">{status.error}</p>
+              <Button
+                onClick={initializeWhatsApp}
+                className="mt-3 bg-red-600 hover:bg-red-700 text-white"
+                size="sm"
+              >
+                Riprovo me Sesion të Ri
+              </Button>
             </CardContent>
           </Card>
         )}

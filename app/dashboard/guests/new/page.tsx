@@ -72,7 +72,10 @@ export default function NewGuestPage() {
           .insert({ wedding_id: weddingId, name: null })
           .select("id")
           .single()
-        if (groupErr) throw groupErr
+        if (groupErr) {
+          console.error("Group creation error:", groupErr)
+          throw groupErr
+        }
         const groupId = groupRows.id as string
 
         // 2) Insert primary guest with group_id
@@ -93,7 +96,10 @@ export default function NewGuestPage() {
           })
           .select("id")
           .single()
-        if (primErr) throw primErr
+        if (primErr) {
+          console.error("Primary guest creation error:", primErr)
+          throw primErr
+        }
         const primaryId = primaryRows.id as string
 
         // 3) Set primary_guest_id on group
@@ -121,6 +127,19 @@ export default function NewGuestPage() {
         }
       } else {
         // Single guest
+        console.log("Inserting single guest with data:", {
+          wedding_id: weddingId,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email || null,
+          phone: formData.phone || null,
+          address: formData.address || null,
+          guest_type: formData.guestType,
+          dietary_restrictions: formData.dietaryRestrictions || null,
+          plus_one_allowed: formData.plusOneAllowed,
+          plus_one_name: formData.plusOneAllowed && formData.plusOneName ? formData.plusOneName : null,
+        })
+        
         const { error: insertError } = await supabase.from("guests").insert({
           wedding_id: weddingId,
           first_name: formData.firstName,
@@ -133,7 +152,10 @@ export default function NewGuestPage() {
           plus_one_allowed: formData.plusOneAllowed,
           plus_one_name: formData.plusOneAllowed && formData.plusOneName ? formData.plusOneName : null,
         })
-        if (insertError) throw insertError
+        if (insertError) {
+          console.error("Single guest creation error:", insertError)
+          throw insertError
+        }
       }
 
       router.push("/dashboard/guests")

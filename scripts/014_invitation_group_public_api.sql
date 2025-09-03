@@ -22,7 +22,7 @@ begin
     select i.*, g.group_id as guest_group_id
     from public.invitations i
     left join public.guests g on g.id = i.guest_id
-    where i.unique_token = p_token
+    where i.token = p_token
     limit 1
   ), grp as (
     select coalesce(inv.guest_group_id, g.group_id) as gid, inv.wedding_id
@@ -88,7 +88,7 @@ begin
     select i.*, coalesce(g.group_id, i.group_id) as gid
     from public.invitations i
     left join public.guests g on g.id = i.guest_id
-    where i.unique_token = p_token
+    where i.token = p_token
     limit 1
   ), target as (
     select case 
@@ -112,7 +112,7 @@ begin
 
   update public.invitations i
   set responded_at = coalesce(i.responded_at, timezone('utc', now()))
-  where i.unique_token = p_token;
+  where i.token = p_token;
 end;
 $$;
 

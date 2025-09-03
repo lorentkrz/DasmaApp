@@ -2,10 +2,32 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { AnalyticsDashboard } from "@/components/analytics-dashboard"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Users, Calendar, DollarSign, CheckCircle, Clock, AlertCircle, Plus, ArrowRight, MapPin, Utensils } from "lucide-react"
-import Link from "next/link"
+import { 
+  Users, 
+  Calendar, 
+  DollarSign, 
+  CheckSquare, 
+  MapPin, 
+  Mail, 
+  Heart, 
+  Plus, 
+  TrendingUp, 
+  Clock,
+  Target,
+  Sparkles,
+  MessageCircle,
+  Gift,
+  Zap,
+  BarChart3,
+  CheckCircle,
+  ArrowRight,
+  AlertCircle,
+  Utensils
+} from "lucide-react"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -57,12 +79,18 @@ export default async function DashboardPage() {
 
   const currentWedding = weddings[0]
 
-  const [{ data: guests }, { data: tasks }, { data: vendors }, { data: expenses }] = await Promise.all([
+  const [
+    { data: kpisRows },
+    { data: activity },
+    { data: guests },
+    { data: tasks },
+  ] = await Promise.all([
+    supabase.from("dashboard_kpis").select("*").eq("wedding_id", currentWedding.id).limit(1),
+    supabase.from("dashboard_last_activity_recent").select("*").eq("wedding_id", currentWedding.id),
     supabase.from("guests").select("*").eq("wedding_id", currentWedding.id),
     supabase.from("tasks").select("*").eq("wedding_id", currentWedding.id),
-    supabase.from("vendors").select("*").eq("wedding_id", currentWedding.id),
-    supabase.from("expenses").select("amount").eq("wedding_id", currentWedding.id),
   ])
+  const kpis = Array.isArray(kpisRows) && kpisRows.length > 0 ? kpisRows[0] : null
 
   const guestStats = {
     total: guests?.length || 0,
@@ -76,13 +104,7 @@ export default async function DashboardPage() {
     overdue: tasks?.filter((t) => !t.completed && t.due_date && new Date(t.due_date) < new Date()).length || 0,
   }
 
-  const vendorStats = {
-    total: vendors?.length || 0,
-    booked: vendors?.filter((v) => v.status === "booked").length || 0,
-  }
-
-  const totalSpent = expenses?.reduce((sum, expense) => sum + Number.parseFloat(expense.amount), 0) || 0
-  const budgetProgress = currentWedding.budget_total > 0 ? (totalSpent / currentWedding.budget_total) * 100 : 0
+  // Note: KPIs/budget/vendor stats now sourced in AnalyticsDashboard via view
 
   const daysUntilWedding = Math.ceil(
     (new Date(currentWedding.wedding_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
@@ -98,33 +120,33 @@ export default async function DashboardPage() {
         <div className="absolute bottom-60 right-1/3 w-28 h-28 bg-slate-300/25 rounded-full blur-xl animate-pulse delay-500"></div>
       </div>
       
-      <div className="relative container mx-auto px-6 py-8">
-        {/* Enhanced Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
+      <div className="relative container mx-auto px-4 md:px-6 py-6 md:py-8">
+        {/* Enhanced Header - Mobile Responsive */}
+        <div className="flex flex-col space-y-6 mb-8 md:mb-10">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center shadow-lg">
-                <Calendar className="h-6 w-6 text-white" />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center shadow-lg">
+                <Calendar className="h-5 w-5 md:h-6 md:w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-700 via-gray-700 to-slate-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-slate-700 via-gray-700 to-slate-600 bg-clip-text text-transparent">
                 {currentWedding.bride_name} & {currentWedding.groom_name}
               </h1>
             </div>
-            <div className="flex items-center gap-6 text-gray-600">
-              <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 shadow-md">
-                <Calendar className="h-5 w-5 text-slate-500" />
-                <span className="font-semibold">{new Date(currentWedding.wedding_date).toLocaleDateString('sq-AL', { 
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-gray-600">
+              <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm rounded-full px-3 py-2 md:px-4 md:py-2 shadow-md">
+                <Calendar className="h-4 w-4 md:h-5 md:w-5 text-slate-500" />
+                <span className="font-semibold text-sm md:text-base">{new Date(currentWedding.wedding_date).toLocaleDateString('sq-AL', { 
                   weekday: 'long', 
                   year: 'numeric', 
                   month: 'long', 
                   day: 'numeric' 
                 })}</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm rounded-full px-4 py-2 shadow-md">
-                <MapPin className="h-5 w-5 text-gray-500" />
+              <div className="flex items-center gap-2 bg-white/70 backdrop-blur-sm rounded-full px-3 py-2 md:px-4 md:py-2 shadow-md">
+                <MapPin className="h-4 w-4 md:h-5 md:w-5 text-gray-500" />
                 <Badge 
                   variant={daysUntilWedding > 30 ? "secondary" : daysUntilWedding > 7 ? "default" : "destructive"}
-                  className="text-lg px-4 py-2 rounded-full font-bold shadow-lg"
+                  className="text-sm md:text-lg px-3 py-1 md:px-4 md:py-2 rounded-full font-bold shadow-lg"
                 >
                   {daysUntilWedding > 0 ? `${daysUntilWedding} ditë të mbetura` : "Sot është Dita Juaj e Madhe!"}
                 </Badge>
@@ -149,65 +171,12 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Stats Grid - Smaller and Cleaner */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Mysafirët</CardTitle>
-              <Users className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900 mb-1">
-                {guestStats.confirmed}/{guestStats.total}
-              </div>
-              <p className="text-xs text-gray-500">Konfirmuar: {guestStats.confirmed}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Detyrat</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900 mb-1">
-                {taskStats.completed}/{taskStats.total}
-              </div>
-              <Progress 
-                value={taskStats.total > 0 ? (taskStats.completed / taskStats.total) * 100 : 0} 
-                className="h-2"
-              />
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Contracts</CardTitle>
-              <Utensils className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900 mb-1">
-                {vendorStats.booked}/{vendorStats.total}
-              </div>
-              <p className="text-xs text-gray-500">Të rezervuar: {vendorStats.booked}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Buxheti</CardTitle>
-              <DollarSign className="h-4 w-4 text-amber-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold text-gray-900 mb-1">
-                {new Intl.NumberFormat('sq-AL', { style: 'currency', currency: 'EUR' }).format(totalSpent)}
-              </div>
-              <Progress 
-                value={budgetProgress > 100 ? 100 : budgetProgress} 
-                className="h-2"
-              />
-            </CardContent>
-          </Card>
+        {/* Advanced Analytics */}
+        <div className="mb-8">
+          <AnalyticsDashboard 
+            kpis={kpis}
+            activity={activity || []}
+          />
         </div>
 
         {/* Enhanced Quick Actions - Wedding Themed */}

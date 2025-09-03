@@ -22,9 +22,9 @@ export function BudgetEditDialog({ categories, children }: BudgetEditDialogProps
     <>
       {children(openEdit)}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-[600px] max-h-[85vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Edit Expense</DialogTitle>
+            <DialogTitle className="text-lg md:text-xl">Ndrysho Shpenzimin</DialogTitle>
           </DialogHeader>
           {expense && (
             <ExpenseForm wedding={{ id: expense.wedding_id }} expense={expense} categories={categories} />

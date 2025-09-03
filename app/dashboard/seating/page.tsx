@@ -1,6 +1,6 @@
 "use client"
 
-import { createBrowserClient } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { SeatingChart } from "@/components/seating-chart"
@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Calendar, MapPin, Plus, Edit, Trash2, Search, Filter, UserCheck, UserX, Clock, Baby, Loader2, Download, Heart, Sparkles, Armchair, Settings } from "lucide-react"
 import Link from "next/link"
+import { BeautifulPDFExport } from "@/components/beautiful-pdf-export"
+import { AISeatingsuggestions } from "@/components/ai-seating-suggestions"
+import { RealTimeCollaboration } from "@/components/real-time-collaboration"
 
 interface Wedding {
   id: string
@@ -38,6 +41,7 @@ interface Guest {
   dietary_restrictions: string | null
   rsvp_status: string
   table_assignment: string | null
+  guest_type: string
 }
 
 export default function SeatingPage() {
@@ -49,7 +53,7 @@ export default function SeatingPage() {
 
   useEffect(() => {
     async function loadData() {
-      const supabase = createBrowserClient()
+      const supabase = createClient()
 
       // Check authentication
       const {
@@ -159,6 +163,11 @@ export default function SeatingPage() {
                 Eksporto CSV
               </Link>
             </Button>
+            <BeautifulPDFExport 
+              tables={tables} 
+              guests={guests} 
+              weddingName={`${currentWedding.bride_name} & ${currentWedding.groom_name}`}
+            />
             <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
               <Link href="/dashboard/seating/tables/new">
                 <Plus className="h-5 w-5 mr-2" />
@@ -251,10 +260,6 @@ export default function SeatingPage() {
               <span className="font-medium text-gray-700">Drejtkëndore</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gradient-to-r from-pink-200 to-rose-200 border-2 border-pink-400 rounded-lg"></div>
-              <span className="font-medium text-gray-700">Katror</span>
-            </div>
-            <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-gradient-to-r from-emerald-200 to-green-200 border-2 border-emerald-500 rounded-full"></div>
               <span className="font-medium text-gray-700">Tavolinë e Plotë</span>
             </div>
@@ -267,6 +272,16 @@ export default function SeatingPage() {
               <span className="font-medium text-gray-700">Eksporto PDF</span>
             </div>
           </div>
+        </div>
+
+        {/* AI Suggestions */}
+        <div className="mb-6">
+          <AISeatingsuggestions 
+            guests={guests} 
+            tables={tables} 
+            weddingId={currentWedding.id}
+            onSuggestionsApplied={() => window.location.reload()}
+          />
         </div>
 
         {/* Enhanced Seating Chart */}
@@ -288,6 +303,9 @@ export default function SeatingPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Real-time Collaboration */}
+        <RealTimeCollaboration weddingId={currentWedding.id} currentPage="seating" />
       </div>
     </div>
   )

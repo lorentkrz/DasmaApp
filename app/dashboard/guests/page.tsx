@@ -17,12 +17,16 @@ export default async function GuestsPage() {
     redirect("/auth/login")
   }
 
-  // Get accessible wedding (RLS enforces access)
-  const { data: weddings } = await supabase
+  // Get accessible wedding (RLS enforces access) with debug info
+  const { data: weddings, error: weddingsError } = await supabase
     .from("weddings")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(1)
+
+  console.log("User:", user?.id)
+  console.log("Weddings data:", weddings)
+  console.log("Weddings error:", weddingsError)
 
   if (!weddings || weddings.length === 0) {
     redirect("/dashboard/weddings/new")
@@ -30,21 +34,40 @@ export default async function GuestsPage() {
 
   const currentWedding = weddings[0]
 
-  // Fetch all guests for the current wedding
-  const { data: guests } = await supabase
+  // Fetch all guests for the current wedding with invitation data
+  const { data: guests, error: guestsError } = await supabase
     .from("guests")
-    .select("*")
+    .select(`
+      *,
+      invitations(id, token, unique_token, sent_at, opened_at, responded_at)
+    `)
     .eq("wedding_id", currentWedding.id)
-    .order("last_name", { ascending: true })
+    .order("created_at", { ascending: false })
 
-  // Calculate stats
+  // Test RLS access - check if user can access the wedding
+  const { data: testWedding, error: testWeddingError } = await supabase
+    .from("weddings")
+    .select("id, owner_id")
+    .eq("id", currentWedding.id)
+    .single()
+
+  console.log("=== RLS DEBUG ===")
+  console.log("User ID:", user.id)
+  console.log("Wedding owner_id:", testWedding?.owner_id)
+  console.log("User owns wedding:", user.id === testWedding?.owner_id)
+  console.log("Wedding access error:", testWeddingError)
+  console.log("Guests query error:", guestsError)
+  console.log("Guests data:", guests)
+  console.log("=== END DEBUG ===")
+
+  // Calculate stats (handle both plus_one_allowed and plus_one column names)
   const stats = {
     total: guests?.length || 0,
     attending: guests?.filter((g) => g.rsvp_status === "attending").length || 0,
     notAttending: guests?.filter((g) => g.rsvp_status === "not_attending").length || 0,
     pending: guests?.filter((g) => g.rsvp_status === "pending").length || 0,
     maybe: guests?.filter((g) => g.rsvp_status === "maybe").length || 0,
-    plusOnes: guests?.filter((g) => g.plus_one_allowed && g.plus_one_name).length || 0,
+    plusOnes: guests?.filter((g) => (g.plus_one_allowed || g.plus_one) && g.plus_one_name).length || 0,
   }
 
   return (
@@ -193,7 +216,19 @@ export default async function GuestsPage() {
             </div>
           </CardHeader>
           <CardContent className="p-6">
-            <GuestList guests={guests || []} weddingId={currentWedding.id} />
+            {guestsError && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-4">
+                <p className="text-red-700">Error loading guests: {guestsError.message}</p>
+              </div>
+            )}
+            {!guests || guests.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">No guests found. Add your first guest to get started.</p>
+                <p className="text-sm text-gray-400 mt-2">Wedding ID: {currentWedding.id}</p>
+              </div>
+            ) : (
+              <GuestList guests={guests} weddingId={currentWedding.id} />
+            )}
           </CardContent>
         </Card>
       </div>

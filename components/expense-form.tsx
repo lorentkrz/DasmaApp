@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import { createBrowserClient } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 
@@ -22,7 +22,7 @@ interface ExpenseFormProps {
 
 export function ExpenseForm({ wedding, expense, categories = [] }: ExpenseFormProps) {
   const router = useRouter()
-  const supabase = createBrowserClient()
+  const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 

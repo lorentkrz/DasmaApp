@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { createBrowserClient } from "@/lib/supabase/client"
+import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Save, Star } from "lucide-react"
 import Link from "next/link"
 
@@ -38,7 +38,7 @@ const VENDOR_STATUS_VALUES = ["considering", "contacted", "booked", "cancelled"]
 
 export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
   const router = useRouter()
-  const supabase = createBrowserClient()
+  const supabase = createClient()
   const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({

@@ -42,27 +42,27 @@ export default async function VendorsPage() {
       </div>
 
       <div className="space-y-8 px-4 md:px-6 pt-6 relative z-10">
-        {/* Enhanced Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+        {/* Enhanced Header - Mobile Responsive */}
+        <div className="flex flex-col space-y-4 mb-6 md:mb-8">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center shadow-lg">
-                <Store className="h-6 w-6 text-white" />
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center shadow-lg">
+                <Store className="h-5 w-5 md:h-6 md:w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent">
                 Shitësit & Kontratat
               </h1>
               <Sparkles className="h-8 w-8 text-amber-400 animate-bounce" />
             </div>
-            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg">
-              <Heart className="h-5 w-5 text-rose-500" fill="currentColor" />
-              <p className="text-gray-700 font-medium text-lg">
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 md:px-6 py-2 md:py-3 shadow-lg">
+              <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
+              <p className="text-gray-700 font-medium text-base md:text-lg">
                 Menaxhoni shitësit dhe kontratat për dasmën tuaj të përsosur
               </p>
-              <Heart className="h-5 w-5 text-rose-500" fill="currentColor" />
+              <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
             </div>
           </div>
-          <div className="mt-6 md:mt-0">
+          <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
             <VendorAddButton wedding={wedding} />
           </div>
         </div>

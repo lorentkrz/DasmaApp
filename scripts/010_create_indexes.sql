@@ -16,4 +16,4 @@ create index if not exists idx_tasks_assigned_to on public.tasks(assigned_to);
 create index if not exists idx_invitation_templates_wedding_id on public.invitation_templates(wedding_id);
 create index if not exists idx_invitations_wedding_id on public.invitations(wedding_id);
 create index if not exists idx_invitations_guest_id on public.invitations(guest_id);
-create index if not exists idx_invitations_unique_token on public.invitations(unique_token);
+create index if not exists idx_invitations_token on public.invitations(token);

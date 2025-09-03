@@ -49,34 +49,34 @@ export default function LoginPage() {
         <div className="absolute bottom-20 right-1/3 w-20 h-20 bg-slate-300/30 rounded-full blur-lg animate-pulse delay-500"></div>
       </div>
       
-      <div className="relative flex items-center justify-center p-6 min-h-screen">
+      <div className="relative flex items-center justify-center p-4 md:p-6 min-h-screen">
         <div className="w-full max-w-lg">
-          <div className="flex flex-col gap-8">
-            {/* Enhanced Logo Section */}
-            <div className="text-center space-y-4">
-              <div className="flex justify-center items-center mb-4">
+          <div className="flex flex-col gap-6 md:gap-8">
+            {/* Enhanced Logo Section - Mobile Responsive */}
+            <div className="text-center space-y-3 md:space-y-4">
+              <div className="flex justify-center items-center mb-3 md:mb-4">
                 <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center shadow-xl">
-                    <Calendar className="h-10 w-10 text-white" />
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center shadow-xl">
+                    <Calendar className="h-8 w-8 md:h-10 md:w-10 text-white" />
                   </div>
                 </div>
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-700 via-gray-700 to-slate-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-slate-700 via-gray-700 to-slate-600 bg-clip-text text-transparent">
                 Planifikuesi i Dasmave
               </h1>
-              <p className="text-gray-600 text-lg">Hyni në llogarinë tuaj për të organizuar dasmën e ëndrrave</p>
+              <p className="text-gray-600 text-base md:text-lg px-4">Hyni në llogarinë tuaj për të organizuar dasmën e ëndrrave</p>
             </div>
 
-            <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden backdrop-blur-sm bg-white/95">
-              <CardHeader className="bg-gradient-to-r from-slate-100/50 to-gray-100/50 py-8 text-center">
-                <CardTitle className="text-2xl font-bold text-gray-800">
+            <Card className="rounded-2xl md:rounded-3xl shadow-2xl border-0 overflow-hidden backdrop-blur-sm bg-white/95">
+              <CardHeader className="bg-gradient-to-r from-slate-100/50 to-gray-100/50 py-6 md:py-8 text-center">
+                <CardTitle className="text-xl md:text-2xl font-bold text-gray-800">
                   Mirë se u ktheve
                 </CardTitle>
-                <CardDescription className="text-gray-600 text-lg">
+                <CardDescription className="text-gray-600 text-base md:text-lg px-4">
                   Vendosni të dhënat tuaja për të hyrë në sistem
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-8">
+              <CardContent className="p-6 md:p-8">
                 <form onSubmit={handleLogin} className="space-y-6">
                   <div className="space-y-3">
                     <Label htmlFor="email" className="text-gray-700 font-semibold flex items-center gap-2">
@@ -90,7 +90,7 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="rounded-xl border-slate-200 focus:border-slate-400 focus:ring-slate-400 py-3"
+                      className="rounded-xl border-slate-200 focus:border-slate-400 focus:ring-slate-400 py-3 text-base"
                     />
                   </div>
                   <div className="space-y-3">
@@ -99,7 +99,7 @@ export default function LoginPage() {
                         <Lock className="h-4 w-4 text-slate-500" />
                         Fjalëkalimi
                       </Label>
-                      <Link href="/auth/forgot-password" className="text-sm text-slate-600 hover:text-slate-700 hover:underline font-medium">
+                      <Link href="/auth/forgot-password" className="text-xs md:text-sm text-slate-600 hover:text-slate-700 hover:underline font-medium">
                         E harruat fjalëkalimin?
                       </Link>
                     </div>
@@ -110,7 +110,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="rounded-xl border-slate-200 focus:border-slate-400 focus:ring-slate-400 py-3"
+                      className="rounded-xl border-slate-200 focus:border-slate-400 focus:ring-slate-400 py-3 text-base"
                     />
                   </div>
                   {error && (
@@ -120,7 +120,7 @@ export default function LoginPage() {
                   )}
                   <Button 
                     type="submit" 
-                    className="w-full rounded-2xl font-bold py-4 text-lg bg-gradient-to-r from-slate-600 to-gray-700 hover:from-slate-700 hover:to-gray-800 shadow-xl transform hover:scale-105 transition-all duration-300" 
+                    className="w-full rounded-2xl font-bold py-4 text-base md:text-lg bg-gradient-to-r from-slate-600 to-gray-700 hover:from-slate-700 hover:to-gray-800 shadow-xl transform hover:scale-105 transition-all duration-300" 
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -134,7 +134,7 @@ export default function LoginPage() {
                   </Button>
                 </form>
                 <div className="mt-6 text-center">
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 text-sm md:text-base px-4">
                     Nuk keni llogari ende?{' '}
                     <Link href="/auth/sign-up" className="text-slate-600 hover:text-slate-700 font-semibold hover:underline">
                       Krijoni një llogari të re

@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: 'Planifikuesi i Dasmave',
   description: 'Aplikacion për menaxhimin e dasmave',
   generator: 'Wedding ERP',
+  viewport: 'width=device-width, initial-scale=1',
 }
 
 export default function RootLayout({

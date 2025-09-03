@@ -16,7 +16,7 @@ create table if not exists public.invitations (
   wedding_id uuid not null references public.weddings(id) on delete cascade,
   guest_id uuid not null references public.guests(id) on delete cascade,
   template_id uuid references public.invitation_templates(id) on delete set null,
-  unique_token text not null unique,
+  token text not null unique,
   invitation_type text default 'rsvp' check (invitation_type in ('rsvp', 'save_the_date', 'thank_you')),
   sent_at timestamp with time zone,
   opened_at timestamp with time zone,
@@ -116,11 +116,37 @@ create or replace function generate_invitation_token()
 returns text
 language plpgsql
 as $$
+declare
+  raw text;
 begin
-  return encode(gen_random_bytes(32), 'base64url');
+  -- Use standard Base64 then convert to URL-safe by translating +/ to -_ and stripping = padding
+  raw := encode(gen_random_bytes(32), 'base64');
+  raw := translate(raw, '+/', '-_');
+  return regexp_replace(raw, '=+$', '');
 end;
 $$;
 
--- Set default value for unique_token
+-- Normalize on `token` column and ensure defaults/indexes
 alter table public.invitations 
-alter column unique_token set default generate_invitation_token();
+  add column if not exists token text;
+
+-- Backfill token from unique_token when present (only if column exists)
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns 
+    where table_schema = 'public' and table_name = 'invitations' and column_name = 'unique_token'
+  ) then
+    execute $$update public.invitations set token = unique_token where token is null and unique_token is not null;$$;
+  end if;
+end$$;
+
+-- Ensure unique index on token
+create unique index if not exists invitations_token_idx on public.invitations(token);
+
+-- Set default token generator
+alter table public.invitations 
+  alter column token set default generate_invitation_token();
+
+-- Drop legacy column if present
+alter table public.invitations drop column if exists unique_token;

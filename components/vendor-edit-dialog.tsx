@@ -20,9 +20,9 @@ export function VendorEditDialog({ wedding, vendor, open, onOpenChange }: Vendor
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="w-[95vw] max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Vendor</DialogTitle>
+          <DialogTitle className="text-lg md:text-xl">Ndrysho Shitësin</DialogTitle>
         </DialogHeader>
         {current && <VendorForm wedding={wedding} vendor={current} />}
       </DialogContent>

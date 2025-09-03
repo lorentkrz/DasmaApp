@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Plus,
   MessageCircle,
+  Gift,
 } from "lucide-react"
 
 interface Wedding {
@@ -70,6 +71,11 @@ const navigation = [
     icon: Mail,
   },
   {
+    name: "Dhurata në Para",
+    href: "/dashboard/cash-gifts",
+    icon: Gift,
+  },
+  {
     name: "WhatsApp",
     href: "/dashboard/whatsapp",
     icon: MessageCircle,
@@ -115,7 +121,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
                       {weddings[0].bride_name} & {weddings[0].groom_name}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {new Date(weddings[0].wedding_date).toLocaleDateString('sq-AL')}
+                      {new Date(weddings[0].wedding_date).toLocaleDateString('en-GB')}
                     </p>
                   </div>
                 ) : (
@@ -157,6 +163,12 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-3">Veprime të Shpejta</h3>
               <div className="space-y-2">
+                <Button asChild variant="outline" size="sm" className="w-full justify-start bg-transparent">
+                  <Link href="/dashboard/cash-gifts">
+                    <Gift className="h-4 w-4 mr-2" />
+                    Dhurata në Para
+                  </Link>
+                </Button>
                 <Button asChild variant="outline" size="sm" className="w-full justify-start bg-transparent">
                   <Link href="/dashboard/weddings/new">
                     <Plus className="h-4 w-4 mr-2" />

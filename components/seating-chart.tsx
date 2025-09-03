@@ -185,32 +185,67 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
     const sizes = {
       round: { w: 80, h: 80 },
       rectangular: { w: 96, h: 64 },
-      square: { w: 80, h: 80 },
     } as const
     const sz = sizes[(table as any).table_type as keyof typeof sizes] || sizes.round
 
-    // Seat ring radius slightly outside the table
-    const radius = Math.max(sz.w, sz.h) / 2 + 14
-    const center = { x: sz.w / 2, y: sz.h / 2 }
-
     const seats = [] as React.ReactNode[]
-    for (let i = 0; i < count; i++) {
-      const angle = (i / count) * Math.PI * 2 - Math.PI / 2
-      const x = center.x + radius * Math.cos(angle)
-      const y = center.y + radius * Math.sin(angle)
-      const filled = i < assigned
-      seats.push(
-        <div
-          key={i}
-          className={cn(
-            "absolute w-3.5 h-3.5 rounded-full border shadow-sm",
-            filled ? "bg-emerald-500 border-emerald-600" : "bg-gray-300 border-gray-400"
-          )}
-          style={{ left: x, top: y, transform: "translate(-50%, -50%)" }}
-          title={filled ? "Occupied" : "Empty"}
-        />
-      )
+    
+    if (table.table_type === 'rectangular') {
+      // Rectangular table: 2 on top, 2 on each side, 2 on bottom
+      const positions = [
+        // Top side - 2 seats
+        { x: sz.w * 0.3, y: -12 },
+        { x: sz.w * 0.7, y: -12 },
+        // Right side - 2 seats
+        { x: sz.w + 12, y: sz.h * 0.3 },
+        { x: sz.w + 12, y: sz.h * 0.7 },
+        // Bottom side - 2 seats  
+        { x: sz.w * 0.7, y: sz.h + 12 },
+        { x: sz.w * 0.3, y: sz.h + 12 },
+        // Left side - 2 seats
+        { x: -12, y: sz.h * 0.7 },
+        { x: -12, y: sz.h * 0.3 },
+      ]
+      
+      for (let i = 0; i < Math.min(count, positions.length); i++) {
+        const pos = positions[i]
+        const filled = i < assigned
+        seats.push(
+          <div
+            key={i}
+            className={cn(
+              "absolute w-3.5 h-3.5 rounded-full border shadow-sm",
+              filled ? "bg-emerald-500 border-emerald-600" : "bg-gray-300 border-gray-400"
+            )}
+            style={{ left: pos.x, top: pos.y, transform: "translate(-50%, -50%)" }}
+            title={filled ? "Occupied" : "Empty"}
+          />
+        )
+      }
+    } else {
+      // Round and rectangular tables: circular arrangement
+      const radius = Math.max(sz.w, sz.h) / 2 + 14
+      const center = { x: sz.w / 2, y: sz.h / 2 }
+
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2 - Math.PI / 2
+        const x = center.x + radius * Math.cos(angle)
+        const y = center.y + radius * Math.sin(angle)
+        const filled = i < assigned
+        seats.push(
+          <div
+            key={i}
+            className={cn(
+              "absolute w-3.5 h-3.5 rounded-full border shadow-sm",
+              filled ? "bg-emerald-500 border-emerald-600" : "bg-gray-300 border-gray-400"
+            )}
+            style={{ left: x, top: y, transform: "translate(-50%, -50%)" }}
+            title={filled ? "Occupied" : "Empty"}
+          />
+        )
+      }
     }
+    
     return (
       <div className="pointer-events-none absolute" style={{ left: 0, top: 0, width: sz.w, height: sz.h }}>
         {seats}
@@ -246,21 +281,6 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
           return (
             <div
               className={cn(baseClasses, "w-24 h-16 flex items-center justify-center")}
-              style={{ left: table.position_x, top: table.position_y }}
-            >
-              <div className="text-center">
-                <div className="text-sm font-bold">{table.table_number}</div>
-                <div className="text-xs">
-                  {tableGuests.length}/{table.capacity}
-                </div>
-              </div>
-              {renderSeats(table)}
-            </div>
-          )
-        case "square":
-          return (
-            <div
-              className={cn(baseClasses, "w-20 h-20 flex items-center justify-center")}
               style={{ left: table.position_x, top: table.position_y }}
             >
               <div className="text-center">
@@ -322,7 +342,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
       <div
         ref={chartRef}
         className={cn(
-          "relative w-full border-2 border-dashed border-border rounded-lg overflow-hidden bg-[radial-gradient(circle,theme(colors.accent/10)_1px,transparent_1px)] [background-size:16px_16px]",
+          "relative w-full border-2 border-dashed border-border rounded-lg overflow-hidden bg-[radial-gradient(circle,theme(colors.accent/10)_1px,transparent_1px)] [background-size:12px_12px]",
           heightClass
         )}
         onDrop={handleChartDrop}
@@ -400,7 +420,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
 
       {/* Table Details Dialog */}
       <Dialog open={!!selectedTable} onOpenChange={() => setSelectedTable(null)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>
               Table {selectedTable?.table_number}

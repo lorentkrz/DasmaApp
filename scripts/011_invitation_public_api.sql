@@ -23,7 +23,7 @@ as $$
          g.rsvp_status
   from public.invitations i
   join public.guests g on g.id = i.guest_id
-  where i.unique_token = p_token
+  where i.token = p_token
   limit 1;
 $$;
 
@@ -44,15 +44,16 @@ begin
 
   update public.guests g
   set rsvp_status = p_status,
-      rsvp_responded_at = timezone('utc', now())
+      rsvp_responded_at = timezone('utc', now()),
+      updated_at = timezone('utc', now())
   from public.invitations i
-  where i.unique_token = p_token
+  where i.token = p_token
     and g.id = i.guest_id;
 
   update public.invitations i
   set responded_at = coalesce(i.responded_at, timezone('utc', now())),
       opened_at = coalesce(i.opened_at, timezone('utc', now()))
-  where i.unique_token = p_token;
+  where i.token = p_token;
 end;
 $$;
 
