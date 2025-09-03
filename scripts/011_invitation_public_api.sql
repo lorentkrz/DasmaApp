@@ -50,6 +50,11 @@ begin
   where i.token = p_token
     and g.id = i.guest_id;
 
+  -- Ensure we have at least one row affected
+  if not found then
+    raise exception 'No guest found for token %', p_token;
+  end if;
+
   update public.invitations i
   set responded_at = coalesce(i.responded_at, timezone('utc', now())),
       opened_at = coalesce(i.opened_at, timezone('utc', now()))

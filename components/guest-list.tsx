@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,7 +29,6 @@ interface Guest {
   rsvp_status: string
   rsvp_responded_at: string | null
   dietary_restrictions: string | null
-  invitation_sent: boolean
   invitations?: Array<{
     id: string
     token?: string
@@ -70,10 +70,53 @@ const guestTypeTranslations: Record<string, string> = {
   infant: "Foshnjë"
 }
 
-export function GuestList({ guests, weddingId }: GuestListProps) {
+function GuestList({ guests }: { guests: Guest[] }) {
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedType, setSelectedType] = useState("all")
+  const [selectedStatus, setSelectedStatus] = useState("all")
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards")
+  const { toast } = useToast()
   const router = useRouter()
+
+  const handleStatusChange = async (guestId: string, newStatus: string) => {
+    try {
+      const supabase = createClient()
+      
+      const { error } = await supabase
+        .from('guests')
+        .update({ 
+          rsvp_status: newStatus,
+          rsvp_responded_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', guestId)
+
+      if (error) {
+        console.error('Error updating RSVP status:', error)
+        toast({
+          title: "Gabim",
+          description: "Nuk u arrit të përditësohet statusi i RSVP",
+          variant: "destructive",
+        })
+        return
+      }
+
+      toast({
+        title: "Sukses",
+        description: "Statusi i RSVP u përditësua me sukses",
+      })
+      
+      // Refresh the page to show updated data
+      router.refresh()
+    } catch (error) {
+      console.error('Error updating RSVP status:', error)
+      toast({
+        title: "Gabim",
+        description: "Ndodhi një gabim gjatë përditësimit",
+        variant: "destructive",
+      })
+    }
+  }
 
   const filteredGuests = guests.filter((guest) => {
     const matchesSearch = 
@@ -82,7 +125,7 @@ export function GuestList({ guests, weddingId }: GuestListProps) {
       guest.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       guest.phone?.includes(searchTerm)
 
-    const matchesStatus = statusFilter === "all" || guest.rsvp_status === statusFilter
+    const matchesStatus = selectedStatus === "all" || guest.rsvp_status === selectedStatus
 
     return matchesSearch && matchesStatus
   })
@@ -95,11 +138,18 @@ export function GuestList({ guests, weddingId }: GuestListProps) {
       const { error } = await supabase.from("guests").delete().eq("id", guestId)
 
       if (error) throw error
-      toast.success("Mysafiri u fshi me sukses!")
+      toast({
+        title: "Sukses",
+        description: "Mysafiri u fshi me sukses!",
+      })
       router.refresh()
     } catch (error) {
       console.error("Gabim gjatë fshirjes së mysafirit:", error)
-      toast.error("Gabim në fshirjen e mysafirit")
+      toast({
+        title: "Gabim",
+        description: "Gabim në fshirjen e mysafirit",
+        variant: "destructive",
+      })
     }
   }
 
@@ -117,7 +167,7 @@ export function GuestList({ guests, weddingId }: GuestListProps) {
               className="pl-10 bg-white/90 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-rose-300"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger className="w-full sm:w-48 bg-white/90 border-gray-200 rounded-xl shadow-sm">
               <Filter className="h-4 w-4 mr-2 text-gray-400" />
               <SelectValue placeholder="Filtroni sipas statusit" />
@@ -132,7 +182,7 @@ export function GuestList({ guests, weddingId }: GuestListProps) {
           </Select>
         </div>
         <Button asChild className="w-full sm:w-auto bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-          <Link href={`/dashboard/guests/new?wedding_id=${weddingId}`}>
+          <Link href="/dashboard/guests/new">
             <Plus className="h-4 w-4 mr-2" />
             Shto Mysafir
           </Link>
@@ -208,29 +258,14 @@ export function GuestList({ guests, weddingId }: GuestListProps) {
                   )}
                 </div>
 
-                {/* Plus One Info */}
-                {(guest.plus_one_allowed || guest.plus_one) && (
-                  <div className="pt-2 border-t border-gray-100">
-                    {guest.plus_one_name ? (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Heart className="h-4 w-4 text-rose-500" fill="currentColor" />
-                        <span className="font-medium text-gray-700">+ {guest.plus_one_name}</span>
-                      </div>
-                    ) : (
-                      <Badge className="bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300 text-xs">
-                        Shoqërues i lejuar
-                      </Badge>
-                    )}
-                  </div>
-                )}
 
                 {/* Invitation Status and Send Button */}
                 <div className="pt-2 border-t border-gray-100 space-y-2">
-                  <Badge className={guest.invitation_sent 
+                  <Badge className={guest.invitations && guest.invitations.length > 0 && guest.invitations[0].sent_at
                     ? "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border-emerald-300 text-xs" 
                     : "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300 text-xs"
                   }>
-                    {guest.invitation_sent ? "Ftesa e dërguar" : "Ftesa e padërguar"}
+                    {guest.invitations && guest.invitations.length > 0 && guest.invitations[0].sent_at ? "Ftesa e dërguar" : "Ftesa e padërguar"}
                   </Badge>
                   {guest.invitations && guest.invitations.length > 0 && guest.phone && (
                     <WhatsAppSendButton
@@ -257,7 +292,7 @@ export function GuestList({ guests, weddingId }: GuestListProps) {
                 <TableHead className="font-bold text-gray-800 py-4">Kontakti</TableHead>
                 <TableHead className="font-bold text-gray-800 py-4">Lloji</TableHead>
                 <TableHead className="font-bold text-gray-800 py-4">Statusi i RSVP</TableHead>
-                <TableHead className="font-bold text-gray-800 py-4">Shoqërues</TableHead>
+                <TableHead className="text-center">Vërejtje</TableHead>
                 <TableHead className="font-bold text-gray-800 py-4">Ftesa</TableHead>
                 <TableHead className="w-12 font-bold text-gray-800 py-4">Veprime</TableHead>
               </TableRow>
@@ -315,33 +350,32 @@ export function GuestList({ guests, weddingId }: GuestListProps) {
                       </Badge>
                     </TableCell>
                     <TableCell className="py-4">
-                      <Badge className={rsvpStatusColors[guest.rsvp_status as keyof typeof rsvpStatusColors]}>
-                        {statusTranslations[guest.rsvp_status]}
-                      </Badge>
+                      <select
+                        value={guest.rsvp_status}
+                        onChange={(e) => handleStatusChange(guest.id, e.target.value)}
+                        className={`px-3 py-1 rounded-full text-sm font-medium border-0 focus:ring-2 focus:ring-rose-300 ${
+                          guest.rsvp_status === 'attending' ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800' :
+                          guest.rsvp_status === 'not_attending' ? 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800' :
+                          guest.rsvp_status === 'maybe' ? 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800' :
+                          'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800'
+                        }`}
+                      >
+                        <option value="pending">Në pritje</option>
+                        <option value="attending">Do të vijë</option>
+                        <option value="not_attending">Nuk do të vijë</option>
+                        <option value="maybe">Ndoshta</option>
+                      </select>
                     </TableCell>
                     <TableCell className="py-4">
-                      {(guest.plus_one_allowed || guest.plus_one) ? (
-                        guest.plus_one_name ? (
-                          <div className="flex items-center gap-2">
-                            <Heart className="h-4 w-4 text-rose-500" fill="currentColor" />
-                            <span className="text-sm font-medium text-gray-700">{guest.plus_one_name}</span>
-                          </div>
-                        ) : (
-                          <Badge className="bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300">
-                            E lejuar
-                          </Badge>
-                        )
-                      ) : (
-                        <span className="text-gray-400 text-sm">Jo</span>
-                      )}
+                      <span className="text-gray-400 text-sm">-</span>
                     </TableCell>
                     <TableCell className="py-4">
                       <div className="space-y-2">
-                        <Badge className={guest.invitation_sent 
+                        <Badge className={guest.invitations && guest.invitations.length > 0 && guest.invitations[0].sent_at
                           ? "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border-emerald-300" 
                           : "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300"
                         }>
-                          {guest.invitation_sent ? "E dërguar" : "E padërguar"}
+                          {guest.invitations && guest.invitations.length > 0 && guest.invitations[0].sent_at ? "E dërguar" : "E padërguar"}
                         </Badge>
                         {guest.invitations && guest.invitations.length > 0 && guest.phone && (
                           <WhatsAppSendButton
@@ -387,3 +421,5 @@ export function GuestList({ guests, weddingId }: GuestListProps) {
     </div>
   )
 }
+
+export default GuestList

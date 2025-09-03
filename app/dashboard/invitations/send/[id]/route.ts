@@ -50,7 +50,7 @@ export async function GET(
 
   console.log('👤 Sending to:', guestName, 'Phone:', phone)
 
-  // Create beautiful personalized Albanian wedding message
+  // Create personalized Albanian wedding message with minimal emojis
   const formattedDate = weddingDate ? new Date(weddingDate).toLocaleDateString('sq-AL', { 
     weekday: 'long', 
     year: 'numeric', 
@@ -58,29 +58,29 @@ export async function GET(
     day: 'numeric' 
   }) : 'Data do të njoftohet së shpejti'
 
-  const message = `💒✨ FTESË PËR DASMË ✨💒
+  const message = `FTESË PËR DASMË
 
-🌹 I/E dashur ${guestName}, 🌹
+I/E dashur ${guestName},
 
 Me zemër të plotë gëzimi dhe dashuri, ju ftojmë të jeni pjesë e ditës më të bukur të jetës sonë!
 
-👰🏻 ${brideName} ❤️ ${groomName} 🤵🏻
+${brideName} & ${groomName}
 
-🗓️ Data: ${formattedDate}
-🏛️ Vendi: ${venue || 'Vendi do të njoftohet së shpejti'}
+Data: ${formattedDate}
+Vendi: ${venue || 'Vendi do të njoftohet së shpejti'}
 
 Prania juaj do të na bëjë këtë ditë edhe më të veçantë dhe të paharrueshme. Së bashku do të festojmë dashurinë, familjen dhe miqësinë.
 
-🎉 Ju lutemi konfirmoni pjesëmarrjen tuaj këtu:
-👉 ${url}
+Ju lutemi konfirmoni pjesëmarrjen tuaj këtu:
+${url}
 
 Me shumë dashuri dhe mirënjohje,
-${brideName} & ${groomName} 💕
+${brideName} & ${groomName}
 
-🌸 Faleminderit që jeni pjesë e rrugëtimit tonë! 🌸
+Faleminderit që jeni pjesë e rrugëtimit tonë!
 
 ---
-✨ Kjo ftesë është e personalizuar veçanërisht për ju ✨`
+Kjo ftesë është e personalizuar veçanërisht për ju`
 
   try {
     console.log('🚀 Getting WhatsApp service...')

@@ -47,6 +47,35 @@ export default async function BudgetPage() {
     .eq("wedding_id", wedding.id)
     .order("gift_date", { ascending: false })
 
+  // Get vendor contracts
+  const { data: vendors } = await supabase
+    .from("vendors")
+    .select("id, name, contract_amount, deposit_amount, deposit_paid, status, category_id, contact_date")
+    .eq("wedding_id", wedding.id)
+    .in("status", ["booked", "contacted"]) // Only include active vendors
+
+  // Combine all spending sources into unified expense list
+  const allExpenses = [
+    // Manual expenses
+    ...(expenses || []).map(expense => ({
+      ...expense,
+      source: 'manual',
+      date: expense.created_at || expense.date
+    })),
+    // Vendor contracts as expenses
+    ...(vendors || []).map(vendor => ({
+      id: `vendor-${vendor.id}`,
+      description: `${vendor.name} - Kontratë`,
+      amount: vendor.contract_amount,
+      category_id: vendor.category_id,
+      vendor: vendor.name,
+      date: vendor.contact_date || new Date().toISOString(),
+      payment_status: vendor.deposit_paid ? 'paid' : 'pending',
+      notes: `Depozitë: $${vendor.deposit_amount || 0}`,
+      source: 'vendor'
+    }))
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 relative overflow-hidden">
       {/* Decorative Background Elements */}
@@ -79,8 +108,8 @@ export default async function BudgetPage() {
           </div>
         </div>
 
-        <BudgetOverview wedding={wedding} expenses={expenses || []} categories={categories || []} gifts={gifts || []} />
-        <BudgetExpenseList wedding={wedding} expenses={expenses || []} categories={categories || []} />
+        <BudgetOverview wedding={wedding} expenses={expenses || []} categories={categories || []} gifts={gifts || []} vendors={vendors || []} />
+        <BudgetExpenseList wedding={wedding} expenses={allExpenses} categories={categories || []} />
       </div>
     </div>
   )

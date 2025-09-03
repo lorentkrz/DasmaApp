@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { GuestList } from "@/components/guest-list"
+import GuestList from "@/components/guest-list"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, UserPlus, CheckCircle, Clock, X, Download, Upload, Heart, Sparkles, UserCheck } from "lucide-react"
@@ -227,7 +227,7 @@ export default async function GuestsPage() {
                 <p className="text-sm text-gray-400 mt-2">Wedding ID: {currentWedding.id}</p>
               </div>
             ) : (
-              <GuestList guests={guests} weddingId={currentWedding.id} />
+              <GuestList guests={guests} />
             )}
           </CardContent>
         </Card>

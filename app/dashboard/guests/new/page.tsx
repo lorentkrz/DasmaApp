@@ -29,8 +29,6 @@ export default function NewGuestPage() {
     address: "",
     guestType: "adult",
     dietaryRestrictions: "",
-    plusOneAllowed: false,
-    plusOneName: "",
     groupInvite: false,
   })
 
@@ -90,8 +88,6 @@ export default function NewGuestPage() {
             address: formData.address || null,
             guest_type: formData.guestType,
             dietary_restrictions: formData.dietaryRestrictions || null,
-            plus_one_allowed: formData.plusOneAllowed,
-            plus_one_name: formData.plusOneAllowed && formData.plusOneName ? formData.plusOneName : null,
             group_id: groupId,
           })
           .select("id")
@@ -136,8 +132,6 @@ export default function NewGuestPage() {
           address: formData.address || null,
           guest_type: formData.guestType,
           dietary_restrictions: formData.dietaryRestrictions || null,
-          plus_one_allowed: formData.plusOneAllowed,
-          plus_one_name: formData.plusOneAllowed && formData.plusOneName ? formData.plusOneName : null,
         })
         
         const { error: insertError } = await supabase.from("guests").insert({
@@ -149,8 +143,6 @@ export default function NewGuestPage() {
           address: formData.address || null,
           guest_type: formData.guestType,
           dietary_restrictions: formData.dietaryRestrictions || null,
-          plus_one_allowed: formData.plusOneAllowed,
-          plus_one_name: formData.plusOneAllowed && formData.plusOneName ? formData.plusOneName : null,
         })
         if (insertError) {
           console.error("Single guest creation error:", insertError)
@@ -298,30 +290,6 @@ export default function NewGuestPage() {
                 />
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="plusOneAllowed"
-                    checked={formData.plusOneAllowed}
-                    onCheckedChange={(checked) => handleInputChange("plusOneAllowed", checked as boolean)}
-                  />
-                  <Label htmlFor="plusOneAllowed">Lejo shoqërues</Label>
-                </div>
-
-                {formData.plusOneAllowed && (
-                  <div className="space-y-2">
-                    <Label htmlFor="plusOneName">Plus One Name (if known)</Label>
-                    <Input
-                      id="plusOneName"
-                      type="text"
-                      placeholder="Plus one's name"
-                      value={formData.plusOneName}
-                      onChange={(e) => handleInputChange("plusOneName", e.target.value)}
-                      className="border-slate-200 focus:border-slate-400 rounded-xl"
-                    />
-                  </div>
-                )}
-              </div>
 
               {/* Group Invitation */}
               <div className="space-y-3 pt-2">

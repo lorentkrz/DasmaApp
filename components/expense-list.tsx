@@ -54,7 +54,7 @@ export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) 
             <Receipt className="h-5 w-5 text-white" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold text-gray-800">Shpenzimet e Fundit</CardTitle>
+            <CardTitle className="text-2xl font-bold text-gray-800">Lista e Shpenzimeve</CardTitle>
             <p className="text-gray-600">Gjurmoni të gjitha shpenzimet për dasmën tuaj</p>
           </div>
         </div>
@@ -122,8 +122,17 @@ export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) 
                         )}
                         {expense.vendor && (
                           <span className="text-sm text-gray-600 bg-blue-50 px-3 py-1 rounded-lg">
-                            {expense.description}
+                            {expense.vendor}
                           </span>
+                        )}
+                        {expense.source && (
+                          <Badge variant="outline" className={`text-xs font-medium ${
+                            expense.source === 'vendor' 
+                              ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200' 
+                              : 'bg-gradient-to-r from-gray-50 to-slate-50 text-gray-700 border-gray-200'
+                          }`}>
+                            {expense.source === 'vendor' ? 'Kontratë' : 'Manual'}
+                          </Badge>
                         )}
                         <span className="text-sm text-gray-600 bg-amber-50 px-3 py-1 rounded-lg">
                           {new Date(expense.date).toLocaleDateString('sq-AL')}
@@ -148,20 +157,31 @@ export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) 
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    {onEdit ? (
-                      <Button variant="outline" size="sm" onClick={() => onEdit(expense)} className="rounded-xl hover:bg-blue-50 border-blue-200">
-                        <Edit className="h-4 w-4 text-blue-500" />
-                      </Button>
-                    ) : (
-                      <Link href={`/dashboard/budget/${expense.id}/edit`}>
-                        <Button variant="outline" size="sm" className="rounded-xl hover:bg-blue-50 border-blue-200">
-                          <Edit className="h-4 w-4 text-blue-500" />
+                    {expense.source !== 'vendor' && (
+                      <>
+                        {onEdit ? (
+                          <Button variant="outline" size="sm" onClick={() => onEdit(expense)} className="rounded-xl hover:bg-blue-50 border-blue-200">
+                            <Edit className="h-4 w-4 text-blue-500" />
+                          </Button>
+                        ) : (
+                          <Link href={`/dashboard/budget/${expense.id}/edit`}>
+                            <Button variant="outline" size="sm" className="rounded-xl hover:bg-blue-50 border-blue-200">
+                              <Edit className="h-4 w-4 text-blue-500" />
+                            </Button>
+                          </Link>
+                        )}
+                        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-xl">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                    {expense.source === 'vendor' && (
+                      <Link href={`/dashboard/vendors`}>
+                        <Button variant="outline" size="sm" className="rounded-xl hover:bg-green-50 border-green-200 text-green-600">
+                          Shiko Kontratën
                         </Button>
                       </Link>
                     )}
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-xl">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
               </div>

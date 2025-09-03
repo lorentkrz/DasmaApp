@@ -92,6 +92,7 @@ export default async function InvitationPage({ params }: { params: { token: stri
       
       if (rsvpError) {
         console.error('RSVP update failed:', rsvpError)
+        throw rsvpError
       }
       
       // Handle group members if needed (simplified approach)

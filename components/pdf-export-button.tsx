@@ -258,7 +258,7 @@ export function PDFExportButton({ tables, guests, weddingName }: PDFExportButton
                     <div class="guests-grid">
                       ${tableGuests.map(guest => `
                         <div class="guest-card">
-                          <div class="guest-name">${guest.first_name} ${guest.last_name}</div>
+                          <div class="guest-name">${guest.first_name || ''} ${guest.last_name || ''}</div>
                           ${guest.plus_one_name ? `<div class="plus-one">+ ${guest.plus_one_name}</div>` : ''}
                         </div>
                       `).join('')}

@@ -70,6 +70,9 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
     setLoading(true)
 
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error("Not authenticated")
+
       const { error } = await supabase
         .from("cash_gifts")
         .insert({
@@ -80,6 +83,7 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
           amount_currency: "EUR",
           gift_date: giftDate || new Date().toISOString().split('T')[0],
           notes,
+          created_by: user.id,
         })
 
       if (error) throw error

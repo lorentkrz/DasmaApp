@@ -33,32 +33,10 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
     return matchesSearch && matchesPriority
   })
 
-  // Group boards by normalized name (per wedding) and merge their tasks into one column
-  const normalize = (s: string) => (s || "").trim().toLowerCase()
-  type BoardGroup = { 
-    id: string
-    name: string
-    wedding_id: string
-    position?: number
-    color?: string | null
-    ids: string[]
-  }
-  const groupsMap = new Map<string, BoardGroup>()
-  for (const b of boards) {
-    const key = `${b.wedding_id}:${normalize(b.name)}`
-    if (!groupsMap.has(key)) {
-      groupsMap.set(key, { id: b.id, name: b.name, wedding_id: b.wedding_id, position: b.position, color: b.color, ids: [b.id] })
-    } else {
-      groupsMap.get(key)!.ids.push(b.id)
-    }
-  }
-  const groupedBoards = Array.from(groupsMap.values()).sort(
-    (a, b) => (a.position ?? 0) - (b.position ?? 0)
-  )
-
-  const tasksByBoard = groupedBoards.map((group) => {
-    const boardTasks = filteredTasks.filter((t) => group.ids.includes(t.board_id))
-    return { ...group, tasks: boardTasks, count: boardTasks.length }
+  // Use boards directly without grouping to avoid duplicates
+  const tasksByBoard = boards.map((board) => {
+    const boardTasks = filteredTasks.filter((t) => t.board_id === board.id)
+    return { ...board, tasks: boardTasks, count: boardTasks.length }
   })
 
   const getPriorityColor = (priority: string) => {

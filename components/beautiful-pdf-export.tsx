@@ -336,7 +336,7 @@ export function BeautifulPDFExport({ tables, guests, weddingName }: BeautifulPDF
       className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
     >
       <Download className="h-5 w-5 mr-2" />
-      Eksporto PDF të Bukur
+      Export PDF
     </Button>
   )
 }

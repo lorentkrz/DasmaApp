@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { VendorListWrapper } from "@/components/vendor-list-wrapper"
 import { VendorAddButton } from "@/components/vendor-add-button"
-import { Heart, Sparkles, Store } from "lucide-react"
+import { DashboardLayout } from "@/components/dashboard-layout"
+import { Store } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -33,42 +34,13 @@ export default async function VendorsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-rose-200/30 to-pink-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-amber-200/30 to-rose-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-pink-200/20 to-amber-200/20 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="space-y-8 px-4 md:px-6 pt-6 relative z-10">
-        {/* Enhanced Header - Mobile Responsive */}
-        <div className="flex flex-col space-y-4 mb-6 md:mb-8">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center shadow-lg">
-                <Store className="h-5 w-5 md:h-6 md:w-6 text-white" />
-              </div>
-              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 bg-clip-text text-transparent">
-                Shitësit & Kontratat
-              </h1>
-              <Sparkles className="h-8 w-8 text-amber-400 animate-bounce" />
-            </div>
-            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 md:px-6 py-2 md:py-3 shadow-lg">
-              <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
-              <p className="text-gray-700 font-medium text-base md:text-lg">
-                Menaxhoni shitësit dhe kontratat për dasmën tuaj të përsosur
-              </p>
-              <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
-            <VendorAddButton wedding={wedding} />
-          </div>
-        </div>
-
-        <VendorListWrapper wedding={wedding} vendors={vendors || []} />
-      </div>
-    </div>
+    <DashboardLayout
+      title="Shitësit & Kontratat"
+      description="Menaxhoni shitësit dhe kontratat për dasmën tuaj të ëndërruar"
+      icon={Store}
+      actions={<VendorAddButton wedding={wedding} />}
+    >
+      <VendorListWrapper wedding={wedding} vendors={vendors || []} />
+    </DashboardLayout>
   )
 }

@@ -1,16 +1,15 @@
 "use client"
 
-import { createClient } from "@/lib/supabase/client"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { createClient } from "@/lib/supabase/client"
 import { SeatingChart } from "@/components/seating-chart"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Calendar, MapPin, Plus, Edit, Trash2, Search, Filter, UserCheck, UserX, Clock, Baby, Loader2, Download, Heart, Sparkles, Armchair, Settings } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Users, Plus, Download, Armchair, Calendar, MapPin, Heart, Sparkles, X, Loader2, Settings } from "lucide-react"
 import Link from "next/link"
 import { BeautifulPDFExport } from "@/components/beautiful-pdf-export"
-import { AISeatingsuggestions } from "@/components/ai-seating-suggestions"
-import { RealTimeCollaboration } from "@/components/real-time-collaboration"
 
 interface Wedding {
   id: string
@@ -46,10 +45,11 @@ interface Guest {
 
 export default function SeatingPage() {
   const router = useRouter()
+  const [wedding, setWedding] = useState<Wedding | null>(null)
+  const [tables, setTables] = useState<any[]>([])
+  const [guests, setGuests] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [currentWedding, setCurrentWedding] = useState<Wedding | null>(null)
-  const [tables, setTables] = useState<Table[]>([])
-  const [guests, setGuests] = useState<Guest[]>([])
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   useEffect(() => {
     async function loadData() {
@@ -79,7 +79,7 @@ export default function SeatingPage() {
       }
 
       const wedding = weddings[0]
-      setCurrentWedding(wedding)
+      setWedding(weddings[0])
 
       // Fetch tables and guests
       const [{ data: tablesData }, { data: guestsData }] = await Promise.all([
@@ -113,7 +113,7 @@ export default function SeatingPage() {
     )
   }
 
-  if (!currentWedding) {
+  if (!wedding) {
     return null
   }
 
@@ -146,7 +146,7 @@ export default function SeatingPage() {
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg">
               <p className="text-gray-700 font-medium text-lg">
-                Dizajnoni rregullimin e uljes për dasmën e {currentWedding.bride_name} & {currentWedding.groom_name}
+                Menaxhoni rregullimin e uljes për dasmën tuaj të ëndërruar
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function SeatingPage() {
             <BeautifulPDFExport 
               tables={tables} 
               guests={guests} 
-              weddingName={`${currentWedding.bride_name} & ${currentWedding.groom_name}`}
+              weddingName={`${wedding.bride_name} & ${wedding.groom_name}`}
             />
             <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
               <Link href="/dashboard/seating/tables/new">
@@ -218,32 +218,12 @@ export default function SeatingPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                {guests
-                  .filter((g) => !g.table_assignment)
-                  .map((guest) => (
-                    <div
-                      key={guest.id}
-                      className="p-3 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-xl border border-amber-200 cursor-move hover:from-amber-200 hover:to-yellow-200 transition-all shadow-sm"
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("text/plain", JSON.stringify({ type: "guest", data: guest }))
-                      }}
-                    >
-                      <div className="text-sm font-bold text-amber-800">
-                        {guest.first_name} {guest.last_name}
-                      </div>
-                      {guest.plus_one_name && (
-                        <div className="text-xs text-amber-600">+ {guest.plus_one_name}</div>
-                      )}
-                    </div>
-                  ))}
-                {unassignedGuests === 0 && (
-                  <div className="text-center text-amber-600 py-3 text-sm font-medium">
-                    Të gjithë mysafirët janë caktuar!
-                  </div>
-                )}
-              </div>
+              <div className="text-3xl font-bold text-amber-800 mb-3">{unassignedGuests}</div>
+              {unassignedGuests === 0 && (
+                <div className="text-center text-amber-600 py-3 text-sm font-medium">
+                  Të gjithë mysafirët janë caktuar!
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -274,14 +254,64 @@ export default function SeatingPage() {
           </div>
         </div>
 
-        {/* AI Suggestions */}
-        <div className="mb-6">
-          <AISeatingsuggestions 
-            guests={guests} 
-            tables={tables} 
-            weddingId={currentWedding.id}
-            onSuggestionsApplied={() => window.location.reload()}
-          />
+        <div className="flex gap-4">
+          {/* Collapsible Unassigned Guests Sidebar */}
+          <div className={`transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-12'} flex-shrink-0`}>
+            <div className="sticky top-4">
+              <Card className="rounded-2xl border-0 shadow-xl bg-white/90 backdrop-blur-sm h-[calc(100vh-8rem)]">
+                <CardHeader className="bg-gradient-to-r from-amber-100/50 to-yellow-100/50 rounded-t-2xl p-3">
+                  <div className="flex items-center justify-between">
+                    {sidebarOpen && (
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-amber-600" />
+                        <div>
+                          <CardTitle className="text-sm font-bold text-amber-800">
+                            Pa Caktuar ({unassignedGuests})
+                          </CardTitle>
+                        </div>
+                      </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSidebarOpen(!sidebarOpen)}
+                      className="h-8 w-8 p-0 text-amber-600 hover:bg-amber-200"
+                    >
+                      {sidebarOpen ? <X className="h-4 w-4" /> : <Users className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </CardHeader>
+                {sidebarOpen && (
+                  <CardContent className="p-3 overflow-y-auto">
+                    <div className="space-y-2">
+                      {guests
+                        .filter((g) => !g.table_assignment)
+                        .map((guest) => (
+                          <div
+                            key={guest.id}
+                            className="p-2 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-lg border border-amber-300 cursor-move hover:from-amber-200 hover:to-yellow-200 transition-all shadow-sm hover:shadow-md"
+                            draggable
+                            onDragStart={(e) => {
+                              e.dataTransfer.setData("text/plain", JSON.stringify({ type: "guest", data: guest }))
+                            }}
+                          >
+                            <div className="text-xs font-bold text-amber-900 truncate">
+                              {guest.first_name} {guest.last_name}
+                            </div>
+                            {guest.plus_one_name && (
+                              <div className="text-xs text-amber-700 truncate">+ {guest.plus_one_name}</div>
+                            )}
+                            <div className="text-xs text-amber-600 mt-1 font-medium">
+                              {guest.guest_type === 'bride_side' ? 'Anë nuses' : 'Anë dhëndrit'}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            </div>
+          </div>
         </div>
 
         {/* Enhanced Seating Chart */}
@@ -299,13 +329,11 @@ export default function SeatingPage() {
               </div>
             </CardHeader>
             <CardContent className="p-6">
-              <SeatingChart tables={tables} guests={guests} weddingId={currentWedding.id} heightClass="h-[78vh]" />
+                <SeatingChart tables={tables} guests={guests} weddingId={wedding.id} heightClass="h-[60vh]" />
             </CardContent>
           </Card>
         </div>
 
-        {/* Real-time Collaboration */}
-        <RealTimeCollaboration weddingId={currentWedding.id} currentPage="seating" />
       </div>
     </div>
   )

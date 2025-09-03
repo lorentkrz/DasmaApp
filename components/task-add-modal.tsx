@@ -141,15 +141,11 @@ export function TaskAddModal({ boardId, boardName, weddingId, trigger }: TaskAdd
           {!boardId && (
             <div className="space-y-2">
               <Label htmlFor="board_id">Kolona *</Label>
-              <Select value={formData.board_id} onValueChange={(value) => setFormData(prev => ({ ...prev, board_id: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Zgjidhni kolonën..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Zgjidhni kolonën...</SelectItem>
-                  {/* Note: In real implementation, you'd pass boards as props */}
-                </SelectContent>
-              </Select>
+              <Input
+                value={boardName || "Kolona e zgjedhur"}
+                disabled
+                className="bg-gray-50"
+              />
             </div>
           )}
 
