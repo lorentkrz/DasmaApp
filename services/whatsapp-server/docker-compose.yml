@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   whatsapp:
     build: .
@@ -9,9 +8,11 @@ services:
       - PORT=3001
       - API_KEY=${API_KEY}
       - WHATSAPP_DATA_PATH=/app/whatsapp-session
-      # - CHROME_PATH=/usr/bin/google-chrome-stable   # optional if using system chrome
+      - CHROME_PATH=${CHROME_PATH:-/usr/bin/chromium-browser}
+      - PUPPETEER_EXECUTABLE_PATH=${PUPPETEER_EXECUTABLE_PATH:-/usr/bin/chromium-browser}
     volumes:
       - whatsapp_session:/app/whatsapp-session
+    shm_size: "1gb"
     restart: unless-stopped
 volumes:
   whatsapp_session:
