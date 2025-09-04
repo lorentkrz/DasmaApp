@@ -2,6 +2,9 @@
 
 # dependencies
 /node_modules
+# Also ignore nested node_modules everywhere
+node_modules/
+**/node_modules/
 
 # next.js
 /.next/
@@ -25,3 +28,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# whatsapp session data (large, machine-specific)
+whatsapp-session/
+
+# Puppeteer/Chromium local binaries (very large)
+**/.local-chromium/

@@ -15,6 +15,7 @@ RUN apk add --no-cache \
 
 # Ensure puppeteer knows where Chromium is on Alpine
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV CHROME_PATH=/usr/bin/chromium-browser
 
 COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
 RUN npm install --omit=dev || yarn install --production || true

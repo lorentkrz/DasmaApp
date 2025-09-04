@@ -5,6 +5,9 @@ import { getWhatsAppService } from "@/lib/whatsapp"
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+const SERVICE_URL = process.env.WHATSAPP_SERVICE_URL
+const SERVICE_KEY = process.env.WHATSAPP_SERVICE_KEY
+
 export async function GET(
   _req: Request,
   { params }: { params: { id: string } }
@@ -77,47 +80,75 @@ ${url}
 Me shumë dashuri dhe mirënjohje,
 ${brideName} & ${groomName}
 
-Faleminderit që jeni pjesë e rrugëtimit tonë!
-
----
-Kjo ftesë është e personalizuar veçanërisht për ju`
+Faleminderit që jeni pjesë e rrugëtimit tonë!`
 
   try {
-    console.log('🚀 Getting WhatsApp service...')
-    const whatsappService = getWhatsAppService()
-    const status = whatsappService.getStatus()
-    
-    console.log('📊 WhatsApp status before send:', JSON.stringify(status, null, 2))
-    
-    // Check if client exists and try to refresh status
-    if (status.hasClient && !status.ready && !status.initializing) {
-      console.log('🔍 Client exists but not ready, refreshing status...')
-      await whatsappService.refreshStatus()
-    }
-    
-    // Re-check status after potential update
-    const updatedStatus = whatsappService.getStatus()
-    console.log('📊 Updated WhatsApp status:', JSON.stringify(updatedStatus, null, 2))
-    
-    if (!updatedStatus.ready) {
-      console.error('❌ WhatsApp not ready:', updatedStatus)
-      return new Response(JSON.stringify({ 
-        error: "WhatsApp not connected", 
-        details: "Please connect WhatsApp first in Dashboard → WhatsApp",
-        debug: updatedStatus
-      }), { status: 400 })
-    }
+    // If an external WhatsApp microservice is configured, proxy to it.
+    if (SERVICE_URL) {
+      console.log('🌐 Using external WhatsApp service at', SERVICE_URL)
+      // 1) Check status on the microservice
+      const statusResp = await fetch(`${SERVICE_URL}/status`, {
+        headers: SERVICE_KEY ? { 'X-API-KEY': SERVICE_KEY } : undefined,
+        cache: 'no-store'
+      })
+      const statusData = await statusResp.json()
+      console.log('📊 External status:', statusData)
+      if (!statusResp.ok || !statusData.ready) {
+        return new Response(JSON.stringify({
+          error: "WhatsApp not connected",
+          details: "Please connect WhatsApp first in Dashboard → WhatsApp",
+          debug: statusData
+        }), { status: 400 })
+      }
 
-    console.log('📤 Sending WhatsApp message...')
-    const result = await whatsappService.sendMessage(phone, message)
-    console.log('📥 Send result:', result)
-    
-    if (!result.success) {
-      console.error('❌ Failed to send:', result.error)
-      return new Response(JSON.stringify({ 
-        error: "Failed to send WhatsApp message", 
-        details: result.error 
-      }), { status: 502 })
+      // 2) Send via microservice
+      console.log('📤 Proxying send to external service...')
+      const sendResp = await fetch(`${SERVICE_URL}/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(SERVICE_KEY ? { 'X-API-KEY': SERVICE_KEY } : {})
+        },
+        body: JSON.stringify({ to: phone, message })
+      })
+      const sendData = await sendResp.json()
+      console.log('📥 External send response:', sendData)
+      if (!sendResp.ok || !sendData.success) {
+        return new Response(JSON.stringify({
+          error: "Failed to send WhatsApp message",
+          details: sendData?.error || `HTTP ${sendResp.status}`
+        }), { status: 502 })
+      }
+    } else {
+      // Fallback: use in-process service for local dev
+      console.log('🚀 Using in-process WhatsApp service...')
+      const whatsappService = getWhatsAppService()
+      const status = whatsappService.getStatus()
+      console.log('📊 WhatsApp status before send:', JSON.stringify(status, null, 2))
+      if (status.hasClient && !status.ready && !status.initializing) {
+        console.log('🔍 Client exists but not ready, refreshing status...')
+        await whatsappService.refreshStatus()
+      }
+      const updatedStatus = whatsappService.getStatus()
+      console.log('📊 Updated WhatsApp status:', JSON.stringify(updatedStatus, null, 2))
+      if (!updatedStatus.ready) {
+        console.error('❌ WhatsApp not ready:', updatedStatus)
+        return new Response(JSON.stringify({ 
+          error: "WhatsApp not connected", 
+          details: "Please connect WhatsApp first in Dashboard → WhatsApp",
+          debug: updatedStatus
+        }), { status: 400 })
+      }
+      console.log('📤 Sending WhatsApp message (local)...')
+      const result = await whatsappService.sendMessage(phone, message)
+      console.log('📥 Send result:', result)
+      if (!result.success) {
+        console.error('❌ Failed to send:', result.error)
+        return new Response(JSON.stringify({ 
+          error: "Failed to send WhatsApp message", 
+          details: result.error 
+        }), { status: 502 })
+      }
     }
 
     console.log('✅ Message sent successfully, updating database...')
