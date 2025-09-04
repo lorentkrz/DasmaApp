@@ -30,6 +30,7 @@ CREATE INDEX IF NOT EXISTS invitations_guest_id_idx ON public.invitations(guest_
 ALTER TABLE public.invitations ENABLE ROW LEVEL SECURITY;
 
 -- Policy for authenticated users (wedding owners/collaborators)
+DROP POLICY IF EXISTS "Users can manage invitations for their weddings" ON public.invitations;
 CREATE POLICY "Users can manage invitations for their weddings" ON public.invitations
     FOR ALL USING (
         wedding_id IN (
@@ -43,10 +44,12 @@ CREATE POLICY "Users can manage invitations for their weddings" ON public.invita
     );
 
 -- Policy for public access via token (no authentication required)
+DROP POLICY IF EXISTS "Public can view invitations by token" ON public.invitations;
 CREATE POLICY "Public can view invitations by token" ON public.invitations
     FOR SELECT USING (true);
 
 -- Policy for public RSVP updates via token
+DROP POLICY IF EXISTS "Public can update RSVP via token" ON public.invitations;
 CREATE POLICY "Public can update RSVP via token" ON public.invitations
     FOR UPDATE USING (true);
 
@@ -59,6 +62,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_invitations_updated_at ON public.invitations;
 CREATE TRIGGER update_invitations_updated_at
     BEFORE UPDATE ON public.invitations
     FOR EACH ROW

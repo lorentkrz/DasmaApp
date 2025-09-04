@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Search, Filter, Phone, Mail, Edit, Trash2, Plus, Users, MoreHorizontal, Heart, Send } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -24,7 +25,6 @@ interface Guest {
   phone: string | null
   guest_type: string
   plus_one_allowed?: boolean
-  plus_one?: boolean
   plus_one_name: string | null
   rsvp_status: string
   rsvp_responded_at: string | null
@@ -32,7 +32,6 @@ interface Guest {
   invitations?: Array<{
     id: string
     token?: string
-    unique_token?: string
     sent_at?: string
     opened_at?: string
     responded_at?: string
@@ -59,15 +58,21 @@ const statusTranslations: Record<string, string> = {
 }
 
 const guestTypeColors = {
-  adult: "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300",
+  regular: "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300",
   child: "bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 border-blue-300",
-  infant: "bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 border-pink-300",
+  family: "bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300",
+  friend: "bg-gradient-to-r from-purple-100 to-violet-100 text-purple-800 border-purple-300",
+  colleague: "bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border-orange-300",
+  plus_one: "bg-gradient-to-r from-pink-100 to-rose-100 text-pink-800 border-pink-300",
 }
 
 const guestTypeTranslations: Record<string, string> = {
-  adult: "I rritur",
+  regular: "I rritur",
   child: "Fëmijë",
-  infant: "Foshnjë"
+  family: "Familjar",
+  friend: "Mik",
+  colleague: "Koleg",
+  plus_one: "Shoqërues"
 }
 
 function GuestList({ guests }: { guests: Guest[] }) {
@@ -130,24 +135,22 @@ function GuestList({ guests }: { guests: Guest[] }) {
     return matchesSearch && matchesStatus
   })
 
-  const handleDelete = async (guestId: string) => {
-    if (!confirm("Jeni të sigurt që doni ta fshini këtë mysafir?")) return
-
+  const handleDelete = async (guestId: string, guestName: string) => {
     try {
       const supabase = createClient()
       const { error } = await supabase.from("guests").delete().eq("id", guestId)
 
       if (error) throw error
       toast({
-        title: "Sukses",
-        description: "Mysafiri u fshi me sukses!",
+        title: "Mysafiri u fshi!",
+        description: `${guestName} u largua me sukses nga lista.`,
       })
       router.refresh()
     } catch (error) {
       console.error("Gabim gjatë fshirjes së mysafirit:", error)
       toast({
-        title: "Gabim",
-        description: "Gabim në fshirjen e mysafirit",
+        title: "Gabim!",
+        description: "Nuk u arrit të fshihet mysafiri. Provoni përsëri.",
         variant: "destructive",
       })
     }
@@ -230,13 +233,34 @@ function GuestList({ guests }: { guests: Guest[] }) {
                           Ndrysho
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => handleDelete(guest.id)}
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Fshi
-                      </DropdownMenuItem>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <DropdownMenuItem 
+                            onSelect={(e) => e.preventDefault()}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Fshi
+                          </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Fshi Mysafirin</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Jeni të sigurt që doni të fshini "{guest.first_name} {guest.last_name}"? Ky veprim nuk mund të zhbëhet.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Anulo</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDelete(guest.id, `${guest.first_name} ${guest.last_name}`)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Fshi
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -401,13 +425,34 @@ function GuestList({ guests }: { guests: Guest[] }) {
                               Ndrysho
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDelete(guest.id)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Fshi
-                          </DropdownMenuItem>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem 
+                                onSelect={(e) => e.preventDefault()}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Fshi
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Fshi Mysafirin</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Jeni të sigurt që doni të fshini "{guest.first_name} {guest.last_name}"? Ky veprim nuk mund të zhbëhet.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Anulo</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDelete(guest.id, `${guest.first_name} ${guest.last_name}`)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Fshi
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

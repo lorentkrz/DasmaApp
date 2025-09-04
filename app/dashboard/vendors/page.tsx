@@ -37,7 +37,7 @@ export default async function VendorsPage() {
     <DashboardLayout
       title="Shitësit & Kontratat"
       description="Menaxhoni shitësit dhe kontratat për dasmën tuaj të ëndërruar"
-      icon={Store}
+      icon="Store"
       actions={<VendorAddButton wedding={wedding} />}
     >
       <VendorListWrapper wedding={wedding} vendors={vendors || []} />

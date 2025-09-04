@@ -5,8 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Search, Filter, Edit, Trash2, Receipt, DollarSign } from "lucide-react"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
 interface ExpenseListProps {
   expenses: any[]
@@ -17,6 +21,34 @@ interface ExpenseListProps {
 export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const { toast } = useToast()
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleDelete = async (expenseId: string, expenseDescription: string) => {
+    try {
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .eq('id', expenseId)
+
+      if (error) throw error
+
+      toast({
+        title: "Shpenzimi u fshi!",
+        description: `"${expenseDescription}" u largua me sukses nga lista.`,
+      })
+
+      router.refresh()
+    } catch (error) {
+      console.error('Error deleting expense:', error)
+      toast({
+        title: "Gabim!",
+        description: "Nuk u arrit të fshihet shpenzimi. Provoni përsëri.",
+        variant: "destructive",
+      })
+    }
+  }
 
   const categoryMap = new Map<string, { name: string; color?: string }>((categories || []).map((c) => [c.id, { name: c.name, color: c.color }]))
   const categoryNames = ["all", ...(categories || []).map((c) => c.name)]
@@ -170,9 +202,34 @@ export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) 
                             </Button>
                           </Link>
                         )}
-                        <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-xl">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 rounded-xl shadow-sm transition-all duration-200 hover:shadow-md"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Fshi Shpenzimin</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Jeni të sigurt që doni të fshini "{expense.description}"? Ky veprim nuk mund të zhbëhet.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Anulo</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDelete(expense.id, expense.description)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Fshi
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </>
                     )}
                     {expense.source === 'vendor' && (

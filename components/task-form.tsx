@@ -12,17 +12,19 @@ import { Textarea } from "@/components/ui/textarea"
 import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 interface TaskFormProps {
   wedding: any
   boards: any[]
   defaultBoardId?: string
   task?: any
+  onSuccess?: () => void
 }
 
 const TASK_PRIORITIES = ["low", "medium", "high", "urgent"]
 
-export function TaskForm({ wedding, boards, defaultBoardId, task }: TaskFormProps) {
+export function TaskForm({ wedding, boards, defaultBoardId, task, onSuccess }: TaskFormProps) {
   const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
@@ -47,7 +49,6 @@ export function TaskForm({ wedding, boards, defaultBoardId, task }: TaskFormProp
     setLoading(true)
 
     try {
-      // get current user for created_by
       const {
         data: { user },
       } = await supabase.auth.getUser()
@@ -66,7 +67,7 @@ export function TaskForm({ wedding, boards, defaultBoardId, task }: TaskFormProp
       let taskData: any = { ...baseData }
 
       if (!task) {
-        // Only compute position and set created_by on create
+        // Only compute position on create
         const { data: posRows } = await supabase
           .from("tasks")
           .select("position")
@@ -75,7 +76,6 @@ export function TaskForm({ wedding, boards, defaultBoardId, task }: TaskFormProp
           .limit(1)
         const nextPos = (posRows?.[0]?.position || 0) + 1
         taskData.position = nextPos
-        taskData.created_by = user.id
       }
 
       if (task) {
@@ -83,17 +83,24 @@ export function TaskForm({ wedding, boards, defaultBoardId, task }: TaskFormProp
         const { error } = await supabase.from("tasks").update(taskData).eq("id", task.id)
 
         if (error) throw error
+        toast.success("Task updated successfully!")
+
+        onSuccess?.()
       } else {
         // Create new task
         const { error } = await supabase.from("tasks").insert([taskData])
 
         if (error) throw error
+        toast.success("Task created successfully!")
+
+        onSuccess?.()
       }
 
       router.push("/dashboard/tasks")
       router.refresh()
     } catch (error) {
       console.error("Error saving task:", error)
+      toast.error(`Error saving task: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }
@@ -108,36 +115,36 @@ export function TaskForm({ wedding, boards, defaultBoardId, task }: TaskFormProp
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <CardTitle className="text-slate-900">{task ? "Edit Task" : "New Task"}</CardTitle>
+          <CardTitle className="text-slate-900">{task ? "Ndrysho Detyrën" : "Detyrë e Re"}</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="title">Task Title *</Label>
+            <Label htmlFor="title">Titulli i Detyrës *</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Book wedding venue"
+              placeholder="Rezervo sallën e dasmës"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">Përshkrimi</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Contact venues and schedule visits..."
+              placeholder="Kontakto sallat dhe planifiko vizitat..."
               rows={3}
             />
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
+              <Label htmlFor="priority">Prioriteti</Label>
               <select
                 id="priority"
                 value={formData.priority}
@@ -153,7 +160,7 @@ export function TaskForm({ wedding, boards, defaultBoardId, task }: TaskFormProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="board_id">Column</Label>
+              <Label htmlFor="board_id">Kolona</Label>
               <select
                 id="board_id"
                 value={formData.board_id}
@@ -169,7 +176,7 @@ export function TaskForm({ wedding, boards, defaultBoardId, task }: TaskFormProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="due_date">Due Date</Label>
+              <Label htmlFor="due_date">Data e Afatit</Label>
               <Input
                 id="due_date"
                 type="date"
@@ -182,12 +189,12 @@ export function TaskForm({ wedding, boards, defaultBoardId, task }: TaskFormProp
           <div className="flex justify-end space-x-4">
             <Link href="/dashboard/tasks">
               <Button variant="outline" type="button">
-                Cancel
+                Anulo
               </Button>
             </Link>
             <Button type="submit" disabled={loading} className="bg-slate-900 hover:bg-slate-800">
               <Save className="h-4 w-4 mr-2" />
-              {loading ? "Saving..." : task ? "Update Task" : "Add Task"}
+              {loading ? "Duke ruajtur..." : task ? "Përditëso Detyrën" : "Shto Detyrë"}
             </Button>
           </div>
         </form>

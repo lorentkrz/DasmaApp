@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +12,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DollarSign, Plus, Gift, TrendingUp, Users, Calendar } from "lucide-react"
-import { toast } from "sonner"
 
 interface CashGift {
   id: string
@@ -83,12 +83,11 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
           amount_currency: "EUR",
           gift_date: giftDate || new Date().toISOString().split('T')[0],
           notes,
-          created_by: user.id,
         })
 
       if (error) throw error
 
-      toast.success("Dhurata u shtua me sukses!")
+      toast.success("Cash gift added successfully!")
       setIsAddingGift(false)
       setSelectedGuest("")
       setGuestName("")
@@ -100,9 +99,30 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
       fetchCashGifts()
     } catch (error) {
       console.error("Error adding cash gift:", error)
-      toast.error("Gabim në shtimin e dhuratës")
+      toast.error(`Error adding cash gift: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteGift = async (id: string) => {
+    try {
+      const { error: deleteError } = await supabase
+        .from('cash_gifts')
+        .delete()
+        .eq('id', id)
+
+      if (deleteError) {
+        console.error("Error deleting cash gift:", deleteError)
+        toast.error(`Error deleting cash gift: ${deleteError.message}`)
+        return
+      }
+
+      setCashGifts(cashGifts.filter((gift) => gift.id !== id))
+      toast.success("Cash gift deleted successfully!")
+    } catch (error) {
+      console.error("Error deleting cash gift:", error)
+      toast.error(`Error deleting cash gift: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 

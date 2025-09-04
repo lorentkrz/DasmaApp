@@ -7,7 +7,7 @@ import { SeatingChart } from "@/components/seating-chart"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Plus, Download, Armchair, Calendar, MapPin, Heart, Sparkles, X, Loader2, Settings } from "lucide-react"
+import { Users, Plus, Download, Armchair, MapPin, X, Loader2, Settings } from "lucide-react"
 import Link from "next/link"
 import { BeautifulPDFExport } from "@/components/beautiful-pdf-export"
 
@@ -102,11 +102,11 @@ export default function SeatingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 relative overflow-hidden">
+      <div className="min-h-screen bg-white">
         <div className="flex items-center justify-center min-h-screen">
-          <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-2xl px-8 py-6 shadow-xl">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-            <span className="text-lg font-medium text-gray-700">Duke ngarkuar planin e uljes...</span>
+          <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-6 py-4 border">
+            <Loader2 className="h-6 w-6 animate-spin text-gray-600" />
+            <span className="text-gray-700">Duke ngarkuar planin e uljes...</span>
           </div>
         </div>
       </div>
@@ -124,40 +124,33 @@ export default function SeatingPage() {
   const unassignedGuests = guests.filter((g) => !g.table_assignment).length
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-slate-200/20 to-gray-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-stone-200/20 to-slate-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-gray-200/15 to-stone-200/15 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="container mx-auto px-6 py-8 relative z-10">
-        {/* Enhanced Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-10">
-          <div className="space-y-4">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-6 py-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+          <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full flex items-center justify-center shadow-lg">
-                <Armchair className="h-6 w-6 text-white" />
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center border">
+                <Armchair className="h-5 w-5 text-gray-600" />
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-semibold text-gray-900">
                 Plani i Uljes
               </h1>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg">
-              <p className="text-gray-700 font-medium text-lg">
-                Menaxhoni rregullimin e uljes për dasmën tuaj të ëndërruar
+            <div className="bg-gray-50 rounded-lg px-4 py-2 border">
+              <p className="text-gray-700 text-sm">
+                Menaxhoni rregullimin e uljes për dasmën tuaj
               </p>
             </div>
           </div>
           <div className="flex gap-3 mt-6 md:mt-0">
-            <Button variant="outline" asChild className="bg-white/80 backdrop-blur-sm hover:bg-white border-purple-200 rounded-xl">
+            <Button variant="outline" asChild>
               <Link href="/dashboard/seating/tables">
                 <Settings className="h-4 w-4 mr-2" />
                 Menaxho Tavolinat
               </Link>
             </Button>
-            <Button variant="outline" asChild className="bg-white/80 backdrop-blur-sm hover:bg-white border-indigo-200 rounded-xl">
+            <Button variant="outline" asChild>
               <Link href="/dashboard/seating/export">
                 <Download className="h-4 w-4 mr-2" />
                 Eksporto CSV
@@ -168,59 +161,56 @@ export default function SeatingPage() {
               guests={guests} 
               weddingName={`${wedding.bride_name} & ${wedding.groom_name}`}
             />
-            <Button asChild size="lg" className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
+            <Button asChild className="bg-gray-900 hover:bg-gray-800 text-white">
               <Link href="/dashboard/seating/tables/new">
-                <Plus className="h-5 w-5 mr-2" />
+                <Plus className="h-4 w-4 mr-2" />
                 Shto Tavolinë
               </Link>
             </Button>
           </div>
         </div>
 
-        {/* Enhanced Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-0 shadow-xl rounded-2xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-bold text-indigo-700">Tavolinat</CardTitle>
-              <MapPin className="h-5 w-5 text-indigo-500" />
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card className="border">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Tavolinat</CardTitle>
+              <MapPin className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-indigo-800">{totalTables}</div>
+              <div className="text-2xl font-semibold text-gray-900">{totalTables}</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-purple-50 to-violet-100 border-0 shadow-xl rounded-2xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-bold text-purple-700">Kapaciteti Total</CardTitle>
-              <Users className="h-5 w-5 text-purple-500" />
+          <Card className="border">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Kapaciteti Total</CardTitle>
+              <Users className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-purple-800">{totalCapacity}</div>
+              <div className="text-2xl font-semibold text-gray-900">{totalCapacity}</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-100 border-0 shadow-xl rounded-2xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-bold text-green-700">Të Caktuar</CardTitle>
-              <Users className="h-5 w-5 text-green-500" />
+          <Card className="border">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Të Caktuar</CardTitle>
+              <Users className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-700">{assignedGuests}</div>
+              <div className="text-2xl font-semibold text-green-600">{assignedGuests}</div>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-50 to-yellow-100 border-0 shadow-xl rounded-2xl">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-bold text-amber-700">Pa Caktuar</CardTitle>
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-amber-500" />
-                <span className="text-xs text-amber-600 font-medium">{unassignedGuests}</span>
-              </div>
+          <Card className="border">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-700">Pa Caktuar</CardTitle>
+              <Users className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-amber-800 mb-3">{unassignedGuests}</div>
+              <div className="text-2xl font-semibold text-amber-600">{unassignedGuests}</div>
               {unassignedGuests === 0 && (
-                <div className="text-center text-amber-600 py-3 text-sm font-medium">
+                <div className="text-xs text-gray-600 mt-1">
                   Të gjithë mysafirët janë caktuar!
                 </div>
               )}
@@ -228,44 +218,41 @@ export default function SeatingPage() {
           </Card>
         </div>
 
-        {/* Enhanced Legend Bar */}
-        <div className="mb-6 bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+        {/* Legend Bar */}
+        <div className="mb-6 bg-gray-50 rounded-lg p-4 border">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gradient-to-r from-blue-200 to-indigo-200 border-2 border-blue-400 rounded-full"></div>
-              <span className="font-medium text-gray-700">Rreth</span>
+              <div className="w-4 h-4 bg-blue-100 border-2 border-blue-400 rounded-full"></div>
+              <span className="text-gray-700">Rreth</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-4 bg-gradient-to-r from-purple-200 to-violet-200 border-2 border-purple-400 rounded-sm"></div>
-              <span className="font-medium text-gray-700">Drejtkëndore</span>
+              <div className="w-6 h-4 bg-purple-100 border-2 border-purple-400 rounded-sm"></div>
+              <span className="text-gray-700">Drejtkëndore</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gradient-to-r from-emerald-200 to-green-200 border-2 border-emerald-500 rounded-full"></div>
-              <span className="font-medium text-gray-700">Tavolinë e Plotë</span>
+              <div className="w-4 h-4 bg-green-100 border-2 border-green-500 rounded-full"></div>
+              <span className="text-gray-700">Tavolinë e Plotë</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gradient-to-r from-amber-200 to-yellow-200 border-2 border-amber-500 rounded-full"></div>
-              <span className="font-medium text-gray-700">Pjesërisht e Plotë</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Download className="h-4 w-4 text-gray-400" />
-              <span className="font-medium text-gray-700">Eksporto PDF</span>
+              <div className="w-4 h-4 bg-yellow-100 border-2 border-yellow-500 rounded-full"></div>
+              <span className="text-gray-700">Pjesërisht e Plotë</span>
             </div>
           </div>
         </div>
 
+        {/* Seating Chart with Sidebar */}
         <div className="flex gap-4">
           {/* Collapsible Unassigned Guests Sidebar */}
           <div className={`transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-12'} flex-shrink-0`}>
             <div className="sticky top-4">
-              <Card className="rounded-2xl border-0 shadow-xl bg-white/90 backdrop-blur-sm h-[calc(100vh-8rem)]">
-                <CardHeader className="bg-gradient-to-r from-amber-100/50 to-yellow-100/50 rounded-t-2xl p-3">
+              <Card className="border h-[calc(100vh-12rem)]">
+                <CardHeader className="p-3">
                   <div className="flex items-center justify-between">
                     {sidebarOpen && (
                       <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-amber-600" />
+                        <Users className="h-4 w-4 text-gray-600" />
                         <div>
-                          <CardTitle className="text-sm font-bold text-amber-800">
+                          <CardTitle className="text-sm font-medium text-gray-900">
                             Pa Caktuar ({unassignedGuests})
                           </CardTitle>
                         </div>
@@ -275,7 +262,7 @@ export default function SeatingPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setSidebarOpen(!sidebarOpen)}
-                      className="h-8 w-8 p-0 text-amber-600 hover:bg-amber-200"
+                      className="h-8 w-8 p-0"
                     >
                       {sidebarOpen ? <X className="h-4 w-4" /> : <Users className="h-4 w-4" />}
                     </Button>
@@ -289,19 +276,19 @@ export default function SeatingPage() {
                         .map((guest) => (
                           <div
                             key={guest.id}
-                            className="p-2 bg-gradient-to-r from-amber-100 to-yellow-100 rounded-lg border border-amber-300 cursor-move hover:from-amber-200 hover:to-yellow-200 transition-all shadow-sm hover:shadow-md"
+                            className="p-2 bg-yellow-50 rounded-lg border border-yellow-200 cursor-move hover:bg-yellow-100 transition-colors"
                             draggable
                             onDragStart={(e) => {
                               e.dataTransfer.setData("text/plain", JSON.stringify({ type: "guest", data: guest }))
                             }}
                           >
-                            <div className="text-xs font-bold text-amber-900 truncate">
+                            <div className="text-xs font-medium text-gray-900 truncate">
                               {guest.first_name} {guest.last_name}
                             </div>
                             {guest.plus_one_name && (
-                              <div className="text-xs text-amber-700 truncate">+ {guest.plus_one_name}</div>
+                              <div className="text-xs text-gray-600 truncate">+ {guest.plus_one_name}</div>
                             )}
-                            <div className="text-xs text-amber-600 mt-1 font-medium">
+                            <div className="text-xs text-gray-500 mt-1">
                               {guest.guest_type === 'bride_side' ? 'Anë nuses' : 'Anë dhëndrit'}
                             </div>
                           </div>
@@ -312,26 +299,44 @@ export default function SeatingPage() {
               </Card>
             </div>
           </div>
-        </div>
 
-        {/* Enhanced Seating Chart */}
-        <div className="grid grid-cols-1 gap-6">
-          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-purple-100 via-indigo-50 to-pink-100 py-8">
-              <div className="flex items-center gap-3">
-                <Armchair className="h-8 w-8 text-purple-600" />
-                <div>
-                  <CardTitle className="text-2xl font-bold text-gray-800">Rregullimi i Uljes</CardTitle>
-                  <CardDescription className="text-gray-600 text-lg mt-1">
-                    Tërhiqni tavolinat për t'i rregulluar dhe klikoni për të caktuar mysafirët
-                  </CardDescription>
+          {/* Seating Chart */}
+          <div className="flex-1">
+            <Card className="border">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <Armchair className="h-6 w-6 text-gray-600" />
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-900">Rregullimi i Uljes</CardTitle>
+                    <CardDescription className="text-gray-600 mt-1">
+                      Tërhiqni tavolinat për t'i rregulluar dhe klikoni për të caktuar mysafirët
+                    </CardDescription>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="p-6">
-                <SeatingChart tables={tables} guests={guests} weddingId={wedding.id} heightClass="h-[60vh]" />
-            </CardContent>
-          </Card>
+              </CardHeader>
+              <CardContent>
+                  <SeatingChart 
+                    tables={tables} 
+                    guests={guests} 
+                    weddingId={wedding.id} 
+                    heightClass="h-[60vh]"
+                    onGuestAssigned={() => {
+                      // Refresh data without full page reload
+                      const supabase = createClient()
+                      supabase
+                        .from("guests")
+                        .select("*")
+                        .eq("wedding_id", wedding.id)
+                        .in("rsvp_status", ["attending", "maybe"])
+                        .order("last_name")
+                        .then(({ data }) => {
+                          if (data) setGuests(data)
+                        })
+                    }}
+                  />
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
       </div>

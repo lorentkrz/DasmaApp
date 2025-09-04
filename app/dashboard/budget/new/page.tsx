@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
+import { DashboardLayout } from "@/components/dashboard-layout"
 import { ExpenseForm } from "@/components/expense-form"
 
 export const dynamic = "force-dynamic"
@@ -29,13 +30,14 @@ export default async function NewExpensePage() {
     .order("created_at", { ascending: true })
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 px-4 md:px-0 pt-2">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900 tracking-tight">Shto Shpenzim të Ri</h1>
-        <p className="text-sm text-slate-600">Regjistroni një shpenzim të ri për dasmën</p>
+    <DashboardLayout
+      title="Shto Shpenzim të Ri"
+      description="Regjistroni një shpenzim manual për dasmën tuaj"
+      icon="Plus"
+    >
+      <div className="max-w-2xl mx-auto">
+        <ExpenseForm wedding={wedding} categories={categories || []} />
       </div>
-
-      <ExpenseForm wedding={wedding} categories={categories || []} />
-    </div>
+    </DashboardLayout>
   )
 }

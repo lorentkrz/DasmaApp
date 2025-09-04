@@ -36,7 +36,6 @@ interface Group {
 interface Invitation {
   id: string
   token?: string
-  unique_token?: string
   sent_at?: string
   opened_at?: string
   responded_at?: string
@@ -224,7 +223,7 @@ export function InvitationManagement({
                   </div>
                   <div className="flex items-center gap-2">
                     {/* Copy Invitation Link */}
-                    <CopyButton text={buildInvitationUrl(invitation.token || invitation.unique_token || '')} />
+                    <CopyButton text={buildInvitationUrl(invitation.token || '')} />
                     
                     {/* WhatsApp Send Button - only if guest has phone */}
                     {invitation.guest?.phone && (

@@ -27,7 +27,7 @@ export default function NewGuestPage() {
     email: "",
     phone: "",
     address: "",
-    guestType: "adult",
+    guestType: "regular",
     dietaryRestrictions: "",
     groupInvite: false,
   })
@@ -272,9 +272,12 @@ export default function NewGuestPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="adult">I rritur</SelectItem>
+                    <SelectItem value="regular">I rritur</SelectItem>
                     <SelectItem value="child">Fëmijë</SelectItem>
-                    <SelectItem value="infant">Foshnjë</SelectItem>
+                    <SelectItem value="family">Familjar</SelectItem>
+                    <SelectItem value="friend">Mik</SelectItem>
+                    <SelectItem value="colleague">Koleg</SelectItem>
+                    <SelectItem value="plus_one">Shoqërues</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -22,7 +22,8 @@ create table if not exists public.invitations (
   opened_at timestamp with time zone,
   responded_at timestamp with time zone,
   reminder_sent_at timestamp with time zone,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- Enable RLS
@@ -130,6 +131,10 @@ $$;
 alter table public.invitations 
   add column if not exists token text;
 
+-- Add updated_at column if it doesn't exist
+alter table public.invitations 
+  add column if not exists updated_at timestamp with time zone default timezone('utc'::text, now()) not null;
+
 -- Backfill token from unique_token when present (only if column exists)
 do $$
 begin
@@ -137,7 +142,7 @@ begin
     select 1 from information_schema.columns 
     where table_schema = 'public' and table_name = 'invitations' and column_name = 'unique_token'
   ) then
-    execute $$update public.invitations set token = unique_token where token is null and unique_token is not null;$$;
+    execute 'update public.invitations set token = unique_token where token is null and unique_token is not null';
   end if;
 end$$;
 

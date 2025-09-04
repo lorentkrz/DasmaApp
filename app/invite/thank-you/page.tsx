@@ -2,23 +2,26 @@ import { Heart, Sparkles, CheckCircle, Calendar, Users, Clock } from "lucide-rea
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createSupabaseServiceClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { notFound } from "next/navigation"
 import Link from "next/link"
 
-export default async function InviteThankYouPage({ 
-  searchParams 
-}: { 
-  searchParams: { status?: string; token?: string } 
+export default async function InviteThankYouPage({
+  searchParams
+}: {
+  searchParams: Promise<{ status?: string; token?: string; updated?: string }>
 }) {
-  const { status, token } = searchParams
-  
-  let guestInfo = null
-  let weddingInfo = null
-  
+  const { status, token, updated } = await searchParams
+
+  let weddingInfo: any = null
+  let updatedGuests: any[] = []
+
   if (token) {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const useService = !!serviceKey
     const cookieStore = await cookies()
-    const supabase = createServerClient(
+    const supabaseAnon = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
@@ -29,39 +32,62 @@ export default async function InviteThankYouPage({
         },
       }
     )
-    
-    // Use the existing RPC function to get current status
-    console.log('Thank you page - fetching data for token:', token)
-    
-    const { data: guestData, error: guestError } = await supabase.rpc('get_invitation_and_guest', {
-      p_token: token
-    })
-    
-    console.log('Guest data from RPC:', guestData, 'Error:', guestError)
-    
-    if (guestData && guestData.length > 0) {
-      const guestRecord = guestData[0]
-      
-      // Get full guest details
-      const { data: fullGuest, error: guestFetchError } = await supabase
-        .from("guests")
-        .select("*")
-        .eq("id", guestRecord.guest_id)
-        .single()
-      
-      console.log('Full guest data:', fullGuest, 'Error:', guestFetchError)
-      
-      // Get wedding details
-      const { data: wedding, error: weddingFetchError } = await supabase
-        .from("weddings")
-        .select("*")
-        .eq("id", guestRecord.wedding_id)
-        .single()
-      
-      console.log('Wedding data:', wedding, 'Error:', weddingFetchError)
-      
-      guestInfo = fullGuest
-      weddingInfo = wedding
+    const supabase = useService
+      ? createSupabaseServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey!)
+      : supabaseAnon
+
+    // Load invitation to know the wedding and to resolve grouping
+    const { data: inv } = await supabase
+      .from('invitations')
+      .select('id, wedding_id, guest_id, group_id')
+      .eq('token', token)
+      .single()
+    if (!inv) return notFound()
+
+    // Load wedding
+    const { data: wedding } = await supabase
+      .from('weddings')
+      .select('*')
+      .eq('id', inv.wedding_id)
+      .single()
+    weddingInfo = wedding
+
+    // Determine which guests to display
+    let ids: string[] = []
+    if (updated === 'ALL') {
+      // Resolve primary guest id
+      let primaryId: string | null = inv.guest_id
+      if (!primaryId && inv.group_id) {
+        const { data: gg } = await supabase
+          .from('guest_groups')
+          .select('primary_guest_id')
+          .eq('id', inv.group_id)
+          .single()
+        primaryId = gg?.primary_guest_id || null
+      }
+      if (primaryId) {
+        const coll: string[] = [primaryId]
+        const { data: members } = await supabase
+          .from('guests')
+          .select('id')
+          .eq('group_id', primaryId)
+        for (const m of members || []) {
+          if (m.id && !coll.includes(m.id)) coll.push(m.id)
+        }
+        ids = coll
+      }
+    } else if (updated) {
+      ids = updated.split(',').filter((v) => /[0-9a-fA-F-]{36}/.test(v))
+    } else if (inv.guest_id) {
+      ids = [inv.guest_id]
+    }
+
+    if (ids.length > 0) {
+      const { data: guests } = await supabase
+        .from('guests')
+        .select('*')
+        .in('id', ids)
+      updatedGuests = guests || []
     }
   }
   
@@ -123,8 +149,8 @@ export default async function InviteThankYouPage({
                 </div>
               </div>
 
-              {/* RSVP Status Confirmation */}
-              {guestInfo && weddingInfo && (
+              {/* RSVP Status Confirmation for specific guests */}
+              {updatedGuests.length > 0 && weddingInfo && (
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 md:p-8 space-y-6">
                   <div className="flex items-center justify-center gap-2 mb-4">
                     <Users className="h-5 w-5 md:h-6 md:w-6 text-blue-600" />
@@ -133,30 +159,31 @@ export default async function InviteThankYouPage({
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 md:p-6">
-                      <p className="text-gray-700 mb-2">
-                        <strong>{guestInfo.first_name} {guestInfo.last_name}</strong>
-                      </p>
-                      <p className="text-sm text-gray-600 mb-3">
-                        Dasma e {weddingInfo.bride_name} & {weddingInfo.groom_name}
-                      </p>
-                      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r ${getStatusColor(guestInfo.rsvp_status)}`}>
-                        <CheckCircle className="h-4 w-4" />
-                        {getStatusText(guestInfo.rsvp_status)}
+                    {updatedGuests.map((g) => (
+                      <div key={g.id} className="bg-white/70 backdrop-blur-sm rounded-xl p-4 md:p-6 text-left">
+                        <p className="text-gray-700 mb-2">
+                          <strong>{g.first_name} {g.last_name}</strong>
+                        </p>
+                        <p className="text-sm text-gray-600 mb-3">
+                          Dasma e {weddingInfo.bride_name} & {weddingInfo.groom_name}
+                        </p>
+                        <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r ${getStatusColor(g.rsvp_status)}`}>
+                          <CheckCircle className="h-4 w-4" />
+                          {getStatusText(g.rsvp_status)}
+                        </div>
+                        {g.rsvp_responded_at && (
+                          <p className="text-sm text-gray-600 mt-2">
+                            Regjistruar më: {new Date(g.rsvp_responded_at).toLocaleDateString('sq-AL', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        )}
                       </div>
-                    </div>
-                    
-                    {guestInfo.rsvp_responded_at && (
-                      <p className="text-sm text-gray-600">
-                        Regjistruar më: {new Date(guestInfo.rsvp_responded_at).toLocaleDateString('sq-AL', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
-                    )}
+                    ))}
                   </div>
                 </div>
               )}

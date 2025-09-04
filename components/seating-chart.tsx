@@ -40,9 +40,10 @@ interface SeatingChartProps {
   guests: Guest[]
   weddingId: string
   heightClass?: string // Tailwind height class for the canvas container
+  onGuestAssigned?: () => void
 }
 
-export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh]" }: SeatingChartProps) {
+export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh]", onGuestAssigned }: SeatingChartProps) {
   const [selectedTable, setSelectedTable] = useState<Table | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [draggedTable, setDraggedTable] = useState<string | null>(null)
@@ -77,6 +78,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
     try {
       const { error } = await supabase.from("guests").update({ table_assignment: tableId }).eq("id", guestId)
       if (error) throw error
+      onGuestAssigned?.()
     } catch (error) {
       console.error("Error assigning guest to table:", error)
     }
@@ -146,6 +148,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
         try {
           const { error } = await supabase.from("guests").update({ table_assignment: tableId }).eq("id", data.data.id)
           if (error) throw error
+          onGuestAssigned?.()
         } catch (error) {
           console.error("Error assigning guest to table:", error)
         }
@@ -160,6 +163,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
     try {
       const { error } = await supabase.from("guests").update({ table_assignment: null }).eq("id", guestId)
       if (error) throw error
+      onGuestAssigned?.()
     } catch (error) {
       console.error("Error removing guest from table:", error)
     }

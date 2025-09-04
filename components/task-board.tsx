@@ -26,9 +26,12 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
   const supabase = createClient()
 
   const filteredTasks = tasks.filter((task) => {
+    const title = (task.title || "").toString()
+    const description = (task.description || "").toString()
+    const query = (searchTerm || "").toString().toLowerCase()
     const matchesSearch =
-      task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      task.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      title.toLowerCase().includes(query) ||
+      description.toLowerCase().includes(query)
     const matchesPriority = selectedPriority === "all" || task.priority === selectedPriority
     return matchesSearch && matchesPriority
   })
@@ -131,25 +134,25 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
 
   return (
     <div className="space-y-6">
-      {/* Enhanced Search and Filter */}
-      <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-xl rounded-2xl">
+      {/* Search and Filter */}
+      <Card className="border">
         <CardContent className="py-4">
           <div className="flex items-center gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="Kërko detyra..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-12 text-sm bg-white/70 border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-300 focus:border-slate-300"
+                className="pl-10"
               />
             </div>
-            <div className="flex items-center gap-3 text-sm">
-              <Filter className="h-5 w-5 text-slate-400" />
+            <div className="flex items-center gap-2 text-sm">
+              <Filter className="h-4 w-4 text-gray-400" />
               <select
                 value={selectedPriority}
                 onChange={(e) => setSelectedPriority(e.target.value)}
-                className="px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-300 bg-white/70"
+                className="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white"
               >
                 <option value="all">Të gjitha</option>
                 <option value="urgent">Urgjente</option>
@@ -162,21 +165,18 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
         </CardContent>
       </Card>
 
-      {/* Enhanced Task Board */}
-      <div className="flex gap-6 overflow-x-auto pb-4 pr-4" style={{ scrollbarWidth: "thin" }}>
+      {/* Task Board */}
+      <div className="flex gap-4 overflow-x-auto pb-4 pr-4">
         {tasksByBoard.map((column) => (
           <div
             key={column.id}
-            className="flex-shrink-0 w-[280px] sm:w-[300px] flex flex-col"
+            className="flex-shrink-0 w-[280px] flex flex-col"
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, column.id)}
           >
-            {/* Enhanced Column Header */}
-            <Card
-              className={`bg-white/90 backdrop-blur-sm border-0 shadow-lg rounded-2xl ${getBoardAccent(column.color)}`}
-              style={{ borderTopColor: column.color || undefined }}
-            >
-              <CardHeader className="py-4 sticky top-0 bg-gradient-to-r from-white/95 to-gray-50/95 z-10 rounded-t-2xl">
+            {/* Column Header */}
+            <Card className="border">
+              <CardHeader className="py-3">
                 <div className="flex items-center justify-between gap-3">
                   {renamingBoardId === column.id ? (
                     <Input
@@ -188,7 +188,7 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
                         if (e.key === "Enter") saveBoardName(column)
                         if (e.key === "Escape") setRenamingBoardId(null)
                       }}
-                      className="h-8 text-sm rounded-xl"
+                      className="h-8 text-sm"
                     />
                   ) : (
                     <button
@@ -196,8 +196,8 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
                       onClick={() => startRenaming(column)}
                       title="Click to rename"
                     >
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: column.color || '#6b7280' }}></div>
-                      <CardTitle className="text-sm font-bold text-gray-800 tracking-tight">
+                      <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                      <CardTitle className="text-sm font-medium text-gray-900">
                         {column.name === 'To Do' ? 'Për t\'u bërë' :
                          column.name === 'In Progress' ? 'Në proces' :
                          column.name === 'Review' ? 'Rishikim' :
@@ -205,48 +205,46 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
                       </CardTitle>
                     </button>
                   )}
-                  <Badge variant="outline" className="bg-gradient-to-r from-slate-100 to-gray-100 text-slate-700 border-slate-200 font-bold">
+                  <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                     {column.count}
                   </Badge>
                 </div>
               </CardHeader>
             </Card>
 
-            {/* Enhanced Tasks */}
-            <div className="space-y-3 mt-4 overflow-y-auto pr-2 max-h-[70vh]" style={{ scrollbarWidth: "thin" }}>
+            {/* Tasks */}
+            <div className="space-y-3 mt-3 overflow-y-auto max-h-[70vh]">
               {column.tasks.map((task: any) => (
                 <Card
                   key={task.id}
-                  className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all cursor-move rounded-xl transform hover:scale-[1.02]"
+                  className="border hover:shadow-md transition-shadow cursor-move"
                   draggable
                   onDragStart={(e) => handleDragStart(e, task)}
                 >
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      {/* Enhanced Task Header */}
+                  <CardContent className="p-3">
+                    <div className="space-y-2">
+                      {/* Task Header */}
                       <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-semibold text-sm text-gray-800 line-clamp-2 leading-relaxed">{task.title}</h3>
-                        <div className="flex items-center gap-1">
-                          <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs font-medium border-0`}>
-                            {task.priority === 'urgent' ? 'Urgjente' : 
-                             task.priority === 'high' ? 'E lartë' :
-                             task.priority === 'medium' ? 'Mesatare' :
-                             task.priority === 'low' ? 'E ulët' : 'Mesatare'}
-                          </Badge>
-                        </div>
+                        <h3 className="font-medium text-sm text-gray-900 line-clamp-2">{task.title}</h3>
+                        <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-xs`}>
+                          {task.priority === 'urgent' ? 'Urgjente' : 
+                           task.priority === 'high' ? 'E lartë' :
+                           task.priority === 'medium' ? 'Mesatare' :
+                           task.priority === 'low' ? 'E ulët' : 'Mesatare'}
+                        </Badge>
                       </div>
 
-                      {/* Enhanced Task Description */}
+                      {/* Task Description */}
                       {task.description && (
-                        <p className="text-xs text-gray-600 line-clamp-2 bg-gray-50 px-3 py-2 rounded-lg">
+                        <p className="text-xs text-gray-600 line-clamp-2 bg-gray-50 px-2 py-1 rounded">
                           {task.description}
                         </p>
                       )}
 
-                      {/* Enhanced Task Footer */}
+                      {/* Task Footer */}
                       <div className="flex items-center justify-between text-xs">
                         {task.due_date && (
-                          <div className={`flex items-center gap-2 px-2 py-1 rounded-lg ${
+                          <div className={`flex items-center gap-1 px-2 py-1 rounded ${
                             isOverdue(task.due_date) 
                               ? "bg-red-50 text-red-700" 
                               : "bg-blue-50 text-blue-700"
@@ -257,11 +255,11 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
                         )}
                       </div>
 
-                      {/* Enhanced Overdue Warning */}
+                      {/* Overdue Warning */}
                       {task.due_date && isOverdue(task.due_date) && (
-                        <div className="flex items-center gap-2 text-red-600 text-xs bg-red-50 px-3 py-2 rounded-lg">
-                          <AlertCircle className="h-4 w-4" />
-                          <span className="font-medium">Vonuar!</span>
+                        <div className="flex items-center gap-2 text-red-600 text-xs bg-red-50 px-2 py-1 rounded">
+                          <AlertCircle className="h-3 w-3" />
+                          <span>Vonuar!</span>
                         </div>
                       )}
                     </div>
@@ -269,7 +267,7 @@ export function TaskBoard({ boards, tasks, weddingId }: TaskBoardProps) {
                 </Card>
               ))}
 
-              {/* Enhanced Add Task Button */}
+              {/* Add Task Button */}
               {weddingId && (
                 <TaskAddModal 
                   boardId={column.id} 

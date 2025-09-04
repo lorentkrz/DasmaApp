@@ -75,9 +75,9 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
         address: formData.address || null,
         contract_amount: formData.contract_amount ? Number.parseFloat(formData.contract_amount) : null,
         deposit_amount: formData.deposit_amount ? Number.parseFloat(formData.deposit_amount) : null,
-        deposit_paid: !!formData.deposit_paid,
+        deposit_paid: formData.deposit_paid,
         final_payment_due: formData.final_payment_due || null,
-        contract_signed: !!formData.contract_signed,
+        contract_signed: formData.contract_signed,
         contract_url: formData.contract_url || null,
         rating: formData.rating || null,
         notes: formData.notes || null,
@@ -123,7 +123,7 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <CardTitle className="text-slate-900">{vendor ? "Edit Vendor" : "New Vendor"}</CardTitle>
+          <CardTitle className="text-slate-900">{vendor ? "Ndrysho Shitësin" : "Shitës i Ri"}</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
@@ -131,18 +131,18 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
           {/* Basic Information */}
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name">Vendor Name *</Label>
+              <Label htmlFor="name">Emri i Shitësit *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="John's Photography"
+                placeholder="Fotografia e Jonit"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">Category *</Label>
+              <Label htmlFor="category">Kategoria *</Label>
               <select
                 id="category"
                 value={formData.category}
@@ -159,7 +159,7 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">Statusi</Label>
               <select
                 id="status"
                 value={formData.status}
@@ -177,26 +177,26 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
 
           {/* Contact Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-slate-900">Contact Information</h3>
+            <h3 className="text-lg font-medium text-slate-900">Informacionet e Kontaktit</h3>
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="contact_person">Contact Person</Label>
+                <Label htmlFor="contact_person">Personi i Kontaktit</Label>
                 <Input
                   id="contact_person"
                   value={formData.contact_person}
                   onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
-                  placeholder="John Smith"
+                  placeholder="Agim Krasniqi"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="phone">Telefoni</Label>
                 <Input
                   id="phone"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="(555) 123-4567"
+                  placeholder="+383 44 123 456"
                 />
               </div>
 
@@ -207,39 +207,39 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="john@photography.com"
+                  placeholder="agim@fotografia.com"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
+                <Label htmlFor="website">Faqja Web</Label>
                 <Input
                   id="website"
                   type="url"
                   value={formData.website}
                   onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                  placeholder="https://photography.com"
+                  placeholder="https://fotografia.com"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">Adresa</Label>
               <Input
                 id="address"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="123 Main St, City, State 12345"
+                placeholder="Rr. Nëna Terezë 123, Prishtinë"
               />
             </div>
           </div>
 
           {/* Business Details */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-slate-900">Business Details</h3>
+            <h3 className="text-lg font-medium text-slate-900">Detajet e Biznesit</h3>
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="contract_amount">Contract Amount</Label>
+                <Label htmlFor="contract_amount">Shuma e Kontratës</Label>
                 <Input
                   id="contract_amount"
                   type="number"
@@ -251,7 +251,7 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="deposit_amount">Deposit Amount</Label>
+                <Label htmlFor="deposit_amount">Shuma e Paradhënies</Label>
                 <Input
                   id="deposit_amount"
                   type="number"
@@ -271,11 +271,11 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
                   onChange={(e) => setFormData({ ...formData, deposit_paid: e.target.checked })}
                   className="h-4 w-4 rounded border-gray-300 text-slate-900 focus:ring-slate-500"
                 />
-                <Label htmlFor="deposit_paid">Deposit Paid</Label>
+                <Label htmlFor="deposit_paid">Paradhënia e Paguar</Label>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="final_payment_due">Final Payment Due</Label>
+                <Label htmlFor="final_payment_due">Pagesa Finale</Label>
                 <Input
                   id="final_payment_due"
                   type="date"
@@ -294,11 +294,11 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
                   onChange={(e) => setFormData({ ...formData, contract_signed: e.target.checked })}
                   className="h-4 w-4 rounded border-gray-300 text-slate-900 focus:ring-slate-500"
                 />
-                <Label htmlFor="contract_signed">Contract Signed</Label>
+                <Label htmlFor="contract_signed">Kontrata e Nënshkruar</Label>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contract_url">Contract URL</Label>
+                <Label htmlFor="contract_url">Linku i Kontratës</Label>
                 <Input
                   id="contract_url"
                   type="url"
@@ -310,7 +310,7 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label>Rating</Label>
+              <Label>Vlerësimi</Label>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: 5 }, (_, i) => (
                   <button key={i} type="button" onClick={() => handleRatingClick(i + 1)} className="focus:outline-none">
@@ -320,19 +320,19 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
                   </button>
                 ))}
                 <span className="ml-2 text-sm text-gray-600">
-                  {formData.rating > 0 ? `${formData.rating}/5` : "No rating"}
+                  {formData.rating > 0 ? `${formData.rating}/5` : "Pa vlerësim"}
                 </span>
               </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">Shënime</Label>
             <Textarea
               id="notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="Additional notes about this vendor..."
+              placeholder="Shënime shtesë për këtë shitës..."
               rows={4}
             />
           </div>
@@ -340,12 +340,12 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
           <div className="flex justify-end space-x-4">
             <Link href="/dashboard/vendors">
               <Button variant="outline" type="button">
-                Cancel
+                Anulo
               </Button>
             </Link>
             <Button type="submit" disabled={loading} className="bg-slate-900 hover:bg-slate-800 text-white">
               <Save className="h-4 w-4 mr-2" />
-              {loading ? "Saving..." : vendor ? "Update Vendor" : "Add Vendor"}
+              {loading ? "Duke ruajtur..." : vendor ? "Përditëso Shitësin" : "Shto Shitës"}
             </Button>
           </div>
         </form>

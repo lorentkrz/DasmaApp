@@ -97,10 +97,10 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-rose-100 rounded-lg">
-              <Heart className="h-5 w-5 text-rose-600" />
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Heart className="h-5 w-5 text-gray-600" />
             </div>
-            <span className="font-bold text-gray-800">Planifikuesi i Dasmave</span>
+            <span className="font-semibold text-gray-900">Planifikuesi i Dasmave</span>
           </div>
         )}
         <Button variant="ghost" size="sm" onClick={() => setCollapsed(!collapsed)} className="h-8 w-8 p-0">
@@ -114,7 +114,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
           {weddings.length > 0 && (
             <div>
               {!collapsed && <h3 className="text-sm font-medium text-gray-500 mb-3">Dasma Aktuale</h3>}
-              <div className={cn("p-3 bg-rose-50 border border-rose-200 rounded-lg", collapsed && "p-2")}>
+              <div className={cn("p-3 bg-gray-50 border border-gray-200 rounded-lg", collapsed && "p-2")}>
                 {!collapsed ? (
                   <div>
                     <p className="font-medium text-sm text-balance text-gray-800">
@@ -125,7 +125,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
                     </p>
                   </div>
                 ) : (
-                  <Heart className="h-4 w-4 text-rose-600 mx-auto" />
+                  <Heart className="h-4 w-4 text-gray-600 mx-auto" />
                 )}
               </div>
             </div>
@@ -144,7 +144,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors",
                         isActive
-                          ? "bg-rose-600 text-white"
+                          ? "bg-gray-900 text-white"
                           : "text-gray-600 hover:text-gray-800 hover:bg-gray-100",
                         collapsed && "justify-center px-2",
                       )}
@@ -176,7 +176,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
                   </Link>
                 </Button>
                 {weddings.length > 1 && (
-                  <Button asChild variant="outline" size="sm" className="w-full justify-start bg-transparent">
+                  <Button asChild variant="outline" size="sm" className="w-full justify-start bg-transparent hover:bg-purple-50 border-purple-200 shadow-sm transition-all duration-200 hover:shadow-md">
                     <Link href="/dashboard/weddings">
                       <Calendar className="h-4 w-4 mr-2" />
                       Ndrysho Dasmën

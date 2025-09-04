@@ -61,11 +61,11 @@ export default async function TasksPage() {
     <DashboardLayout
       title="Lista e Punëve"
       description="Organizoni dhe ndiqni të gjitha detyrat për dasmën tuaj të përsosur"
-      icon={CheckSquare}
+      icon="CheckSquare"
       actions={
-        <Button asChild size="lg" className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
+        <Button asChild className="bg-gray-900 hover:bg-gray-800 text-white">
           <Link href="/dashboard/tasks/new">
-            <Plus className="h-5 w-5 mr-2" />
+            <Plus className="h-4 w-4 mr-2" />
             Shto Detyrë të Re
           </Link>
         </Button>

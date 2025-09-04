@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { buildInvitationUrl } from "@/lib/utils"
-import { Send, Plus, Heart, Sparkles, Mail, Users, CheckCircle } from "lucide-react"
+import { Send, Plus, Mail, Users, CheckCircle } from "lucide-react"
 import { CopyButton } from "@/components/copy-button"
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
 import { InvitationTemplateForm } from "@/components/invitation-template-form"
@@ -36,7 +36,6 @@ export default async function InvitationsPage() {
     .select(`
       id, 
       token, 
-      unique_token,
       sent_at, 
       opened_at,
       responded_at, 
@@ -117,7 +116,6 @@ export default async function InvitationsPage() {
     
     return {
       ...inv,
-      token: inv.token || inv.unique_token,
       guest,
       group
     }
@@ -234,39 +232,29 @@ export default async function InvitationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-rose-200/20 to-pink-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-amber-200/20 to-yellow-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-pink-200/15 to-rose-200/15 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="container mx-auto px-4 md:px-6 py-6 md:py-8 relative z-10">
-        {/* Enhanced Header - Mobile Responsive */}
-        <div className="flex flex-col space-y-4 mb-6 md:mb-8">
-          <div className="space-y-4">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="flex flex-col space-y-4 mb-6">
+          <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-pink-400 to-rose-400 rounded-full flex items-center justify-center shadow-lg">
-                <Mail className="h-5 w-5 md:h-6 md:w-6 text-white" />
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center border">
+                <Mail className="h-5 w-5 text-gray-600" />
               </div>
-              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-red-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-semibold text-gray-900">
                 Ftesat e Dasmës
               </h1>
-              <Sparkles className="h-6 w-6 md:h-8 md:w-8 text-amber-400 animate-bounce" />
             </div>
-            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 md:px-6 py-2 md:py-3 shadow-lg">
-              <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
-              <p className="text-gray-700 font-medium text-base md:text-lg">
+            <div className="bg-gray-50 rounded-lg px-4 py-2 border">
+              <p className="text-gray-700 text-sm">
                 Dërgoni ftesa të bukura dhe ndiqni përgjigjet e mysafirëve tuaj
               </p>
-              <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
+          <div className="flex gap-3">
             <form action={createMissingInvitations}>
-              <Button type="submit" size="lg" className="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white shadow-xl hover:shadow-2xl transition-all transform hover:scale-105">
-                <Plus className="h-5 w-5 mr-2" />
+              <Button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white">
+                <Plus className="h-4 w-4 mr-2" />
                 Krijo Ftesa
               </Button>
             </form>
@@ -287,18 +275,17 @@ export default async function InvitationsPage() {
           groups={groups || []}
         />
 
-        {/* Enhanced Footer */}
+        {/* Footer */}
         {(invitations || []).length > 0 && (
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg text-center mt-8">
+          <div className="bg-gray-50 rounded-lg p-4 border text-center mt-6">
             <div className="flex items-center justify-center gap-2">
-              <Mail className="h-5 w-5 text-pink-500" />
-              <span className="text-gray-700 font-medium">
-                Gjithsej <span className="font-bold text-pink-600">{(invitations || []).length}</span> ftesa të krijuara
+              <Mail className="h-4 w-4 text-gray-600" />
+              <span className="text-gray-700 text-sm">
+                Gjithsej <span className="font-medium">{(invitations || []).length}</span> ftesa të krijuara
               </span>
-              <Heart className="h-4 w-4 text-rose-400" fill="currentColor" />
             </div>
-            <p className="text-sm text-gray-600 mt-2">
-              💕 Çdo ftesë është e krijuar me dashuri për ditën tuaj të veçantë
+            <p className="text-xs text-gray-600 mt-1">
+              Çdo ftesë është e krijuar me kujdes për ditën tuaj të veçantë
             </p>
           </div>
         )}

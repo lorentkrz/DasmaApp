@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
 
@@ -18,9 +19,10 @@ interface ExpenseFormProps {
   wedding: any
   expense?: any
   categories?: { id: string; name: string }[]
+  onSuccess?: () => void
 }
 
-export function ExpenseForm({ wedding, expense, categories = [] }: ExpenseFormProps) {
+export function ExpenseForm({ wedding, expense, categories = [], onSuccess }: ExpenseFormProps) {
   const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
@@ -43,13 +45,11 @@ export function ExpenseForm({ wedding, expense, categories = [] }: ExpenseFormPr
     setErrorMsg(null)
 
     try {
-      // Ensure we include created_by to satisfy RLS policy
       const {
         data: { user },
         error: userErr,
       } = await supabase.auth.getUser()
-      if (userErr) throw userErr
-      if (!user) throw new Error("Not authenticated")
+      if (userErr || !user) throw new Error("Authentication required")
 
       const expenseData = {
         description: formData.description,
@@ -62,7 +62,6 @@ export function ExpenseForm({ wedding, expense, categories = [] }: ExpenseFormPr
         notes: formData.notes,
         // Columns present in DB
         wedding_id: wedding.id,
-        created_by: user.id,
         // Optional relationship columns (not selected via UI yet)
         category_id: formData.category_id || null,
         vendor_id: null as string | null,
@@ -73,6 +72,7 @@ export function ExpenseForm({ wedding, expense, categories = [] }: ExpenseFormPr
         const { error } = await supabase.from("expenses").update(expenseData).eq("id", expense.id)
 
         if (error) throw error
+        toast.success("Expense saved successfully!")
       } else {
         // Create new expense
         const { error } = await supabase.from("expenses").insert([expenseData])
@@ -80,12 +80,15 @@ export function ExpenseForm({ wedding, expense, categories = [] }: ExpenseFormPr
         if (error) throw error
       }
 
+      onSuccess?.()
+
       router.push("/dashboard/budget")
       router.refresh()
     } catch (error) {
       console.error("Error saving expense:", error)
-      const message = (error as any)?.message || "Unable to save expense. Please try again."
-      setErrorMsg(message)
+      const errorMessage = error instanceof Error ? error.message : "Failed to save expense"
+      setErrorMsg(errorMessage)
+      toast.error(`Error saving expense: ${errorMessage}. Please try again.`)
     } finally {
       setLoading(false)
     }

@@ -38,12 +38,22 @@ export function TaskAddModal({ boardId, boardName, weddingId, trigger }: TaskAdd
 
     setLoading(true)
     try {
+      // Get the next position for this board
+      const { data: posRows } = await supabase
+        .from("tasks")
+        .select("position")
+        .eq("board_id", formData.board_id)
+        .order("position", { ascending: false })
+        .limit(1)
+      
+      const nextPosition = (posRows?.[0]?.position || 0) + 1
+      
       const { error } = await supabase
         .from("tasks")
         .insert({
           ...formData,
           wedding_id: weddingId,
-          position: Date.now() // Simple position using timestamp
+          position: nextPosition
         })
 
       if (error) throw error
@@ -65,7 +75,7 @@ export function TaskAddModal({ boardId, boardName, weddingId, trigger }: TaskAdd
   }
 
   const defaultTrigger = (
-    <Button variant="outline" size="sm" className="w-full border-dashed border-2 border-gray-300 hover:border-gray-400 bg-gray-50/50 hover:bg-gray-50">
+    <Button variant="outline" size="sm" className="w-full border-dashed border-2 border-gray-300 hover:border-gray-400 bg-gray-50/50 hover:bg-gray-50 shadow-sm transition-all duration-200 hover:shadow-md">
       <Plus className="h-4 w-4 mr-2" />
       Shto Detyrë
     </Button>
@@ -150,7 +160,7 @@ export function TaskAddModal({ boardId, boardName, weddingId, trigger }: TaskAdd
           )}
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="hover:bg-gray-50 shadow-sm transition-all duration-200 hover:shadow-md">
               Anulo
             </Button>
             <Button type="submit" disabled={loading || !formData.title.trim()}>
