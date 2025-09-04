@@ -12,22 +12,47 @@ class WhatsAppService {
     console.log('🚀 WhatsApp Service Constructor Called')
   }
 
-  private createClient() {
+  private async createClient() {
     console.log('📱 Creating WhatsApp Client...')
-    
+
+    const isServerless = !!process.env.NETLIFY || !!process.env.VERCEL || !!process.env.AWS_REGION
+    const dataPath = process.env.WHATSAPP_DATA_PATH || (isServerless ? '/tmp/whatsapp-session' : './whatsapp-session')
+
+    // Resolve executablePath and args for serverless Chrome
+    let executablePath: string | undefined = undefined
+    let headless: boolean = true
+    let baseArgs: string[] = [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-web-security',
+      '--disable-features=VizDisplayCompositor'
+    ]
+
+    if (isServerless) {
+      try {
+        const chromium = await import('@sparticuz/chromium')
+        headless = chromium.default.headless
+        const chromePath = await chromium.default.executablePath()
+        executablePath = chromePath || undefined
+        baseArgs = [...chromium.default.args, ...baseArgs]
+        console.log('🧊 Using serverless Chromium at path:', executablePath)
+      } catch (e) {
+        console.warn('⚠️ Failed to load @sparticuz/chromium, falling back to default Puppeteer launch')
+      }
+    } else if (process.env.CHROME_PATH) {
+      executablePath = process.env.CHROME_PATH
+      console.log('🧭 Using CHROME_PATH from env:', executablePath)
+    }
+
     this.client = new Client({
       authStrategy: new LocalAuth({
-        dataPath: './whatsapp-session',
+        dataPath,
         clientId: 'wedding-erp-client'
       }),
       puppeteer: {
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-web-security',
-          '--disable-features=VizDisplayCompositor'
-        ],
+        headless,
+        executablePath,
+        args: baseArgs,
         timeout: 60000
       },
       webVersionCache: {
@@ -126,7 +151,7 @@ class WhatsAppService {
 
     try {
       if (!this.client) {
-        this.createClient()
+        await this.createClient()
       }
 
       const qrTimeout = setTimeout(() => {

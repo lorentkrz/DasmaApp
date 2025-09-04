@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Heart, Sparkles, Calendar, MapPin, Clock, Users } from "lucide-react"
 
-export default async function InvitationPage({ params }: { params: Promise<{ token: string }> }) {
-  const { token } = await params
+export default async function InvitationPage({ params }: { params: { token: string } }) {
+  const { token } = params
   // Create public Supabase client without authentication
   const cookieStore = await cookies()
   const supabase = createServerClient(
