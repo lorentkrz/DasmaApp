@@ -31,7 +31,8 @@ class WhatsAppService {
     if (isServerless) {
       try {
         const chromium = await import('@sparticuz/chromium')
-        headless = chromium.default.headless
+        // Force boolean headless to satisfy whatsapp-web.js typings
+        headless = true
         const chromePath = await chromium.default.executablePath()
         executablePath = chromePath || undefined
         baseArgs = [...chromium.default.args, ...baseArgs]
@@ -42,6 +43,24 @@ class WhatsAppService {
     } else if (process.env.CHROME_PATH) {
       executablePath = process.env.CHROME_PATH
       console.log('🧭 Using CHROME_PATH from env:', executablePath)
+    }
+
+    // As a robust fallback for local/dev environments, try to use @sparticuz/chromium
+    // even when not in a serverless environment, if no executablePath has been resolved.
+    if (!executablePath) {
+      try {
+        const chromium = await import('@sparticuz/chromium')
+        // Force boolean headless to satisfy whatsapp-web.js typings
+        headless = true
+        const chromePath = await chromium.default.executablePath()
+        if (chromePath) {
+          executablePath = chromePath
+          baseArgs = [...chromium.default.args, ...baseArgs]
+          console.log('🧩 Fallback to Chromium provided by @sparticuz/chromium:', executablePath)
+        }
+      } catch (e) {
+        console.warn('⚠️ Could not resolve Chromium via @sparticuz/chromium fallback. Puppeteer will rely on system Chrome or PUPPETEER_EXECUTABLE_PATH.')
+      }
     }
 
     this.client = new Client({

@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  whatsapp:
+    build: .
+    container_name: whatsapp-server
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - API_KEY=${API_KEY}
+      - WHATSAPP_DATA_PATH=/app/whatsapp-session
+      # - CHROME_PATH=/usr/bin/google-chrome-stable   # optional if using system chrome
+    volumes:
+      - whatsapp_session:/app/whatsapp-session
+    restart: unless-stopped
+volumes:
+  whatsapp_session:
+    driver: local
