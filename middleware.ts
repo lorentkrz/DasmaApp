@@ -15,6 +15,8 @@ export const config = {
      * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
      * Feel free to modify this pattern to include more paths.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Skip middleware entirely for public invite pages
+    // Also continue to skip static assets and images
+    "/((?!_next/static|_next/image|favicon.ico|invite(?:/.*)?|.*.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 }
