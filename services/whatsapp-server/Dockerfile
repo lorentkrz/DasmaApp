@@ -3,8 +3,18 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install system deps if needed (often not necessary with @sparticuz/chromium)
-# RUN apk add --no-cache chromium
+# Install Chromium and required fonts/libs for puppeteer on Alpine
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ttf-freefont \
+    font-noto \
+    udev
+
+# Ensure puppeteer knows where Chromium is on Alpine
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 COPY package.json package-lock.json* yarn.lock* pnpm-lock.yaml* ./
 RUN npm install --omit=dev || yarn install --production || true
