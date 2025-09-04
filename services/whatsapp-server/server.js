@@ -64,9 +64,14 @@ async function createClient() {
       clientId: 'wedding-erp-client'
     }),
     puppeteer,
+    // Use an up-to-date WhatsApp Web version to avoid pairing failures like
+    // "Couldn't link the device" that happen when the cached HTML is too old.
+    // Source: https://github.com/wppconnect-team/wa-version
     webVersionCache: {
       type: 'remote',
-      remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
+      // Pick a recent, known-good version (mirrors the cached files in .wwebjs_cache/)
+      // Update this periodically if linking fails due to upstream changes.
+      remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1026638415.html'
     }
   })
 
