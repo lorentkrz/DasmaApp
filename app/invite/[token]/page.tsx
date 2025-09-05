@@ -378,138 +378,120 @@ export default async function InvitationPage({ params }: { params: { token: stri
         </svg>
       </div>
       
-      <div className="relative z-10 max-w-md sm:max-w-lg lg:max-w-2xl mx-auto px-6 py-8">
-        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-stone-200/30 overflow-hidden">
+      <div className="relative z-10 max-w-lg mx-auto px-6 py-6">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-stone-200/30 overflow-hidden">
           
-          {/* Header with integrated florals */}
-          <div className="relative p-8 pb-6 text-center bg-gradient-to-b from-stone-50/50 to-white">
+          {/* Header with elegant design */}
+          <div className="relative p-6 pb-5 text-center bg-gradient-to-b from-stone-50/50 to-white">
             
-            {/* Subtle corner florals integrated into design */}
-            <div className="absolute top-4 left-4 w-8 h-8 opacity-30">
-              <svg viewBox="0 0 32 32" className="w-full h-full">
-                <circle cx="8" cy="8" r="2" fill="#E8B4CB"/>
-                <circle cx="16" cy="12" r="1.5" fill="#F5E6A3"/>
-                <circle cx="24" cy="8" r="1" fill="#C8A2C8"/>
-                <path d="M4 20 Q16 16 28 20 Q24 28 16 26 Q8 28 4 20" fill="#A8B5A0" opacity="0.6"/>
-              </svg>
-            </div>
-            
-            <div className="absolute top-4 right-4 w-8 h-8 opacity-30 transform scale-x-[-1]">
-              <svg viewBox="0 0 32 32" className="w-full h-full">
-                <circle cx="8" cy="8" r="2" fill="#F0E68C"/>
-                <circle cx="16" cy="12" r="1.5" fill="#E8B4CB"/>
-                <circle cx="24" cy="8" r="1" fill="#C8A2C8"/>
-                <path d="M4 20 Q16 16 28 20 Q24 28 16 26 Q8 28 4 20" fill="#B8C5B0" opacity="0.6"/>
-              </svg>
-            </div>
-            
-            {/* Monogram with Heart */}
-            <div className="mb-6">
-              <div className={`${dancingScript.className} text-6xl font-semibold text-stone-700 leading-none flex items-center justify-center gap-3`}>
-                {wedding.groom_name.charAt(0)}
-                <svg className="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                </svg>
-                {wedding.bride_name.charAt(0)}
-              </div>
-            </div>
             
             {/* Albanian invitation text */}
             <div className="mb-6">
-              <p className={`${cormorant.className} text-stone-600 text-base leading-relaxed mb-3`}>
-                Tani e tutje ëndrrrën<br/>
-                do e jetojmë së bashku!<br/>
-                Sot, nesër dhe përgjithmonë...
+              <p className={`${cormorant.className} text-stone-600 text-lg leading-relaxed mb-4`}>
+                Me shumë dashuri dhe gëzim ju ftojmë
               </p>
-              <p className={`${cormorant.className} text-stone-500 text-sm leading-relaxed`}>
-                Kemi nderin t'ju ftojmë<br/>
-                në ceremoninë e martesës tonë.
+              <p className={`${cormorant.className} text-stone-500 text-base leading-relaxed`}>
+                të jeni pjesë e ditës sonë më të veçantë dhe të paharrueshme.
               </p>
             </div>
             
             {/* Couple names */}
             <div className="mb-6">
               <h1 className={`${dancingScript.className} text-4xl font-medium text-stone-700 leading-tight`}>
-                {wedding.groom_name}<br/>
-                &<br/>
-                {wedding.bride_name}
+                {wedding.groom_name} & {wedding.bride_name}
               </h1>
             </div>
             
-            {/* Date */}
-            <div className="mb-4">
-              <p className={`${cormorant.className} text-xl font-semibold text-stone-800`}>
-                {new Date(wedding.wedding_date).getDate()} {new Date(wedding.wedding_date).toLocaleDateString('sq-AL', { month: 'long' })} {new Date(wedding.wedding_date).getFullYear()}
-              </p>
+            {/* Wedding Details - Bigger */}
+            <div className="bg-gradient-to-r from-rose-50 to-amber-50 rounded-xl p-5 mb-6">
+              <div className="space-y-3 text-base">
+                <div className="flex items-center justify-center gap-3">
+                  <Calendar className="h-5 w-5 text-rose-600" />
+                  <span className={`${cormorant.className} font-semibold text-stone-800`}>
+                    {new Date(wedding.wedding_date).getDate()} {new Date(wedding.wedding_date).toLocaleDateString('sq-AL', { month: 'long' })} {new Date(wedding.wedding_date).getFullYear()}
+                  </span>
+                </div>
+                <div className="flex items-center justify-center gap-3">
+                  <Clock className="h-5 w-5 text-amber-600" />
+                  <span className={`${cormorant.className} text-stone-700`}>19:00 - 20:00</span>
+                </div>
+                <div className="flex items-center justify-center gap-3">
+                  <MapPin className="h-5 w-5 text-pink-600" />
+                  <div className="text-center">
+                    <span className={`${cormorant.className} text-stone-700`}>
+                      {wedding.venue_name || 'Venue TBA'}
+                    </span>
+                    {wedding.venue_address && (
+                      <div className={`${cormorant.className} text-stone-600 text-sm`}>
+                        {wedding.venue_address}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
             
-            {/* Venue and time */}
-            <div className="mb-6">
-              <p className={`${cormorant.className} text-stone-700 text-base font-medium mb-1`}>
-                {wedding.venue_name || 'Venue TBA'}
-              </p>
-              {wedding.venue_address && (
-                <p className={`${cormorant.className} text-stone-600 text-sm mb-2`}>
-                  {wedding.venue_address}
-                </p>
-              )}
-              <p className={`${cormorant.className} text-stone-500 text-sm`}>
-                Pritja e musafirëve: 19:00 - 20:00
-              </p>
-            </div>
-            
-            {/* Guest name */}
-            <div className="mb-6">
-              <p className={`${playfair.className} text-lg font-medium text-stone-800 mb-1`}>
-                {groupMembers && groupMembers.length > 0 ? (
-                  `Familja ${guest.last_name}`
-                ) : (
-                  `${guest.first_name} ${guest.last_name}`
+            {/* Guest name with equal spacing */}
+            <div className="bg-white/80 backdrop-blur-sm border border-stone-200/50 rounded-xl p-5">
+              <div className="text-center">
+                <div className="mb-4">
+                  <p className={`${cormorant.className} text-stone-700 text-lg font-semibold`}>
+                    I/E dashur
+                  </p>
+                </div>
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Users className="h-5 w-5 text-stone-600" />
+                  <span className={`${playfair.className} text-xl font-bold text-stone-800`}>
+                    {groupMembers && groupMembers.length > 0 ? (
+                      `Familja ${guest.last_name}`
+                    ) : (
+                      `${guest.first_name} ${guest.last_name}`
+                    )}
+                  </span>
+                </div>
+                {groupMembers && groupMembers.length > 0 && (
+                  <div className="mb-4">
+                    <p className={`${cormorant.className} text-stone-700 text-lg font-semibold`}>
+                      {guest.first_name}, {groupMembers.map((m: any) => m.first_name).join(', ')}
+                    </p>
+                  </div>
                 )}
-              </p>
-              {groupMembers && groupMembers.length > 0 && (
-                <p className={`${cormorant.className} text-stone-600 text-sm`}>
-                  {guest.first_name}, {groupMembers.map((m: any) => m.first_name).join(', ')}
-                </p>
-              )}
-            </div>
-            
-            {/* RSVP text */}
-            <div>
-              <p className={`${cormorant.className} text-stone-600 text-base font-medium`}>
-                Ju lutemi konfirmoni<br/>
-                pjesëmarrjen tuaj
-              </p>
+                <div className="mb-0">
+                  <p className={`${cormorant.className} text-stone-700 text-lg font-semibold`}>
+                    do na nderoni me praninë tuaj
+                  </p>
+                </div>
+              </div>
             </div>
             
           </div>
           
-          {/* RSVP Section */}
-          <div className="p-6 bg-stone-50/50">
+          {/* RSVP Section - No Space */}
+          <div className="p-4 bg-gradient-to-b from-stone-50/50 to-rose-50/30">
             {isGroup ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Group response */}
-                <div>
-                  <p className={`${cormorant.className} text-stone-600 text-sm mb-3 text-center`}>Përgjigja për të gjithë grupin:</p>
+                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3">
+                  <p className={`${cormorant.className} text-stone-600 text-xs mb-3 text-center font-medium`}>Përgjigja për të gjithë grupin:</p>
                   <div className="grid grid-cols-1 gap-2">
                     <form action={updateRsvp}>
                       <input type="hidden" name="apply_all" value="true" />
                       <input type="hidden" name="status" value="attending" />
-                      <button className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-medium transition-colors">
+                      <button className="w-full py-1 px-2 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-800 hover:to-green-900 text-white rounded-md text-xs font-bold transition-all duration-200 shadow-sm hover:shadow-md">
                         Po, vijmë të gjithë
                       </button>
                     </form>
                     <form action={updateRsvp}>
                       <input type="hidden" name="apply_all" value="true" />
                       <input type="hidden" name="status" value="maybe" />
-                      <button className="w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-medium transition-colors">
+                      <button className="w-full py-1 px-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-md text-xs font-bold transition-all duration-200 shadow-sm hover:shadow-md">
                         Ndoshta
                       </button>
                     </form>
                     <form action={updateRsvp}>
                       <input type="hidden" name="apply_all" value="true" />
                       <input type="hidden" name="status" value="not_attending" />
-                      <button className="w-full py-3 px-4 bg-stone-400 hover:bg-stone-500 text-white rounded-xl text-sm font-medium transition-colors">
+                      <button className="w-full py-1 px-2 bg-gradient-to-r from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white rounded-md text-xs font-bold transition-all duration-200 shadow-sm hover:shadow-md">
                         S'mundemi
                       </button>
                     </form>
@@ -517,61 +499,61 @@ export default async function InvitationPage({ params }: { params: { token: stri
                 </div>
                 
                 {/* Individual selection */}
-                <div className="bg-white rounded-2xl p-4">
-                  <p className={`${cormorant.className} text-stone-600 text-sm mb-3 text-center`}>Ose zgjidh veçmas:</p>
-                  <form action={updateRsvp} className="space-y-3">
-                    <div className="space-y-2">
-                      <label className="flex items-center gap-2 p-2 bg-stone-50 rounded-lg cursor-pointer hover:bg-stone-100 transition-colors text-sm">
-                        <input type="checkbox" name="attendee_ids" value={guest.id} className="w-4 h-4 accent-emerald-500" />
+                <div className="bg-white/90 backdrop-blur-sm border border-stone-200/50 rounded-xl p-3">
+                  <p className={`${cormorant.className} text-stone-600 text-xs mb-3 text-center font-medium`}>Ose zgjidh veçmas:</p>
+                  <form action={updateRsvp} className="space-y-2">
+                    <div className="space-y-1">
+                      <label className="flex items-center gap-2 p-1.5 bg-stone-50 rounded-md cursor-pointer hover:bg-stone-100 transition-colors text-xs">
+                        <input type="checkbox" name="attendee_ids" value={guest.id} className="w-3 h-3 accent-emerald-500" />
                         <span className="text-stone-700">{guest.first_name} {guest.last_name}</span>
                       </label>
                       {guest.plus_one && (
-                        <label className="flex items-center gap-2 p-2 bg-stone-50 rounded-lg cursor-pointer hover:bg-stone-100 transition-colors text-sm">
-                          <input type="checkbox" name="attendee_ids" value={`${guest.id}_plus_one`} className="w-4 h-4 accent-emerald-500" />
+                        <label className="flex items-center gap-2 p-1.5 bg-stone-50 rounded-md cursor-pointer hover:bg-stone-100 transition-colors text-xs">
+                          <input type="checkbox" name="attendee_ids" value={`${guest.id}_plus_one`} className="w-3 h-3 accent-emerald-500" />
                           <span className="text-stone-700">{guest.plus_one_name || 'Shoqëruesi/ja'}</span>
                         </label>
                       )}
                       {groupMembers?.map((m: any) => (
-                        <label key={m.id} className="flex items-center gap-2 p-2 bg-stone-50 rounded-lg cursor-pointer hover:bg-stone-100 transition-colors text-sm">
-                          <input type="checkbox" name="attendee_ids" value={m.id} className="w-4 h-4 accent-emerald-500" />
+                        <label key={m.id} className="flex items-center gap-2 p-1.5 bg-stone-50 rounded-md cursor-pointer hover:bg-stone-100 transition-colors text-xs">
+                          <input type="checkbox" name="attendee_ids" value={m.id} className="w-3 h-3 accent-emerald-500" />
                           <span className="text-stone-700">{m.first_name} {m.last_name}</span>
                         </label>
                       ))}
                     </div>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-1">
                       <input type="hidden" name="apply_all" value="false" />
-                      <button name="status" value="attending" className="py-2 px-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-medium transition-colors">
-                        Konfirmo
+                      <button name="status" value="attending" className="py-0.5 px-1.5 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-800 hover:to-green-900 text-white rounded-md text-xs font-bold transition-all duration-200 shadow-sm hover:shadow-md">
+                        Po
                       </button>
-                      <button name="status" value="maybe" className="py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-medium transition-colors">
+                      <button name="status" value="maybe" className="py-0.5 px-1.5 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-md text-xs font-bold transition-all duration-200 shadow-sm hover:shadow-md">
                         Ndoshta
                       </button>
-                      <button name="status" value="not_attending" className="py-2 px-3 bg-stone-400 hover:bg-stone-500 text-white rounded-lg text-xs font-medium transition-colors">
-                        Refuzo
+                      <button name="status" value="not_attending" className="py-0.5 px-1.5 bg-gradient-to-r from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white rounded-md text-xs font-bold transition-all duration-200 shadow-sm hover:shadow-md">
+                        Jo
                       </button>
                     </div>
                   </form>
                 </div>
               </div>
             ) : (
-              <div>
-                <p className={`${cormorant.className} text-stone-600 text-sm mb-4 text-center`}>A do të merrni pjesë?</p>
+              <div className="bg-white/90 backdrop-blur-sm border border-stone-200/50 rounded-xl p-3">
+                <p className={`${cormorant.className} text-stone-700 text-lg font-bold text-center mb-4`}>A do të merrni pjesë?</p>
                 <div className="grid grid-cols-1 gap-2">
                   <form action={updateRsvp}>
                     <input type="hidden" name="status" value="attending" />
-                    <button className="w-full py-4 px-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-colors">
+                    <button className="w-full py-1.5 px-3 bg-gradient-to-r from-green-700 to-green-800 hover:from-green-800 hover:to-green-900 text-white rounded-md text-sm font-bold transition-all duration-200 shadow-md hover:shadow-lg">
                       Po, do të vij!
                     </button>
                   </form>
                   <form action={updateRsvp}>
                     <input type="hidden" name="status" value="maybe" />
-                    <button className="w-full py-4 px-6 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-medium transition-colors">
+                    <button className="w-full py-1.5 px-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-md text-sm font-bold transition-all duration-200 shadow-md hover:shadow-lg">
                       Ndoshta
                     </button>
                   </form>
                   <form action={updateRsvp}>
                     <input type="hidden" name="status" value="not_attending" />
-                    <button className="w-full py-4 px-6 bg-stone-400 hover:bg-stone-500 text-white rounded-xl font-medium transition-colors">
+                    <button className="w-full py-1.5 px-3 bg-gradient-to-r from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white rounded-md text-sm font-bold transition-all duration-200 shadow-md hover:shadow-lg">
                       Nuk mundem
                     </button>
                   </form>

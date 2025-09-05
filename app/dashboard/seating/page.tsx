@@ -288,9 +288,6 @@ export default function SeatingPage() {
                             {guest.plus_one_name && (
                               <div className="text-xs text-gray-600 truncate">+ {guest.plus_one_name}</div>
                             )}
-                            <div className="text-xs text-gray-500 mt-1">
-                              {guest.guest_type === 'bride_side' ? 'Anë nuses' : 'Anë dhëndrit'}
-                            </div>
                           </div>
                         ))}
                     </div>

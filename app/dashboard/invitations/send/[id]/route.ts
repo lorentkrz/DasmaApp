@@ -65,22 +65,20 @@ export async function GET(
 
 I/E dashur ${guestName},
 
-Me zemër të plotë gëzimi dhe dashuri, ju ftojmë të jeni pjesë e ditës më të bukur të jetës sonë!
+Me shumë gëzim ju ftojmë të jeni pjesë e ditës sonë më të veçantë!
 
-${brideName} & ${groomName}
+${groomName} & ${brideName}
 
-Data: ${formattedDate}
-Vendi: ${venue || 'Vendi do të njoftohet së shpejti'}
+📅 ${formattedDate}
+📍 ${venue || 'Vendi do të njoftohet së shpejti'}
 
-Prania juaj do të na bëjë këtë ditë edhe më të veçantë dhe të paharrueshme. Së bashku do të festojmë dashurinë, familjen dhe miqësinë.
+Ju lutemi ta konfirmoni pjesëmarrjen tuaj këtu:
+👉 ${url}
 
-Ju lutemi konfirmoni pjesëmarrjen tuaj këtu:
-${url}
+Prania juaj na nderon, dhe e bën këtë ditë edhe më të paharrueshme për ne.
 
-Me shumë dashuri dhe mirënjohje,
-${brideName} & ${groomName}
-
-Faleminderit që jeni pjesë e rrugëtimit tonë!`
+Me dashuri,
+${groomName} & ${brideName}`
 
   try {
     // If an external WhatsApp microservice is configured, proxy to it.
