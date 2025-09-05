@@ -1,5 +1,4 @@
 import { Heart, Sparkles, CheckCircle, Calendar, Users, Clock } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { createServerClient } from '@supabase/ssr'
 import { createClient as createSupabaseServiceClient } from '@supabase/supabase-js'
@@ -293,7 +292,6 @@ export default async function InviteThankYouPage({
                   Me dashuri dhe mirënjohje të thellë
                 </p>
               </div>
-            </div>
           </div>
         </div>
       </div>
