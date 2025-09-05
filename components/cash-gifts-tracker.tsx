@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DollarSign, Plus, Gift, TrendingUp, Users, Calendar } from "lucide-react"
+import { DollarSign, Plus, Gift, TrendingUp, Users, Calendar, Trash2, Edit } from "lucide-react"
 
 interface CashGift {
   id: string
@@ -41,6 +41,10 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
   const [amount, setAmount] = useState('')
   const [notes, setNotes] = useState('')
   const [giftDate, setGiftDate] = useState(new Date().toISOString().split('T')[0])
+  const [editingGift, setEditingGift] = useState<CashGift | null>(null)
+  const [editAmount, setEditAmount] = useState('')
+  const [editNotes, setEditNotes] = useState('')
+  const [editDate, setEditDate] = useState(new Date().toISOString().split('T')[0])
   const supabase = createClient()
 
   useEffect(() => {
@@ -78,11 +82,15 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
         .insert({
           wedding_id: weddingId,
           guest_id: selectedGuest || null,
-          guest_name: guestName || guests.find(g => g.id === selectedGuest)?.name || null,
+          guest_name: selectedGuest 
+            ? `${guests.find(g => g.id === selectedGuest)?.first_name || ''} ${guests.find(g => g.id === selectedGuest)?.last_name || ''}`.trim()
+            : guestName || 'Anonim',
           amount: parseFloat(amount),
           amount_currency: "EUR",
           gift_date: giftDate || new Date().toISOString().split('T')[0],
           notes,
+          // Ensure compliance with schema that may require created_by
+          created_by: user.id,
         })
 
       if (error) throw error
@@ -99,7 +107,9 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
       fetchCashGifts()
     } catch (error) {
       console.error("Error adding cash gift:", error)
-      toast.error(`Error adding cash gift: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      const msg = error instanceof Error ? error.message : 'Unknown error'
+      // Common causes: RLS owner-only policy or created_by missing
+      toast.error(`Error adding cash gift: ${msg}`)
     } finally {
       setLoading(false)
     }
@@ -126,6 +136,38 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
     }
   }
 
+  const openEditGift = (gift: CashGift) => {
+    setEditingGift(gift)
+    setEditAmount(String(gift.amount))
+    setEditNotes(gift.notes || '')
+    setEditDate(gift.gift_date?.split('T')[0] || new Date().toISOString().split('T')[0])
+  }
+
+  const handleUpdateGift = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingGift) return
+    try {
+      const { error: updateError } = await supabase
+        .from('cash_gifts')
+        .update({
+          amount: parseFloat(editAmount),
+          notes: editNotes,
+          gift_date: editDate,
+        })
+        .eq('id', editingGift.id)
+
+      if (updateError) throw updateError
+
+      toast.success('Cash gift updated successfully!')
+      setEditingGift(null)
+      // Refresh list
+      fetchCashGifts()
+    } catch (error) {
+      console.error('Error updating cash gift:', error)
+      toast.error(`Error updating cash gift: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
   const totalAmount = cashGifts.reduce((sum, gift) => sum + gift.amount, 0)
   const averageGift = cashGifts.length > 0 ? totalAmount / cashGifts.length : 0
 
@@ -143,7 +185,54 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
             <div className="flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3 text-emerald-500" />
               <span className="text-xs text-emerald-600">+€{(totalAmount * 0.15).toFixed(0)} këtë javë</span>
+              {/* Edit Gift Dialog */}
+      <Dialog open={!!editingGift} onOpenChange={(open) => !open && setEditingGift(null)}>
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle>Përditëso Dhuratën</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleUpdateGift} className="space-y-4">
+            <div>
+              <Label htmlFor="edit_amount">Shuma (€)</Label>
+              <Input
+                id="edit_amount"
+                type="number"
+                step="0.01"
+                value={editAmount}
+                onChange={(e) => setEditAmount(e.target.value)}
+                required
+                className="mt-1"
+              />
             </div>
+            <div>
+              <Label htmlFor="edit_date">Data</Label>
+              <Input
+                id="edit_date"
+                type="date"
+                value={editDate}
+                onChange={(e) => setEditDate(e.target.value)}
+                required
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit_notes">Shënime</Label>
+              <Textarea
+                id="edit_notes"
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+                className="mt-1"
+                rows={3}
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setEditingGift(null)} className="flex-1">Anulo</Button>
+              <Button type="submit" className="flex-1">Ruaj</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
           </CardContent>
         </Card>
 
@@ -260,9 +349,17 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
                     {new Date(gift.gift_date).toLocaleDateString('sq-AL')}
                   </div>
                 </div>
-                <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white">
-                  €{gift.amount.toLocaleString()}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white">
+                    €{gift.amount.toLocaleString()}
+                  </Badge>
+                  <Button variant="outline" size="sm" onClick={() => openEditGift(gift)} className="hover:bg-blue-50 border-blue-200">
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleDeleteGift(gift.id)} className="text-red-600 hover:text-red-700 hover:bg-red-50">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               {gift.notes && (
                 <p className="text-sm text-gray-600 mt-2 italic">"{gift.notes}"</p>

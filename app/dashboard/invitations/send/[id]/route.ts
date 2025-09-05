@@ -80,6 +80,24 @@ Prania juaj na nderon, dhe e bën këtë ditë edhe më të paharrueshme për ne
 Me dashuri,
 ${groomName} & ${brideName}`
 
+  // Support preview mode to fetch the composed message without actually sending
+  try {
+    const urlObj = new URL((_req as any).url)
+    const preview = urlObj.searchParams.get('preview')
+    if (preview) {
+      return new Response(JSON.stringify({
+        success: true,
+        preview: true,
+        message,
+        invitationUrl: url,
+        guestName,
+        phone
+      }), { status: 200 })
+    }
+  } catch (e) {
+    // ignore URL parse errors and proceed with normal flow
+  }
+
   try {
     // If an external WhatsApp microservice is configured, proxy to it.
     if (SERVICE_URL) {

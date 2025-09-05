@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { User, Users, Calendar, CheckCircle, Trash2, Edit, Plus, Copy, MessageSquare, Eye, Bell, Mail, Sparkles, Heart, Send } from 'lucide-react'
+import { User, Users, Calendar, CheckCircle, Trash2, Edit, Plus, Copy, MessageSquare, Eye, Bell, Mail, Sparkles, Heart, Send, FileText } from 'lucide-react'
 import { CopyButton } from "@/components/copy-button"
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
 import { buildInvitationUrl } from "@/lib/utils"
@@ -65,6 +65,20 @@ export function InvitationManagement({
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const supabase = createClient()
+
+  const handleCopyFullMessage = async (invitationId: string) => {
+    try {
+      const resp = await fetch(`/dashboard/invitations/send/${invitationId}?preview=1`, { cache: 'no-store' })
+      const data = await resp.json()
+      if (!resp.ok || !data?.message) {
+        throw new Error(data?.error || 'Nuk u gjenerua mesazhi')
+      }
+      await navigator.clipboard.writeText(data.message)
+      toast({ title: 'Mesazhi u kopjua', description: 'Mesazhi i plotë i WhatsApp u kopjua në kujtesë.' })
+    } catch (e: any) {
+      toast({ title: 'Gabim në kopjim', description: e?.message || 'Nuk u kopjua mesazhi', variant: 'destructive' })
+    }
+  }
 
   const handleEdit = async (invitation: Invitation, updates: Partial<Invitation>) => {
     setLoading(true)
@@ -186,11 +200,7 @@ export function InvitationManagement({
                         <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
                           {targetType}
                         </span>
-                        {invitation.guest?.plus_one_allowed && (
-                          <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">
-                            +1 {invitation.guest.plus_one_name ? `(${invitation.guest.plus_one_name})` : ''}
-                          </span>
-                        )}
+                        {/* Removed +1 UI badge as per requirement */}
                       </div>
                     </div>
                     
@@ -224,6 +234,18 @@ export function InvitationManagement({
                   <div className="flex items-center gap-2">
                     {/* Copy Invitation Link */}
                     <CopyButton text={buildInvitationUrl(invitation.token || '')} />
+
+                    {/* Copy Full WhatsApp Message */}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCopyFullMessage(invitation.id)}
+                      className="hover:bg-green-50 border-green-200"
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Kopjo Mesazhin e Plotë
+                    </Button>
                     
                     {/* WhatsApp Send Button - only if guest has phone */}
                     {invitation.guest?.phone && (
