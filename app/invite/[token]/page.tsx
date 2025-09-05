@@ -2,9 +2,15 @@ import { createServerClient } from '@supabase/ssr'
 import { createClient as createSupabaseServiceClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { notFound, redirect } from "next/navigation"
+import { Playfair_Display, Great_Vibes, Cormorant_Garamond, Dancing_Script } from 'next/font/google'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Heart, Sparkles, Calendar, MapPin, Clock, Users } from "lucide-react"
+
+const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400','600','700'] })
+const greatVibes = Great_Vibes({ subsets: ['latin'], weight: '400' })
+const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['400','700'] })
+const dancingScript = Dancing_Script({ subsets: ['latin'], weight: ['400','600','700'] })
 
 export default async function InvitationPage({ params }: { params: { token: string } }) {
   const { token } = params
@@ -329,264 +335,250 @@ export default async function InvitationPage({ params }: { params: { token: stri
     redirect(`/invite/thank-you?status=${status}&token=${token}&updated=${updatedParam}`)
   }
 
+  // Format date information
+  const dateObj = new Date(wedding.wedding_date)
+  const month = dateObj.toLocaleDateString('en-US', { month: 'long' }).toUpperCase()
+  const day = dateObj.getDate().toString()
+  const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()
+  const time = wedding.ceremony_time ? wedding.ceremony_time.slice(0, 5) : '19:00'
+  const venue = wedding.venue || 'Salla "Elegance"'
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-rose-200/30 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-32 right-16 w-16 h-16 bg-amber-200/40 rounded-full blur-lg animate-pulse delay-1000"></div>
-        <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-pink-200/25 rounded-full blur-xl animate-pulse delay-2000"></div>
-        <div className="absolute bottom-32 right-1/3 w-12 h-12 bg-rose-300/35 rounded-full blur-md animate-pulse delay-500"></div>
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-amber-50 relative">
+      {/* Subtle texture overlay */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23d6d3d1%22%20fill-opacity%3D%220.4%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%221%22/%3E%3Ccircle%20cx%3D%2253%22%20cy%3D%2253%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
       </div>
       
-      <div className="relative z-10 container mx-auto px-4 py-6 md:py-8">
-        <div className="max-w-2xl mx-auto">
-          {/* Header - Mobile Responsive */}
-          <div className="text-center mb-6 md:mb-8">
-            <div className="flex justify-center items-center gap-2 mb-4">
-              <Heart className="h-6 w-6 md:h-8 md:w-8 text-rose-500" fill="currentColor" />
-              <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-amber-500" fill="currentColor" />
-              <Heart className="h-6 w-6 md:h-8 md:w-8 text-rose-500" fill="currentColor" />
+      {/* Floating floral elements */}
+      <div className="absolute top-8 left-8 w-16 h-16 opacity-20 animate-pulse">
+        <svg viewBox="0 0 64 64" className="w-full h-full">
+          <circle cx="32" cy="16" r="4" fill="#E8B4CB"/>
+          <circle cx="24" cy="24" r="3" fill="#F5E6A3"/>
+          <circle cx="40" cy="28" r="2" fill="#C8A2C8"/>
+          <path d="M20 40 Q32 35 44 40 Q40 50 32 48 Q24 50 20 40" fill="#A8B5A0" opacity="0.6"/>
+        </svg>
+      </div>
+      
+      <div className="absolute top-16 right-12 w-12 h-12 opacity-15 animate-pulse" style={{animationDelay: '1s'}}>
+        <svg viewBox="0 0 48 48" className="w-full h-full">
+          <circle cx="24" cy="12" r="3" fill="#F0E68C"/>
+          <circle cx="16" cy="20" r="2" fill="#E8B4CB"/>
+          <circle cx="32" cy="24" r="2.5" fill="#C8A2C8"/>
+          <path d="M12 32 Q24 28 36 32 Q32 40 24 38 Q16 40 12 32" fill="#B8C5B0" opacity="0.6"/>
+        </svg>
+      </div>
+      
+      <div className="absolute bottom-16 left-16 w-20 h-20 opacity-10 animate-pulse" style={{animationDelay: '2s'}}>
+        <svg viewBox="0 0 80 80" className="w-full h-full">
+          <circle cx="40" cy="20" r="5" fill="#F4C2C2"/>
+          <circle cx="28" cy="32" r="4" fill="#F5E6A3"/>
+          <circle cx="52" cy="36" r="3" fill="#E8B4CB"/>
+          <path d="M20 56 Q40 50 60 56 Q56 68 40 66 Q24 68 20 56" fill="#A8B5A0" opacity="0.6"/>
+        </svg>
+      </div>
+      
+      <div className="relative z-10 max-w-md sm:max-w-lg lg:max-w-2xl mx-auto px-6 py-8">
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-stone-200/30 overflow-hidden">
+          
+          {/* Header with integrated florals */}
+          <div className="relative p-8 pb-6 text-center bg-gradient-to-b from-stone-50/50 to-white">
+            
+            {/* Subtle corner florals integrated into design */}
+            <div className="absolute top-4 left-4 w-8 h-8 opacity-30">
+              <svg viewBox="0 0 32 32" className="w-full h-full">
+                <circle cx="8" cy="8" r="2" fill="#E8B4CB"/>
+                <circle cx="16" cy="12" r="1.5" fill="#F5E6A3"/>
+                <circle cx="24" cy="8" r="1" fill="#C8A2C8"/>
+                <path d="M4 20 Q16 16 28 20 Q24 28 16 26 Q8 28 4 20" fill="#A8B5A0" opacity="0.6"/>
+              </svg>
             </div>
-            <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent mb-2">
-              Ju jeni të ftuar!
-            </h1>
-            <p className="text-base md:text-lg text-gray-600 font-medium px-4">
-              në dasmën e {wedding.bride_name} & {wedding.groom_name}
-            </p>
+            
+            <div className="absolute top-4 right-4 w-8 h-8 opacity-30 transform scale-x-[-1]">
+              <svg viewBox="0 0 32 32" className="w-full h-full">
+                <circle cx="8" cy="8" r="2" fill="#F0E68C"/>
+                <circle cx="16" cy="12" r="1.5" fill="#E8B4CB"/>
+                <circle cx="24" cy="8" r="1" fill="#C8A2C8"/>
+                <path d="M4 20 Q16 16 28 20 Q24 28 16 26 Q8 28 4 20" fill="#B8C5B0" opacity="0.6"/>
+              </svg>
+            </div>
+            
+            {/* Monogram with Heart */}
+            <div className="mb-6">
+              <div className={`${dancingScript.className} text-6xl font-semibold text-stone-700 leading-none flex items-center justify-center gap-3`}>
+                {wedding.groom_name.charAt(0)}
+                <svg className="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                {wedding.bride_name.charAt(0)}
+              </div>
+            </div>
+            
+            {/* Albanian invitation text */}
+            <div className="mb-6">
+              <p className={`${cormorant.className} text-stone-600 text-base leading-relaxed mb-3`}>
+                Tani e tutje ëndrrrën<br/>
+                do e jetojmë së bashku!<br/>
+                Sot, nesër dhe përgjithmonë...
+              </p>
+              <p className={`${cormorant.className} text-stone-500 text-sm leading-relaxed`}>
+                Kemi nderin t'ju ftojmë<br/>
+                në ceremoninë e martesës tonë.
+              </p>
+            </div>
+            
+            {/* Couple names */}
+            <div className="mb-6">
+              <h1 className={`${dancingScript.className} text-4xl font-medium text-stone-700 leading-tight`}>
+                {wedding.groom_name}<br/>
+                &<br/>
+                {wedding.bride_name}
+              </h1>
+            </div>
+            
+            {/* Date */}
+            <div className="mb-4">
+              <p className={`${cormorant.className} text-xl font-semibold text-stone-800`}>
+                {new Date(wedding.wedding_date).getDate()} {new Date(wedding.wedding_date).toLocaleDateString('sq-AL', { month: 'long' })} {new Date(wedding.wedding_date).getFullYear()}
+              </p>
+            </div>
+            
+            {/* Venue and time */}
+            <div className="mb-6">
+              <p className={`${cormorant.className} text-stone-700 text-base font-medium mb-1`}>
+                {wedding.venue_name || 'Venue TBA'}
+              </p>
+              {wedding.venue_address && (
+                <p className={`${cormorant.className} text-stone-600 text-sm mb-2`}>
+                  {wedding.venue_address}
+                </p>
+              )}
+              <p className={`${cormorant.className} text-stone-500 text-sm`}>
+                Pritja e musafirëve: 19:00 - 20:00
+              </p>
+            </div>
+            
+            {/* Guest name */}
+            <div className="mb-6">
+              <p className={`${playfair.className} text-lg font-medium text-stone-800 mb-1`}>
+                {groupMembers && groupMembers.length > 0 ? (
+                  `Familja ${guest.last_name}`
+                ) : (
+                  `${guest.first_name} ${guest.last_name}`
+                )}
+              </p>
+              {groupMembers && groupMembers.length > 0 && (
+                <p className={`${cormorant.className} text-stone-600 text-sm`}>
+                  {guest.first_name}, {groupMembers.map((m: any) => m.first_name).join(', ')}
+                </p>
+              )}
+            </div>
+            
+            {/* RSVP text */}
+            <div>
+              <p className={`${cormorant.className} text-stone-600 text-base font-medium`}>
+                Ju lutemi konfirmoni<br/>
+                pjesëmarrjen tuaj
+              </p>
+            </div>
+            
           </div>
-
-          <Card className="rounded-2xl sm:rounded-3xl shadow-2xl border-0 overflow-hidden backdrop-blur-sm bg-white/95">
-            {/* Elegant Header - Mobile Responsive */}
-            <CardHeader className="relative bg-gradient-to-r from-rose-100 via-pink-50 to-amber-100 py-8 md:py-12 text-center overflow-hidden">
-              <div className="absolute inset-0 opacity-30">
-                <div className="absolute inset-0 bg-gradient-to-r from-rose-200/20 via-pink-200/20 to-amber-200/20"></div>
-              </div>
-              <div className="relative z-10">
-                <div className="flex justify-center items-center mb-4 md:mb-6">
-                  <div className="relative">
-                    <Heart className="h-12 w-12 md:h-16 md:w-16 text-rose-500 animate-pulse" fill="currentColor" />
-                    <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-amber-400 animate-bounce" />
-                  </div>
-                </div>
-                <CardTitle className="text-3xl md:text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 bg-clip-text text-transparent">
-                  Ftesa Juaj e Veçantë
-                </CardTitle>
-                <div className="flex items-center justify-center gap-2 text-rose-600">
-                  <Sparkles className="h-4 w-4" />
-                  <span className="text-base md:text-lg font-medium px-2">Bashkohuni me ne në këtë ditë të bukur</span>
-                  <Sparkles className="h-4 w-4" />
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-6 md:space-y-10 p-6 md:p-10 text-center">
-              {/* Personalized Greeting - Mobile Responsive */}
+          
+          {/* RSVP Section */}
+          <div className="p-6 bg-stone-50/50">
+            {isGroup ? (
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-rose-100 to-pink-100 rounded-full">
-                  <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
-                  <p className="text-lg md:text-2xl font-bold text-gray-800">
-                    Të dashur {firstName} {lastName}
-                  </p>
-                  <Heart className="h-4 w-4 md:h-5 md:w-5 text-rose-500" fill="currentColor" />
-                </div>
-                <p className="text-gray-700 text-base md:text-xl leading-relaxed max-w-2xl mx-auto px-4">
-                  Do të ishim të nderuar dhe të lumtur që ju të jeni pjesë e kësaj dite të veçantë dhe të paharrueshme për ne ✨
-                </p>
-              </div>
-
-              {/* Wedding Details Section - Mobile Optimized */}
-              <div className="bg-gradient-to-r from-amber-50 to-rose-50 rounded-2xl p-4 md:p-8 space-y-6">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <Calendar className="h-5 w-5 md:h-6 md:w-6 text-amber-600" />
-                  <h3 className="text-lg md:text-2xl font-bold text-gray-800">Detajet e Dasmës</h3>
-                  <Calendar className="h-5 w-5 md:h-6 md:w-6 text-amber-600" />
-                </div>
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 bg-clip-text text-transparent mb-2 leading-tight">
-                    {wedding.bride_name} & {wedding.groom_name}
-                  </h2>
-                  <p className="text-gray-600 text-base sm:text-lg">ju ftojnë në dasmën e tyre</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-center">
-                  <div className="space-y-2 p-4 bg-white/50 rounded-xl">
-                    <Calendar className="h-6 w-6 md:h-8 md:w-8 text-rose-500 mx-auto" />
-                    <p className="font-semibold text-gray-800 text-sm md:text-base">Data</p>
-                    <p className="text-gray-600 text-sm md:text-base">{new Date(wedding.wedding_date).toLocaleDateString('sq-AL', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}</p>
-                  </div>
-                  <div className="space-y-2 p-4 bg-white/50 rounded-xl">
-                    <Clock className="h-6 w-6 md:h-8 md:w-8 text-amber-500 mx-auto" />
-                    <p className="font-semibold text-gray-800 text-sm md:text-base">Koha</p>
-                    <p className="text-gray-600 text-sm md:text-base">{wedding.ceremony_time || '17:00'}</p>
-                  </div>
-                  <div className="space-y-2 p-4 bg-white/50 rounded-xl">
-                    <MapPin className="h-6 w-6 md:h-8 md:w-8 text-pink-500 mx-auto" />
-                    <p className="font-semibold text-gray-800 text-sm md:text-base">Vendi</p>
-                    <p className="text-gray-600 text-sm md:text-base break-words">{wedding.venue || 'Salla "Elegance"'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {isGroup && (
-                <div className="space-y-6 md:space-y-8">
-                  {/* Group Members Section - Mobile Responsive */}
-                  <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl p-4 md:p-6">
-                    <div className="flex items-center justify-center gap-2 mb-4">
-                      <Users className="h-5 w-5 text-rose-500" />
-                      <p className="text-base md:text-lg font-semibold text-gray-700">Kjo ftesë është për:</p>
-                    </div>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <li className="bg-white/80 backdrop-blur-sm border border-rose-200/50 rounded-xl px-4 py-3 shadow-sm text-gray-700 font-medium text-sm flex items-center gap-2">
-                        <Heart className="h-3 w-3 text-rose-400" fill="currentColor" />
-                        {guest.first_name} {guest.last_name}
-                      </li>
-                      {guest.plus_one && (
-                        <li className="bg-white/80 backdrop-blur-sm border border-rose-200/50 rounded-xl px-4 py-3 shadow-sm text-gray-700 font-medium text-sm flex items-center gap-2">
-                          <Heart className="h-3 w-3 text-rose-400" fill="currentColor" />
-                          {guest.plus_one_name || 'Shoqëruesi/ja'}
-                        </li>
-                      )}
-                      {groupMembers?.map((m) => (
-                        <li
-                          key={m.id}
-                          className="bg-white/80 backdrop-blur-sm border border-rose-200/50 rounded-xl px-4 py-3 shadow-sm text-gray-700 font-medium text-sm flex items-center gap-2"
-                        >
-                          <Heart className="h-3 w-3 text-rose-400" fill="currentColor" />
-                          {m.first_name} {m.last_name}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Quick Response Buttons - Mobile Responsive */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg md:text-xl font-bold text-gray-800 flex items-center justify-center gap-2">
-                      <Sparkles className="h-5 w-5 text-amber-500" />
-                      Përgjigja për të gjithë grupin
-                      <Sparkles className="h-5 w-5 text-amber-500" />
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <form action={updateRsvp}>
-                        <input type="hidden" name="apply_all" value="true" />
-                        <input type="hidden" name="status" value="attending" />
-                        <Button className="w-full rounded-2xl font-semibold py-4 md:py-6 text-base md:text-lg bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg transform hover:scale-105 transition-all duration-200">
-                          <Heart className="h-4 w-4 md:h-5 md:w-5 mr-2" fill="currentColor" />
-                          Po, vemi të gjithë!
-                        </Button>
-                      </form>
-                      <form action={updateRsvp}>
-                        <input type="hidden" name="apply_all" value="true" />
-                        <input type="hidden" name="status" value="maybe" />
-                        <Button variant="secondary" className="w-full rounded-2xl font-semibold py-4 md:py-6 text-base md:text-lg bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
-                          <Clock className="h-4 w-4 md:h-5 md:w-5 mr-2" />
-                          Ndoshta
-                        </Button>
-                      </form>
-                      <form action={updateRsvp}>
-                        <input type="hidden" name="apply_all" value="true" />
-                        <input type="hidden" name="status" value="not_attending" />
-                        <Button variant="destructive" className="w-full rounded-2xl font-semibold py-4 md:py-6 text-base md:text-lg bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-lg transform hover:scale-105 transition-all duration-200">
-                          Na vjen keq, s'mundemi
-                        </Button>
-                      </form>
-                    </div>
-                  </div>
-
-                  {/* Individual Selection - Mobile Responsive */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 md:p-6 space-y-6">
-                    <div className="text-center">
-                      <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2">Ose zgjidhni individualisht</h3>
-                      <p className="text-gray-600">Përzgjidhni kush do të vijë nga grupi juaj</p>
-                    </div>
-                    <form action={updateRsvp} className="space-y-6">
-                      <div className="space-y-3">
-                        <label className="flex items-center gap-3 text-gray-700 bg-white/70 backdrop-blur-sm rounded-xl px-4 py-3 border border-blue-200/50 hover:bg-white/90 transition-all cursor-pointer">
-                          <input type="checkbox" name="attendee_ids" value={guest.id} className="w-5 h-5 accent-rose-500 rounded" />
-                          <Heart className="h-4 w-4 text-rose-400" fill="currentColor" />
-                          <span className="font-medium">{guest.first_name} {guest.last_name}</span>
-                        </label>
-                        {guest.plus_one && (
-                          <label className="flex items-center gap-3 text-gray-700 bg-white/70 backdrop-blur-sm rounded-xl px-4 py-3 border border-blue-200/50 hover:bg-white/90 transition-all cursor-pointer">
-                            <input type="checkbox" name="attendee_ids" value={`${guest.id}_plus_one`} className="w-5 h-5 accent-rose-500 rounded" />
-                            <Heart className="h-4 w-4 text-rose-400" fill="currentColor" />
-                            <span className="font-medium">{guest.plus_one_name || 'Shoqëruesi/ja'}</span>
-                          </label>
-                        )}
-                        {groupMembers?.map((m) => (
-                          <label key={m.id} className="flex items-center gap-3 text-gray-700 bg-white/70 backdrop-blur-sm rounded-xl px-4 py-3 border border-blue-200/50 hover:bg-white/90 transition-all cursor-pointer">
-                            <input type="checkbox" name="attendee_ids" value={m.id} className="w-5 h-5 accent-rose-500 rounded" />
-                            <Heart className="h-4 w-4 text-rose-400" fill="currentColor" />
-                            <span className="font-medium">{m.first_name} {m.last_name}</span>
-                          </label>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="hidden" name="apply_all" value="false" />
-                        <Button name="status" value="attending" className="w-full rounded-2xl font-semibold py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg transform hover:scale-105 transition-all duration-200">
-                          <Heart className="h-4 w-4 mr-2" fill="currentColor" />
-                          Konfirmo
-                        </Button>
-                        <Button name="status" value="maybe" variant="secondary" className="w-full rounded-2xl font-semibold py-4 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-white shadow-lg transform hover:scale-105 transition-all duration-200">
-                          <Clock className="h-4 w-4 mr-2" />
-                          Ndoshta
-                        </Button>
-                        <Button name="status" value="not_attending" variant="destructive" className="w-full rounded-2xl font-semibold py-4 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-lg transform hover:scale-105 transition-all duration-200">
-                          Na vjen keq
-                        </Button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              )}
-
-              {!isGroup && (
-                <div className="space-y-6">
-                  <h3 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
-                    <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-amber-500" />
-                    A do të merrni pjesë?
-                    <Sparkles className="h-5 w-5 md:h-6 md:w-6 text-amber-500" />
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                {/* Group response */}
+                <div>
+                  <p className={`${cormorant.className} text-stone-600 text-sm mb-3 text-center`}>Përgjigja për të gjithë grupin:</p>
+                  <div className="grid grid-cols-1 gap-2">
                     <form action={updateRsvp}>
+                      <input type="hidden" name="apply_all" value="true" />
                       <input type="hidden" name="status" value="attending" />
-                      <Button className="w-full rounded-2xl font-bold py-6 md:py-8 text-lg md:text-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-xl transform hover:scale-105 transition-all duration-300">
-                        <Heart className="h-5 w-5 md:h-6 md:w-6 mr-2 md:mr-3" fill="currentColor" />
-                        Po, do të vij!
-                      </Button>
+                      <button className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-medium transition-colors">
+                        Po, vijmë të gjithë
+                      </button>
                     </form>
                     <form action={updateRsvp}>
+                      <input type="hidden" name="apply_all" value="true" />
                       <input type="hidden" name="status" value="maybe" />
-                      <Button variant="secondary" className="w-full rounded-2xl font-bold py-6 md:py-8 text-lg md:text-xl bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-white shadow-xl transform hover:scale-105 transition-all duration-300">
-                        <Clock className="h-5 w-5 md:h-6 md:w-6 mr-2 md:mr-3" />
+                      <button className="w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-medium transition-colors">
                         Ndoshta
-                      </Button>
+                      </button>
                     </form>
                     <form action={updateRsvp}>
+                      <input type="hidden" name="apply_all" value="true" />
                       <input type="hidden" name="status" value="not_attending" />
-                      <Button variant="destructive" className="w-full rounded-2xl font-bold py-6 md:py-8 text-lg md:text-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-xl transform hover:scale-105 transition-all duration-300">
-                        Na vjen keq, s'mund
-                      </Button>
+                      <button className="w-full py-3 px-4 bg-stone-400 hover:bg-stone-500 text-white rounded-xl text-sm font-medium transition-colors">
+                        S'mundemi
+                      </button>
                     </form>
                   </div>
                 </div>
-              )}
-
-              {/* Footer Message - Mobile Responsive */}
-              <div className="pt-6 md:pt-8 border-t border-rose-200/50">
-                <p className="text-gray-600 text-base md:text-lg italic px-2">
-                  "Dashuria është e vetmja forcë që mund ta transformojë një armik në mik" ❤️
-                </p>
-                <p className="text-sm text-gray-500 mt-2 px-2">
-                  Faleminderit që do të jeni pjesë e kësaj dite të veçantë!
-                </p>
+                
+                {/* Individual selection */}
+                <div className="bg-white rounded-2xl p-4">
+                  <p className={`${cormorant.className} text-stone-600 text-sm mb-3 text-center`}>Ose zgjidh veçmas:</p>
+                  <form action={updateRsvp} className="space-y-3">
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 p-2 bg-stone-50 rounded-lg cursor-pointer hover:bg-stone-100 transition-colors text-sm">
+                        <input type="checkbox" name="attendee_ids" value={guest.id} className="w-4 h-4 accent-emerald-500" />
+                        <span className="text-stone-700">{guest.first_name} {guest.last_name}</span>
+                      </label>
+                      {guest.plus_one && (
+                        <label className="flex items-center gap-2 p-2 bg-stone-50 rounded-lg cursor-pointer hover:bg-stone-100 transition-colors text-sm">
+                          <input type="checkbox" name="attendee_ids" value={`${guest.id}_plus_one`} className="w-4 h-4 accent-emerald-500" />
+                          <span className="text-stone-700">{guest.plus_one_name || 'Shoqëruesi/ja'}</span>
+                        </label>
+                      )}
+                      {groupMembers?.map((m: any) => (
+                        <label key={m.id} className="flex items-center gap-2 p-2 bg-stone-50 rounded-lg cursor-pointer hover:bg-stone-100 transition-colors text-sm">
+                          <input type="checkbox" name="attendee_ids" value={m.id} className="w-4 h-4 accent-emerald-500" />
+                          <span className="text-stone-700">{m.first_name} {m.last_name}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <input type="hidden" name="apply_all" value="false" />
+                      <button name="status" value="attending" className="py-2 px-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-medium transition-colors">
+                        Konfirmo
+                      </button>
+                      <button name="status" value="maybe" className="py-2 px-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-medium transition-colors">
+                        Ndoshta
+                      </button>
+                      <button name="status" value="not_attending" className="py-2 px-3 bg-stone-400 hover:bg-stone-500 text-white rounded-lg text-xs font-medium transition-colors">
+                        Refuzo
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            ) : (
+              <div>
+                <p className={`${cormorant.className} text-stone-600 text-sm mb-4 text-center`}>A do të merrni pjesë?</p>
+                <div className="grid grid-cols-1 gap-2">
+                  <form action={updateRsvp}>
+                    <input type="hidden" name="status" value="attending" />
+                    <button className="w-full py-4 px-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-medium transition-colors">
+                      Po, do të vij!
+                    </button>
+                  </form>
+                  <form action={updateRsvp}>
+                    <input type="hidden" name="status" value="maybe" />
+                    <button className="w-full py-4 px-6 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-medium transition-colors">
+                      Ndoshta
+                    </button>
+                  </form>
+                  <form action={updateRsvp}>
+                    <input type="hidden" name="status" value="not_attending" />
+                    <button className="w-full py-4 px-6 bg-stone-400 hover:bg-stone-500 text-white rounded-xl font-medium transition-colors">
+                      Nuk mundem
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

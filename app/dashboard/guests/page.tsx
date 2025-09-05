@@ -74,7 +74,7 @@ export default async function GuestsPage() {
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-start justify-between mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center border">
@@ -86,7 +86,7 @@ export default async function GuestsPage() {
             </div>
             <div className="bg-gray-50 rounded-lg px-4 py-2 border">
               <p className="text-gray-700 text-sm">
-                Lista e të ftuarve për dasmën e <span className="font-medium">{currentWedding.bride_name}</span> & <span className="font-medium">{currentWedding.groom_name}</span>
+                Lista e të ftuarve për dasmën e <span className="font-medium">{currentWedding.groom_name}</span> & <span className="font-medium">{currentWedding.bride_name}</span>
               </p>
             </div>
           </div>

@@ -6,6 +6,12 @@ import { createClient as createSupabaseServiceClient } from '@supabase/supabase-
 import { cookies } from 'next/headers'
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { Playfair_Display, Great_Vibes, Cormorant_Garamond, Dancing_Script } from 'next/font/google'
+
+const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400','600','700'] })
+const greatVibes = Great_Vibes({ subsets: ['latin'], weight: '400' })
+const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['400','700'] })
+const dancingScript = Dancing_Script({ subsets: ['latin'], weight: ['400','600','700'] })
 
 export default async function InviteThankYouPage({
   searchParams
@@ -108,20 +114,44 @@ export default async function InviteThankYouPage({
       default: return 'from-gray-400 to-gray-500'
     }
   }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-amber-50 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-16 left-16 w-24 h-24 bg-rose-200/30 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-20 h-20 bg-amber-200/40 rounded-full blur-lg animate-pulse delay-1000"></div>
-        <div className="absolute bottom-24 left-1/3 w-28 h-28 bg-pink-200/25 rounded-full blur-xl animate-pulse delay-2000"></div>
-        <div className="absolute bottom-40 right-1/4 w-16 h-16 bg-rose-300/35 rounded-full blur-md animate-pulse delay-500"></div>
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-amber-50 relative">
+      {/* Subtle texture overlay */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23d6d3d1%22%20fill-opacity%3D%220.4%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%221%22/%3E%3Ccircle%20cx%3D%2253%22%20cy%3D%2253%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
       </div>
       
-      <div className="relative flex items-center justify-center p-6 min-h-screen">
-        <div className="max-w-2xl w-full">
-          <Card className="rounded-3xl shadow-2xl border-0 overflow-hidden backdrop-blur-sm bg-white/95">
-            <CardContent className="p-8 md:p-12 text-center space-y-8">
+      {/* Floating floral elements */}
+      <div className="absolute top-8 left-8 w-16 h-16 opacity-20 animate-pulse">
+        <svg viewBox="0 0 64 64" className="w-full h-full">
+          <circle cx="32" cy="16" r="4" fill="#E8B4CB"/>
+          <circle cx="24" cy="24" r="3" fill="#F5E6A3"/>
+          <circle cx="40" cy="28" r="2" fill="#C8A2C8"/>
+          <path d="M20 40 Q32 35 44 40 Q40 50 32 48 Q24 50 20 40" fill="#A8B5A0" opacity="0.6"/>
+        </svg>
+      </div>
+      
+      <div className="absolute top-16 right-12 w-12 h-12 opacity-15 animate-pulse" style={{animationDelay: '1s'}}>
+        <svg viewBox="0 0 48 48" className="w-full h-full">
+          <circle cx="24" cy="12" r="3" fill="#F0E68C"/>
+          <circle cx="16" cy="20" r="2" fill="#E8B4CB"/>
+          <circle cx="32" cy="24" r="2.5" fill="#C8A2C8"/>
+          <path d="M12 32 Q24 28 36 32 Q32 40 24 38 Q16 40 12 32" fill="#B8C5B0" opacity="0.6"/>
+        </svg>
+      </div>
+      
+      <div className="relative z-10 max-w-md sm:max-w-lg lg:max-w-2xl mx-auto px-6 py-8">
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-stone-200/30 overflow-hidden">
+          <div className="relative p-8 pb-6 text-center bg-gradient-to-b from-stone-50/50 to-white">
+            
+            {/* Heart Symbol */}
+            <div className="mb-6">
+              <div className="text-5xl text-black">
+                ♥
+              </div>
+            </div>
+            
               {/* Success Icon */}
               <div className="flex justify-center items-center mb-6">
                 <div className="relative">
@@ -135,15 +165,15 @@ export default async function InviteThankYouPage({
 
               {/* Thank You Message */}
               <div className="space-y-6">
-                <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 bg-clip-text text-transparent">
+                <h1 className={`${dancingScript.className} text-4xl md:text-5xl font-medium text-stone-700`}>
                   Faleminderit shumë!
                 </h1>
                 
                 <div className="space-y-4">
-                  <p className="text-xl md:text-2xl font-semibold text-gray-800">
+                  <p className={`${cormorant.className} text-xl md:text-2xl font-semibold text-stone-800`}>
                     Përgjigja juaj u regjistrua me sukses ✨
                   </p>
-                  <p className="text-lg md:text-xl text-gray-700 leading-relaxed max-w-xl mx-auto">
+                  <p className={`${cormorant.className} text-lg md:text-xl text-stone-600 leading-relaxed max-w-xl mx-auto`}>
                     Jemi të lumtur që morët kohën për t'u përgjigjur. Presim me padurim të shohemi në këtë ditë të veçantë!
                   </p>
                 </div>
@@ -164,8 +194,8 @@ export default async function InviteThankYouPage({
                         <p className="text-gray-700 mb-2">
                           <strong>{g.first_name} {g.last_name}</strong>
                         </p>
-                        <p className="text-sm text-gray-600 mb-3">
-                          Dasma e {weddingInfo.bride_name} & {weddingInfo.groom_name}
+                        <p className={`${cormorant.className} text-sm text-stone-600 mb-3`}>
+                          Dasma e {weddingInfo.groom_name} & {weddingInfo.bride_name}
                         </p>
                         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r ${getStatusColor(g.rsvp_status)}`}>
                           <CheckCircle className="h-4 w-4" />
@@ -211,12 +241,15 @@ export default async function InviteThankYouPage({
                     <div className="bg-white/50 rounded-xl p-4">
                       <Clock className="h-6 w-6 text-amber-500 mx-auto mb-2" />
                       <p className="font-semibold text-gray-800 text-sm">Koha</p>
-                      <p className="text-gray-600 text-sm">{weddingInfo.ceremony_time || '17:00'}</p>
+                      <p className="text-gray-600 text-sm">19:00 - 20:00</p>
                     </div>
                     <div className="bg-white/50 rounded-xl p-4">
                       <Heart className="h-6 w-6 text-pink-500 mx-auto mb-2" />
                       <p className="font-semibold text-gray-800 text-sm">Vendi</p>
-                      <p className="text-gray-600 text-sm break-words">{weddingInfo.venue || 'Salla "Elegance"'}</p>
+                      <p className="text-gray-600 text-sm break-words">{weddingInfo.venue_name || 'Venue TBA'}</p>
+                      {weddingInfo.venue_address && (
+                        <p className="text-gray-500 text-xs mt-1">{weddingInfo.venue_address}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -260,8 +293,8 @@ export default async function InviteThankYouPage({
                   Me dashuri dhe mirënjohje të thellë
                 </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

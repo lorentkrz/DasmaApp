@@ -10,7 +10,13 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { Lock, Mail, Calendar } from "lucide-react"
+import { Lock, Mail, Heart } from "lucide-react"
+import { Playfair_Display, Great_Vibes, Cormorant_Garamond, Dancing_Script } from 'next/font/google'
+
+const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400','600','700'] })
+const greatVibes = Great_Vibes({ subsets: ['latin'], weight: '400' })
+const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['400','700'] })
+const dancingScript = Dancing_Script({ subsets: ['latin'], weight: ['400','600','700'] })
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -40,47 +46,68 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-stone-50 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-20 w-32 h-32 bg-slate-200/20 rounded-full blur-2xl animate-pulse"></div>
-        <div className="absolute top-40 right-16 w-24 h-24 bg-gray-200/30 rounded-full blur-xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-32 left-1/4 w-28 h-28 bg-stone-200/25 rounded-full blur-xl animate-pulse delay-2000"></div>
-        <div className="absolute bottom-20 right-1/3 w-20 h-20 bg-slate-300/30 rounded-full blur-lg animate-pulse delay-500"></div>
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-amber-50 relative">
+      {/* Subtle texture overlay */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23d6d3d1%22%20fill-opacity%3D%220.4%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%221%22/%3E%3Ccircle%20cx%3D%2253%22%20cy%3D%2253%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
       </div>
       
-      <div className="relative flex items-center justify-center p-4 md:p-6 min-h-screen">
-        <div className="w-full max-w-lg">
-          <div className="flex flex-col gap-6 md:gap-8">
-            {/* Enhanced Logo Section - Mobile Responsive */}
-            <div className="text-center space-y-3 md:space-y-4">
-              <div className="flex justify-center items-center mb-3 md:mb-4">
-                <div className="relative">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-slate-600 to-gray-700 rounded-full flex items-center justify-center shadow-xl">
-                    <Calendar className="h-8 w-8 md:h-10 md:w-10 text-white" />
-                  </div>
+      {/* Floating floral elements */}
+      <div className="absolute top-8 left-8 w-16 h-16 opacity-20 animate-pulse">
+        <svg viewBox="0 0 64 64" className="w-full h-full">
+          <circle cx="32" cy="16" r="4" fill="#E8B4CB"/>
+          <circle cx="24" cy="24" r="3" fill="#F5E6A3"/>
+          <circle cx="40" cy="28" r="2" fill="#C8A2C8"/>
+          <path d="M20 40 Q32 35 44 40 Q40 50 32 48 Q24 50 20 40" fill="#A8B5A0" opacity="0.6"/>
+        </svg>
+      </div>
+      
+      <div className="absolute top-16 right-12 w-12 h-12 opacity-15 animate-pulse" style={{animationDelay: '1s'}}>
+        <svg viewBox="0 0 48 48" className="w-full h-full">
+          <circle cx="24" cy="12" r="3" fill="#F0E68C"/>
+          <circle cx="16" cy="20" r="2" fill="#E8B4CB"/>
+          <circle cx="32" cy="24" r="2.5" fill="#C8A2C8"/>
+          <path d="M12 32 Q24 28 36 32 Q32 40 24 38 Q16 40 12 32" fill="#B8C5B0" opacity="0.6"/>
+        </svg>
+      </div>
+      
+      <div className="relative z-10 max-w-md sm:max-w-lg lg:max-w-xl mx-auto px-6 py-8 min-h-screen flex items-center">
+        <div className="w-full">
+          <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-stone-200/30 overflow-hidden">
+            <div className="relative p-8 pb-6 text-center bg-gradient-to-b from-stone-50/50 to-white">
+              
+              {/* Heart Symbol */}
+              <div className="mb-6">
+                <div className="text-5xl text-black">
+                  ♥
                 </div>
               </div>
-              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-slate-700 via-gray-700 to-slate-600 bg-clip-text text-transparent">
-                Planifikuesi i Dasmave
-              </h1>
-              <p className="text-gray-600 text-base md:text-lg px-4">Hyni në llogarinë tuaj për të organizuar dasmën e ëndrrave</p>
+              
+              <div className="space-y-6">
+                <h1 className={`${dancingScript.className} text-4xl md:text-5xl font-medium text-stone-700`}>
+                  Planifikuesi i Dasmave
+                </h1>
+                
+                <p className={`${cormorant.className} text-lg md:text-xl text-stone-600 leading-relaxed max-w-md mx-auto`}>
+                  Hyni në llogarinë tuaj për të organizuar dasmën e ëndrrave
+                </p>
+              </div>
             </div>
 
-            <Card className="rounded-2xl md:rounded-3xl shadow-2xl border-0 overflow-hidden backdrop-blur-sm bg-white/95">
-              <CardHeader className="bg-gradient-to-r from-slate-100/50 to-gray-100/50 py-6 md:py-8 text-center">
-                <CardTitle className="text-xl md:text-2xl font-bold text-gray-800">
+            <div className="p-8 pt-6">
+              <div className="text-center mb-8">
+                <h2 className={`${cormorant.className} text-2xl md:text-3xl font-semibold text-stone-800 mb-2`}>
                   Mirë se u ktheve
-                </CardTitle>
-                <CardDescription className="text-gray-600 text-base md:text-lg px-4">
+                </h2>
+                <p className={`${cormorant.className} text-stone-600`}>
                   Vendosni të dhënat tuaja për të hyrë në sistem
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 md:p-8">
-                <form onSubmit={handleLogin} className="space-y-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="email" className="text-gray-700 font-semibold flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-slate-500" />
+                </p>
+              </div>
+              <form onSubmit={handleLogin} className="space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className={`${cormorant.className} text-stone-700 font-medium flex items-center gap-2`}>
+                      <Mail className="h-4 w-4 text-stone-500" />
                       Adresa e Email-it
                     </Label>
                     <Input
@@ -90,16 +117,16 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="rounded-xl border-slate-200 focus:border-slate-400 focus:ring-slate-400 py-3 text-base"
+                      className="rounded-xl border-stone-200 focus:border-stone-400 focus:ring-stone-400 py-3 text-base bg-white/70"
                     />
                   </div>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password" className="text-gray-700 font-semibold flex items-center gap-2">
-                        <Lock className="h-4 w-4 text-slate-500" />
+                      <Label htmlFor="password" className={`${cormorant.className} text-stone-700 font-medium flex items-center gap-2`}>
+                        <Lock className="h-4 w-4 text-stone-500" />
                         Fjalëkalimi
                       </Label>
-                      <Link href="/auth/forgot-password" className="text-xs md:text-sm text-slate-600 hover:text-slate-700 hover:underline font-medium">
+                      <Link href="/auth/forgot-password" className={`${cormorant.className} text-sm text-stone-600 hover:text-stone-700 hover:underline font-medium`}>
                         E harruat fjalëkalimin?
                       </Link>
                     </div>
@@ -110,39 +137,31 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="rounded-xl border-slate-200 focus:border-slate-400 focus:ring-slate-400 py-3 text-base"
+                      className="rounded-xl border-stone-200 focus:border-stone-400 focus:ring-stone-400 py-3 text-base bg-white/70"
                     />
                   </div>
-                  {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                      <p className="text-sm text-red-700 font-medium">{error}</p>
-                    </div>
-                  )}
-                  <Button 
-                    type="submit" 
-                    className="w-full rounded-2xl font-bold py-4 text-base md:text-lg bg-gradient-to-r from-slate-600 to-gray-700 hover:from-slate-700 hover:to-gray-800 shadow-xl transform hover:scale-105 transition-all duration-300" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        Po hyjmë në sistem...
-                      </div>
-                    ) : (
-                      "Hyr në Sistem"
-                    )}
-                  </Button>
-                </form>
-                <div className="mt-6 text-center">
-                  <p className="text-gray-600 text-sm md:text-base px-4">
-                    Nuk keni llogari ende?{' '}
-                    <Link href="/auth/sign-up" className="text-slate-600 hover:text-slate-700 font-semibold hover:underline">
-                      Krijoni një llogari të re
-                    </Link>
-                  </p>
                 </div>
-              </CardContent>
-            </Card>
+                {error && (
+                  <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                    <p className={`${cormorant.className} text-sm text-rose-700 font-medium`}>{error}</p>
+                  </div>
+                )}
+                <Button 
+                  type="submit" 
+                  className={`${cormorant.className} w-full rounded-2xl font-semibold py-4 text-lg bg-gradient-to-r from-stone-600 to-stone-700 hover:from-stone-700 hover:to-stone-800 shadow-xl transform hover:scale-105 transition-all duration-300`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Po hyjmë në sistem...
+                    </div>
+                  ) : (
+                    "Hyr në Sistem"
+                  )}
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
       </div>

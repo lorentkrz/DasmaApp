@@ -7,21 +7,35 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
-  Heart,
-  LayoutDashboard,
-  Users,
   Calendar,
+  Users,
   DollarSign,
   CheckSquare,
-  MapPin,
   Mail,
   Settings,
+  Home,
+  Gift,
+  Plus,
+  Utensils,
+  MapPin,
   ChevronLeft,
   ChevronRight,
-  Plus,
-  MessageCircle,
-  Gift,
+  Heart,
+  Sparkles,
+  Crown,
+  Cake,
+  Music,
+  Camera,
+  Palette,
+  Truck,
 } from "lucide-react"
+
+import { Playfair_Display, Great_Vibes, Cormorant_Garamond, Dancing_Script } from 'next/font/google'
+
+const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400','600','700'] })
+const greatVibes = Great_Vibes({ subsets: ['latin'], weight: '400' })
+const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['400','700'] })
+const dancingScript = Dancing_Script({ subsets: ['latin'], weight: ['400','600','700'] })
 
 interface Wedding {
   id: string
@@ -38,7 +52,7 @@ const navigation = [
   {
     name: "Paneli Kryesor",
     href: "/dashboard",
-    icon: LayoutDashboard,
+    icon: Home,
   },
   {
     name: "Mysafirët",
@@ -78,7 +92,7 @@ const navigation = [
   {
     name: "WhatsApp",
     href: "/dashboard/whatsapp",
-    icon: MessageCircle,
+    icon: Sparkles,
   },
 ]
 
@@ -87,24 +101,51 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
   const pathname = usePathname()
 
   return (
-    <div
-      className={cn(
-        "flex flex-col bg-white border-r border-gray-200 transition-all duration-300",
-        collapsed ? "w-16" : "w-64",
-      )}
-    >
+    <div className={cn(
+      "flex h-full flex-col bg-gradient-to-b from-stone-50 via-rose-50/30 to-amber-50/20 border-r border-stone-200/50 backdrop-blur-sm transition-all duration-300 relative",
+      collapsed ? "w-16" : "w-64"
+    )}>
+      {/* Subtle decorative elements */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-8 left-4 w-6 h-6">
+          <svg viewBox="0 0 24 24" className="w-full h-full">
+            <circle cx="12" cy="6" r="2" fill="#E8B4CB"/>
+            <circle cx="8" cy="10" r="1.5" fill="#F5E6A3"/>
+            <circle cx="16" cy="14" r="1" fill="#C8A2C8"/>
+          </svg>
+        </div>
+        <div className="absolute bottom-16 right-4 w-4 h-4">
+          <svg viewBox="0 0 16 16" className="w-full h-full">
+            <circle cx="8" cy="4" r="1" fill="#F0E68C"/>
+            <circle cx="6" cy="8" r="0.8" fill="#E8B4CB"/>
+            <circle cx="10" cy="12" r="0.6" fill="#C8A2C8"/>
+          </svg>
+        </div>
+      </div>
+
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="relative flex items-center justify-between p-4 border-b border-stone-200/50">
         {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-gray-100 rounded-lg">
-              <Heart className="h-5 w-5 text-gray-600" />
+          <div className="flex items-center gap-3">
+            <div className="text-xl text-stone-700">
+              ♥
             </div>
-            <span className="font-semibold text-gray-900">Planifikuesi i Dasmave</span>
+            <div>
+              <span className={`${playfair.className} font-semibold text-stone-700 text-lg`}>Dasma Aktuale</span>
+            </div>
           </div>
         )}
-        <Button variant="ghost" size="sm" onClick={() => setCollapsed(!collapsed)} className="h-8 w-8 p-0">
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setCollapsed(!collapsed)}
+          className="h-8 w-8 p-0 hover:bg-stone-100/50 text-stone-600"
+        >
+          {collapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
@@ -113,40 +154,48 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
           {/* Current Wedding */}
           {weddings.length > 0 && (
             <div>
-              {!collapsed && <h3 className="text-sm font-medium text-gray-500 mb-3">Dasma Aktuale</h3>}
-              <div className={cn("p-3 bg-gray-50 border border-gray-200 rounded-lg", collapsed && "p-2")}>
-                {!collapsed ? (
-                  <div>
-                    <p className="font-medium text-sm text-balance text-gray-800">
-                      {weddings[0].bride_name} & {weddings[0].groom_name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(weddings[0].wedding_date).toLocaleDateString('en-GB')}
-                    </p>
+              {/* Wedding Info */}
+              {!collapsed && (
+                <div className="relative p-4 border-b border-stone-200/50 bg-white/30 backdrop-blur-sm">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Crown className="h-4 w-4 text-amber-600" />
+                      <span className={`${playfair.className} text-sm font-semibold text-stone-800`}>
+                        {weddings[0].groom_name} & {weddings[0].bride_name}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-stone-500" />
+                      <span className={`${playfair.className} text-xs text-stone-600 font-medium`}>
+                        {new Date(weddings[0].wedding_date).toLocaleDateString('sq-AL', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    </div>
                   </div>
-                ) : (
-                  <Heart className="h-4 w-4 text-gray-600 mx-auto" />
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
 
           {/* Navigation */}
           <nav>
-            {!collapsed && <h3 className="text-sm font-medium text-gray-500 mb-3">Navigimi</h3>}
+            {!collapsed && <h3 className={`${playfair.className} text-sm font-semibold text-stone-600 mb-3 tracking-wide`}>NAVIGIMI</h3>}
             <ul className="space-y-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href
                 return (
-                  <li key={item.name}>
+                  <li key={item.href}>
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors",
+                        `${playfair.className} flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-white/60 hover:shadow-md border-2 border-stone-200/30 hover:border-stone-300/50`,
                         isActive
-                          ? "bg-gray-900 text-white"
-                          : "text-gray-600 hover:text-gray-800 hover:bg-gray-100",
-                        collapsed && "justify-center px-2",
+                          ? "bg-white/80 text-stone-800 font-semibold shadow-md border-stone-300/60 backdrop-blur-sm"
+                          : "text-stone-600 hover:text-stone-800",
+                        collapsed && "justify-center px-2"
                       )}
                     >
                       <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -158,44 +207,16 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
             </ul>
           </nav>
 
-          {/* Quick Actions */}
-          {!collapsed && (
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Veprime të Shpejta</h3>
-              <div className="space-y-2">
-                <Button asChild variant="outline" size="sm" className="w-full justify-start bg-transparent">
-                  <Link href="/dashboard/cash-gifts">
-                    <Gift className="h-4 w-4 mr-2" />
-                    Dhurata në Para
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm" className="w-full justify-start bg-transparent">
-                  <Link href="/dashboard/weddings/new">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Dasmë e Re
-                  </Link>
-                </Button>
-                {weddings.length > 1 && (
-                  <Button asChild variant="outline" size="sm" className="w-full justify-start bg-transparent hover:bg-purple-50 border-purple-200 shadow-sm transition-all duration-200 hover:shadow-md">
-                    <Link href="/dashboard/weddings">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Ndrysho Dasmën
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </ScrollArea>
 
       {/* Footer */}
-      <div className="p-4 border-t border-border">
+      <div className="relative p-4 border-t border-stone-200/50 bg-white/20 backdrop-blur-sm">
         <Button
           asChild
           variant="ghost"
           size="sm"
-          className={cn("w-full justify-start", collapsed && "justify-center px-2")}
+          className={cn(`${playfair.className} w-full justify-start hover:bg-white/60 text-stone-600 hover:text-stone-800 rounded-xl font-medium border-2 border-stone-200/30 hover:border-stone-300/50 hover:shadow-md transition-all duration-200`, collapsed && "justify-center px-2")}
         >
           <Link href="/dashboard/settings">
             <Settings className="h-4 w-4" />
