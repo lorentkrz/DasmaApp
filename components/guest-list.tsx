@@ -446,7 +446,7 @@ function GuestList({ guests }: { guests: Guest[] }) {
                           ? "bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border-emerald-300" 
                           : "bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300"
                         }>
-                          {guest.invitations && guest.invitations.length > 0 && guest.invitations[0].sent_at ? "E dërguar" : "E padërguar"}
+                          {guest.invitations && guest.invitations.length > 0 && guest.invitations[0].sent_at ? "Derguar" : "E padërguar"}
                         </Badge>
                         {guest.invitations && guest.invitations.length > 0 && guest.phone && (
                           <WhatsAppSendButton

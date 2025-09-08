@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Users, Plus, Download, Armchair, MapPin, X, Loader2, Settings } from "lucide-react"
 import Link from "next/link"
 import { BeautifulPDFExport } from "@/components/beautiful-pdf-export"
+import { TableCardsExport } from "@/components/table-cards-export"
 
 interface Wedding {
   id: string
@@ -81,16 +82,19 @@ export default function SeatingPage() {
       const wedding = weddings[0]
       setWedding(weddings[0])
 
-      // Fetch tables and guests
+      // Fetch tables and ONLY attending guests
       const [{ data: tablesData }, { data: guestsData }] = await Promise.all([
         supabase.from("wedding_tables").select("*").eq("wedding_id", wedding.id).order("table_number"),
         supabase
           .from("guests")
           .select("*")
           .eq("wedding_id", wedding.id)
-          .in("rsvp_status", ["attending", "maybe"])
+          .eq("rsvp_status", "attending")
           .order("last_name"),
       ])
+
+      console.log('Tables:', tablesData)
+      console.log('Attending guests:', guestsData)
 
       setTables(tablesData || [])
       setGuests(guestsData || [])
@@ -143,19 +147,18 @@ export default function SeatingPage() {
               </p>
             </div>
           </div>
-          <div className="flex gap-3 mt-6 md:mt-0">
+          <div className="flex flex-wrap gap-3 mt-6 md:mt-0">
             <Button variant="outline" asChild>
               <Link href="/dashboard/seating/tables">
                 <Settings className="h-4 w-4 mr-2" />
                 Menaxho Tavolinat
               </Link>
             </Button>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard/seating/export">
-                <Download className="h-4 w-4 mr-2" />
-                Eksporto CSV
-              </Link>
-            </Button>
+            <TableCardsExport 
+              tables={tables} 
+              guests={guests} 
+              weddingName={`${wedding.bride_name} & ${wedding.groom_name}`}
+            />
             <BeautifulPDFExport 
               tables={tables} 
               guests={guests} 
@@ -324,7 +327,7 @@ export default function SeatingPage() {
                         .from("guests")
                         .select("*")
                         .eq("wedding_id", wedding.id)
-                        .in("rsvp_status", ["attending", "maybe"])
+                        .eq("rsvp_status", "attending")
                         .order("last_name")
                         .then(({ data }) => {
                           if (data) setGuests(data)

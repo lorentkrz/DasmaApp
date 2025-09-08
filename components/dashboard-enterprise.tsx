@@ -52,7 +52,9 @@ export function DashboardEnterprise({
   const confirmedGuests = guests.filter(g => g.rsvp_status === 'attending').length
   const totalBudget = Number(wedding.budget_total || 0)
   const totalSpent = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0)
+  const totalDeposits = vendors.reduce((sum, v) => sum + Number(v.deposit_amount || 0), 0)
   const totalGifts = cashGifts.reduce((sum, g) => sum + Number(g.amount || 0), 0)
+  const totalExpenses = totalSpent + totalDeposits
   const completedTasks = tasks.filter(t => t.status === 'completed').length
   const pendingInvitations = invitations.filter(i => !i.sent_at).length
 
@@ -70,7 +72,8 @@ export function DashboardEnterprise({
   // Budget data for bar chart
   const budgetData = [
     { name: 'Buxheti', value: totalBudget },
-    { name: 'Shpenzuar', value: totalSpent },
+    { name: 'Shpenzime', value: totalSpent },
+    { name: 'Deposite', value: totalDeposits },
     { name: 'Dhurata', value: totalGifts }
   ]
 
@@ -86,7 +89,7 @@ export function DashboardEnterprise({
   return (
     <div className="space-y-6">
       {/* Header Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Ditë deri në dasmë</CardTitle>
@@ -117,9 +120,9 @@ export function DashboardEnterprise({
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{totalSpent.toLocaleString()}</div>
+            <div className="text-2xl font-bold">€{totalExpenses.toLocaleString()}</div>
             <p className="text-xs text-gray-500 mt-1">nga €{totalBudget.toLocaleString()}</p>
-            <Progress value={totalBudget > 0 ? (totalSpent / totalBudget) * 100 : 0} className="h-1 mt-2" />
+            <Progress value={totalBudget > 0 ? (totalExpenses / totalBudget) * 100 : 0} className="h-1 mt-2" />
           </CardContent>
         </Card>
 
@@ -136,21 +139,21 @@ export function DashboardEnterprise({
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* RSVP Pie Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">RSVP Status</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={180}>
               <PieChart>
                 <Pie
                   data={rsvpData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={40}
-                  outerRadius={80}
+                  innerRadius={30}
+                  outerRadius={70}
                   paddingAngle={2}
                   dataKey="value"
                 >
@@ -161,11 +164,11 @@ export function DashboardEnterprise({
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-            <div className="grid grid-cols-2 gap-2 mt-4">
+            <div className="grid grid-cols-2 gap-1 mt-3 text-xs">
               {rsvpData.map((item, index) => (
-                <div key={item.name} className="flex items-center gap-2 text-xs">
-                  <div className="w-3 h-3 rounded" style={{ backgroundColor: COLORS[index] }} />
-                  <span>{item.name}: {item.value}</span>
+                <div key={item.name} className="flex items-center gap-1">
+                  <div className="w-2 h-2 rounded" style={{ backgroundColor: COLORS[index] }} />
+                  <span className="truncate">{item.name}: {item.value}</span>
                 </div>
               ))}
             </div>
@@ -178,10 +181,10 @@ export function DashboardEnterprise({
             <CardTitle className="text-sm font-medium">Financat</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={180}>
               <BarChart data={budgetData}>
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
                 <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -195,10 +198,10 @@ export function DashboardEnterprise({
             <CardTitle className="text-sm font-medium">Detyrat</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={180}>
               <BarChart data={taskData}>
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
                 <Bar dataKey="value" fill="#10b981" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -208,7 +211,7 @@ export function DashboardEnterprise({
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">Veprime të Shpejta</CardTitle>
@@ -248,8 +251,12 @@ export function DashboardEnterprise({
                 <span className="font-medium">€{totalBudget.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Shpenzuar</span>
+                <span className="text-sm text-gray-600">Shpenzime</span>
                 <span className="font-medium text-red-600">-€{totalSpent.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Deposite</span>
+                <span className="font-medium text-orange-600">-€{totalDeposits.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Dhurata</span>
@@ -258,7 +265,7 @@ export function DashboardEnterprise({
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Bilanci</span>
-                  <span className="font-bold">€{(totalBudget - totalSpent + totalGifts).toLocaleString()}</span>
+                  <span className="font-bold">€{(totalBudget - totalExpenses + totalGifts).toLocaleString()}</span>
                 </div>
               </div>
             </div>

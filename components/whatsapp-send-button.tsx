@@ -51,7 +51,7 @@ export function WhatsAppSendButton({ invitationId, guestName, phone, isSent }: W
     return (
       <Button variant="outline" disabled className="bg-green-50 border-green-200 text-green-700">
         <CheckCircle className="h-4 w-4 mr-2" />
-        E Dërguar
+        Derguar
       </Button>
     )
   }

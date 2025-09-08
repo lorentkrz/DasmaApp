@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Download, FileText } from "lucide-react"
+import { Download } from "lucide-react"
 import { toast } from "sonner"
 
 interface BeautifulPDFExportProps {
@@ -17,236 +17,127 @@ export function BeautifulPDFExport({ tables, guests, weddingName }: BeautifulPDF
 
     const styles = `
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap');
-        
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        
+        @page { size: A4; margin: 0; }
+        /* Use system fonts for sharper print rendering */
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
         body {
-          font-family: 'Inter', sans-serif;
-          background: linear-gradient(135deg, #fdf2f8 0%, #fef3c7 50%, #fce7f3 100%);
-          color: #1f2937;
-          line-height: 1.6;
+          font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          background:#fff;
+          color:#4B3F3F;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          text-rendering: geometricPrecision;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
         }
-        
+
         .page {
-          width: 210mm;
-          min-height: 297mm;
-          padding: 25mm;
-          margin: 0 auto;
-          background: white;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-          border-radius: 12px;
-          page-break-after: always;
-          position: relative;
-          overflow: hidden;
+          width:210mm;
+          height:297mm;
+          display:flex;
+          justify-content:center;
+          align-items:center;
+          padding:20mm;
+          background: linear-gradient(135deg, #fff7f2, #fff9f6);
         }
-        
-        .page:last-child {
-          page-break-after: avoid;
+
+        .table-card {
+          width:100%;
+          max-width:170mm;
+          min-height:250mm;
+          background:#fff;
+          border-radius:40px;
+          padding:50px 40px;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          justify-content:flex-start;
+          position:relative;
+          overflow:hidden;
         }
-        
-        .page::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 8mm;
-          background: linear-gradient(90deg, #f43f5e, #ec4899, #f59e0b);
+
+        /* Floral accents */
+        .floral-corner {
+          position:absolute;
+          width:120px;
+          height:120px;
+          opacity:0.1;
         }
-        
-        .page::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          height: 4mm;
-          background: linear-gradient(90deg, #f43f5e, #ec4899, #f59e0b);
+        .floral-top-left { top:-10px; left:-10px; }
+        .floral-bottom-right { bottom:-10px; right:-10px; }
+
+        .table-title {
+          font-family: Georgia, "Times New Roman", Times, serif;
+          font-size:64px;
+          color:#C17C6A;
+          margin-bottom:25px;
+          text-align:center;
         }
-        
-        .wedding-header {
-          text-align: center;
-          margin-bottom: 40px;
-          padding-top: 15mm;
+
+        .divider {
+          width:60%;
+          height:2px;
+          background:#E6C9B4;
+          margin-bottom:35px;
+          border-radius:2px;
         }
-        
-        .wedding-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 42px;
-          font-weight: 700;
-          background: linear-gradient(135deg, #be185d, #ec4899, #f59e0b);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: 8px;
-          letter-spacing: -0.5px;
+
+        /* Guest grid */
+        .guests-list {
+          display:grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap:24px;
+          width:100%;
+          text-align:center;
+          font-size:28px;
+          margin-top:10px;
+          font-weight:400;
         }
-        
-        .wedding-date {
-          font-size: 18px;
-          color: #6b7280;
-          font-weight: 500;
-          margin-bottom: 20px;
-        }
-        
-        .decorative-line {
-          width: 120px;
-          height: 3px;
-          background: linear-gradient(90deg, #f43f5e, #ec4899, #f59e0b);
-          margin: 0 auto;
-          border-radius: 2px;
-        }
-        
-        .table-container {
-          background: linear-gradient(135deg, #fef7ff 0%, #fef3c7 50%, #fdf2f8 100%);
-          border-radius: 20px;
-          padding: 35px;
-          margin-bottom: 30px;
-          border: 2px solid #f3e8ff;
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-          position: relative;
-        }
-        
-        .table-container::before {
-          content: '';
-          position: absolute;
-          top: -2px;
-          left: -2px;
-          right: -2px;
-          bottom: -2px;
-          background: linear-gradient(135deg, #f43f5e, #ec4899, #f59e0b);
-          border-radius: 22px;
-          z-index: -1;
-        }
-        
-        .table-header {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-        
-        .table-number {
-          <h1 style="font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: #374151; text-align: center; margin-bottom: 0.5rem;">
-            ${weddingName}
-          </h1>
-          font-size: 20px;
-          color: #6b7280;
-          font-weight: 500;
-          margin-bottom: 15px;
-        }
-        
-        .table-name {
-          font-size: 20px;
-          color: #6b7280;
-          font-weight: 500;
-          margin-bottom: 15px;
-        }
-        
-        .table-type-badge {
-          display: inline-block;
-          padding: 8px 20px;
-          background: linear-gradient(135deg, #ec4899, #f59e0b);
-          color: white;
-          border-radius: 25px;
-          font-size: 14px;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-        
-        .guests-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 20px;
-          margin-top: 30px;
-        }
-        
-        .guest-card {
-          background: white;
-          border-radius: 15px;
-          padding: 20px;
-          border: 2px solid #fce7f3;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-          transition: all 0.3s ease;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .guest-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, #f43f5e, #ec4899, #f59e0b);
-        }
-        
+
         .guest-name {
-          font-size: 18px;
-          font-weight: 600;
-          color: #1f2937;
-          margin-bottom: 8px;
+          font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          background: #FFF5F0;
+          border-radius:16px;
+          padding:14px 12px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        
-        .guest-details {
-          font-size: 14px;
-          color: #6b7280;
-          display: flex;
-          align-items: center;
-          gap: 8px;
+
+        .plus-one {
+          font-style:italic;
+          color:#A08F82;
+          margin-left:6px;
         }
-        
-        .plus-one-badge {
-          background: linear-gradient(135deg, #fbbf24, #f59e0b);
-          color: white;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 600;
-          margin-left: auto;
-        }
-        
-        .page-footer {
-          position: absolute;
-          bottom: 15mm;
-          left: 25mm;
-          right: 25mm;
-          text-align: center;
-          font-size: 12px;
-          color: #9ca3af;
-          border-top: 1px solid #e5e7eb;
-          padding-top: 10px;
-        }
-        
+
+        /* Empty seats */
         .empty-seats {
-          text-align: center;
-          color: #9ca3af;
-          font-style: italic;
-          padding: 30px;
-          background: #f9fafb;
-          border-radius: 12px;
-          border: 2px dashed #d1d5db;
+          font-style:italic;
+          color:#A08F82;
+          margin-top:25px;
+          font-size:20px;
         }
-        
+
+        /* Black heart */
+        .black-heart {
+          font-size:48px;
+          color:#000;
+          position:absolute;
+          bottom:20px;
+        }
+
         @media print {
-          body {
-            background: white !important;
-          }
-          
-          .page {
-            box-shadow: none !important;
-            border-radius: 0 !important;
-            margin: 0 !important;
-            width: 100% !important;
-            min-height: 100vh !important;
-          }
+          body { background:#fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .page { box-shadow:none; margin:0; width:100%; height:100%; }
         }
       </style>
+    `
+
+    const floralSVG = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="#E6C9B4">
+        <circle cx="32" cy="32" r="32"/>
+      </svg>
     `
 
     let htmlContent = `
@@ -254,62 +145,43 @@ export function BeautifulPDFExport({ tables, guests, weddingName }: BeautifulPDF
       <html>
         <head>
           <meta charset="utf-8">
-          <title>Plani i Uljes - ${weddingName}</title>
+          <title>${weddingName} - Plani i Uljes</title>
           ${styles}
         </head>
         <body>
     `
 
-    tables.forEach((table, index) => {
-      const tableGuests = guests.filter(g => g.table_id === table.id)
-      const tableTypeName = table.table_type === 'round' ? 'Rreth' : 'Drejtkëndore'
-      
-      htmlContent += `
-        <div class="page">
-          <div class="wedding-header">
-            <h1 class="wedding-title">${weddingName}</h1>
-            <p class="wedding-date">${new Date().toLocaleDateString('sq-AL', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}</p>
-            <div class="decorative-line"></div>
-          </div>
-          
-          <div class="table-container">
-            <div class="table-header">
-              <h2 class="table-number">Tavolina ${table.table_number}</h2>
-              <p class="table-name">${table.name || `Tavolina ${table.table_number}`}</p>
-              <span class="table-type-badge">${tableTypeName}</span>
-            </div>
-            
-            ${tableGuests.length > 0 ? `
-              <div class="guests-grid">
-                ${tableGuests.map(guest => `
-                  <div class="guest-card">
-                    <div class="guest-name">${guest.first_name} ${guest.last_name}</div>
-                    <div class="guest-details">
-                      <span>Mysafir ${guest.guest_type || 'i rregullt'}</span>
-                      ${guest.plus_one ? '<span class="plus-one-badge">+1</span>' : ''}
+    tables
+      .sort((a, b) => (a.table_number ?? 0) - (b.table_number ?? 0))
+      .forEach(table => {
+        const tableGuests = guests.filter(g => g.table_assignment === table.id)
+        const tableTitle = table.table_name && table.table_name.trim().length > 0
+          ? table.table_name
+          : `Tavolina`
+
+        htmlContent += `
+          <div class="page">
+            <div class="table-card">
+              <div class="floral-corner floral-top-left">${floralSVG}</div>
+              <div class="floral-corner floral-bottom-right">${floralSVG}</div>
+              <div class="table-title">${tableTitle}</div>
+              <div class="divider"></div>
+              ${tableGuests.length > 0 ? `
+                <div class="guests-list">
+                  ${tableGuests.map(guest => `
+                    <div class="guest-name">
+                      ${guest.first_name} ${guest.last_name}${guest.plus_one_name ? `<span class="plus-one"> & ${guest.plus_one_name}</span>` : ''}
                     </div>
-                  </div>
-                `).join('')}
-              </div>
-            ` : `
-              <div class="empty-seats">
-                <p>Kjo tavolinë është ende e lirë</p>
-                <p>Kapaciteti: ${table.capacity} vende</p>
-              </div>
-            `}
+                  `).join('')}
+                </div>
+              ` : `
+                <div class="empty-seats">Pa mysafirë të caktuar – Kapaciteti ${table.capacity}</div>
+              `}
+              <div class="black-heart">♥</div>
+            </div>
           </div>
-          
-          <div class="page-footer">
-            <p>Plani i Uljes • Faqja ${index + 1} nga ${tables.length} • Krijuar më ${new Date().toLocaleDateString('sq-AL')}</p>
-          </div>
-        </div>
-      `
-    })
+        `
+      })
 
     htmlContent += `
         </body>
@@ -318,14 +190,26 @@ export function BeautifulPDFExport({ tables, guests, weddingName }: BeautifulPDF
 
     printWindow.document.write(htmlContent)
     printWindow.document.close()
-    
-    // Wait for content to load then trigger print
-    setTimeout(() => {
-      printWindow.print()
-      setTimeout(() => {
-        printWindow.close()
-      }, 1000)
-    }, 500)
+
+    const doPrint = () => {
+      try {
+        printWindow.focus()
+        printWindow.print()
+        setTimeout(() => printWindow.close(), 1200)
+      } catch {
+        setTimeout(() => {
+          printWindow.print()
+          setTimeout(() => printWindow.close(), 1200)
+        }, 500)
+      }
+    }
+
+    const fontsReady = (printWindow.document as any).fonts?.ready
+    if (fontsReady && typeof fontsReady.then === 'function') {
+      (printWindow.document as any).fonts.ready.then(() => setTimeout(doPrint, 200))
+    } else {
+      setTimeout(doPrint, 1000)
+    }
 
     toast.success("PDF u krijua me sukses!")
   }
@@ -333,7 +217,7 @@ export function BeautifulPDFExport({ tables, guests, weddingName }: BeautifulPDF
   return (
     <Button 
       onClick={exportToPDF}
-      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+      className="bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-500 text-white font-semibold px-6 py-3 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center"
     >
       <Download className="h-5 w-5 mr-2" />
       Export PDF

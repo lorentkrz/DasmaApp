@@ -21,8 +21,10 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  Send
 } from "lucide-react"
+import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
 
 interface GuestListProps {
   guests: any[]
@@ -190,8 +192,8 @@ export function GuestListEnterprise({ guests, groups }: GuestListProps) {
     const invitation = guest.invitations?.[0]
     
     return (
-      <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
-        <div className="flex items-center gap-4 flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg bg-white gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 flex-1">
           <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
             <User className="h-5 w-5 text-gray-600" />
           </div>
@@ -204,7 +206,7 @@ export function GuestListEnterprise({ guests, groups }: GuestListProps) {
               {getRsvpBadge(guest.rsvp_status)}
               {getTypeBadge(guest.guest_type)}
             </div>
-            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-sm text-gray-500">
               {guest.email && (
                 <div className="flex items-center gap-1">
                   <Mail className="h-3 w-3" />
@@ -243,7 +245,22 @@ export function GuestListEnterprise({ guests, groups }: GuestListProps) {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Send Invitation Button for Individual Guests - Always show placeholder */}
+          <div className="w-[100px]">
+            {guest.phone && invitation ? (
+              <WhatsAppSendButton
+                invitationId={invitation.id}
+                guestName={`${guest.first_name} ${guest.last_name}`}
+                phone={guest.phone}
+                isSent={!!invitation.sent_at}
+              />
+            ) : (
+              <div className="text-xs text-gray-400 text-center py-2">
+                {!guest.phone ? "Pa telefon" : "Pa ftesë"}
+              </div>
+            )}
+          </div>
           <Button size="sm" variant="ghost" asChild title="Ndrysho mysafirin">
             <a href={`/dashboard/guests/${guest.id}/edit`}>
               <Edit className="h-4 w-4" />
@@ -276,7 +293,7 @@ export function GuestListEnterprise({ guests, groups }: GuestListProps) {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-gray-600">Total Mysafirë</CardTitle>
@@ -323,8 +340,8 @@ export function GuestListEnterprise({ guests, groups }: GuestListProps) {
           <CardTitle className="text-sm font-medium">Filtro Mysafirët</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="lg:col-span-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
@@ -373,7 +390,7 @@ export function GuestListEnterprise({ guests, groups }: GuestListProps) {
                   return (
                     <AccordionItem key={groupName} value={groupName} className="border rounded-lg">
                       <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                        <div className="flex items-center justify-between w-full">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-2 sm:gap-0">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                               <Users className="h-5 w-5 text-blue-600" />
@@ -383,7 +400,22 @@ export function GuestListEnterprise({ guests, groups }: GuestListProps) {
                               <p className="text-sm text-gray-500">{groupData.members.length + 1} anëtar</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 mr-4">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Send Invitation Button for Primary Guest - Always show placeholder */}
+                            <div className="w-[100px]">
+                              {groupData.primary.phone && groupData.primary.invitations?.[0] ? (
+                                <WhatsAppSendButton
+                                  invitationId={groupData.primary.invitations[0].id}
+                                  guestName={`${groupData.primary.first_name} ${groupData.primary.last_name}`}
+                                  phone={groupData.primary.phone}
+                                  isSent={!!groupData.primary.invitations[0].sent_at}
+                                />
+                              ) : (
+                                <div className="text-xs text-gray-400 text-center py-1">
+                                  {!groupData.primary.phone ? "Pa telefon" : "Pa ftesë"}
+                                </div>
+                              )}
+                            </div>
                             {getRsvpBadge(groupData.primary.rsvp_status)}
                             {getTypeBadge(groupData.primary.guest_type)}
                           </div>

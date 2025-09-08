@@ -205,7 +205,7 @@ export function InvitationsListEnterprise({
       return <Badge className="bg-blue-500 text-white">E hapur</Badge>
     }
     if (inv.sent_at) {
-      return <Badge className="bg-yellow-500 text-white">E dërguar</Badge>
+      return <Badge className="bg-yellow-500 text-white">Derguar</Badge>
     }
     return <Badge className="bg-gray-500 text-white">Pa dërguar</Badge>
   }

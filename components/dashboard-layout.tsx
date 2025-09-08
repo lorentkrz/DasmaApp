@@ -15,6 +15,7 @@ import {
   Home,
   BarChart3
 } from "lucide-react"
+import { AccessibilityToolbar } from "@/components/accessibility-improvements"
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -77,15 +78,17 @@ export function DashboardLayout({
               </div>
             </div>
             {actions && (
-              <div className="flex gap-3 pt-2 border-t">
+              <div className="flex items-center justify-end">
                 {actions}
               </div>
             )}
           </div>
         </div>
 
-        {/* Content */}
+        {/* Main Content */}
         {children}
+        
+        <AccessibilityToolbar />
       </div>
     </div>
   )
