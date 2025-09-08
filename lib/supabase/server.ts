@@ -1,50 +1,37 @@
 import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
-type CookieOptions = {
-  name: string;
-  value: string;
-  httpOnly?: boolean;
-  secure?: boolean;
-  sameSite?: "lax" | "strict" | "none";
-  path?: string;
-  maxAge?: number;
-  expires?: Date;
-  domain?: string;
-};
-
-export function createServerClient() {
-  const cookieStore = cookies();
-
-  const getCookie = (name: string) => cookieStore.get(name)?.value || null;
-
-  const setCookie = (
-    name: string,
-    value: string,
-    options: Omit<CookieOptions, "name" | "value"> = {}
-  ) => {
-    let cookieStr = `${name}=${encodeURIComponent(value)}; path=${options.path || "/"}`;
-
-    if (options.maxAge) cookieStr += `; max-age=${options.maxAge}`;
-    if (options.expires) cookieStr += `; expires=${options.expires.toUTCString()}`;
-    cookieStr += `; samesite=${options.sameSite || "lax"}`;
-    if (options.secure || process.env.NODE_ENV === "production") cookieStr += `; Secure`;
-    if (options.httpOnly) cookieStr += `; HttpOnly`;
-
-    cookieStore.set({ name, value, ...options } as any);
+export function createServerClient(response?: NextResponse) {
+  const getCookie = (name: string) => {
+    if (!response) return null;
+    return response.cookies.get(name)?.value || null;
   };
 
-  const removeCookie = (
-    name: string,
-    options: Omit<CookieOptions, "name" | "value" | "maxAge"> = {}
-  ) => {
-    let cookieStr = `${name}=; path=${options.path || "/"}; max-age=0; expires=${new Date(
-      0
-    ).toUTCString()}; samesite=${options.sameSite || "lax"}${
-      options.secure || process.env.NODE_ENV === "production" ? "; Secure" : ""
-    }; HttpOnly`;
+  const setCookie = (name: string, value: string, options: any = {}) => {
+    if (!response) return;
+    response.cookies.set({
+      name,
+      value,
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      ...options,
+    });
+  };
 
-    cookieStore.set({ name, value: "", ...options, maxAge: 0 } as any);
+  const removeCookie = (name: string, options: any = {}) => {
+    if (!response) return;
+    response.cookies.set({
+      name,
+      value: "",
+      path: "/",
+      maxAge: 0,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      ...options,
+    });
   };
 
   return createSupabaseServerClient(
@@ -61,6 +48,6 @@ export function createServerClient() {
 }
 
 // Backwards compatibility
-export async function createClient() {
-  return createServerClient();
+export async function createClient(response?: NextResponse) {
+  return createServerClient(response);
 }
