@@ -15,23 +15,45 @@ export default async function VendorsPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
-  // Get current wedding (RLS-safe: rely on policies and pick most recent)
-  const { data: weddings } = await supabase
+  console.log('Getting weddings for user:', user.id)
+  
+  // Get accessible wedding (RLS enforces access)
+  const { data: weddings, error: weddingError } = await supabase
     .from("weddings")
     .select("*")
+    .eq("owner_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)
 
-  const wedding = weddings?.[0]
+  console.log('Weddings query result:', { data: weddings, error: weddingError })
+  
+  if (weddingError) {
+    console.error('Error fetching weddings:', weddingError)
+    throw weddingError
+  }
 
-  if (!wedding) redirect("/dashboard/weddings/new")
+  const wedding = weddings?.[0]
+  console.log('Found wedding:', wedding?.id)
+
+  if (!wedding) {
+    console.log('No wedding found, redirecting to new wedding page')
+    redirect("/dashboard/weddings/new")
+  }
 
   // Get vendors
-  const { data: vendors } = await supabase
+  console.log('Fetching vendors for wedding:', wedding.id)
+  const { data: vendors, error: vendorError } = await supabase
     .from("vendors")
     .select("*")
     .eq("wedding_id", wedding.id)
     .order("created_at", { ascending: false })
+    
+  if (vendorError) {
+    console.error('Error fetching vendors:', vendorError)
+    throw vendorError
+  }
+  
+  console.log(`Found ${vendors?.length || 0} vendors`)
 
   return (
     <DashboardLayout

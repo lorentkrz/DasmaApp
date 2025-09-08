@@ -26,34 +26,54 @@ export default async function GuestsPage() {
     redirect("/auth/login")
   }
 
-  // Get accessible wedding (RLS enforces access) with debug info
-  const { data: weddings, error: weddingsError } = await supabase
+  // Get accessible wedding (RLS enforces access)
+  const { data: weddings } = await supabase
     .from("weddings")
     .select("*")
+    .eq("owner_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)
 
+  console.log('User ID:', user.id)
+  console.log('Weddings found:', weddings?.length || 0)
+  console.log('Weddings error:', null)
+
   if (!weddings || weddings.length === 0) {
+    console.log('No weddings found, redirecting to new wedding page')
     redirect("/dashboard/weddings/new")
   }
 
   const currentWedding = weddings[0]
+  console.log('Current wedding:', currentWedding.id, currentWedding.bride_name, currentWedding.groom_name)
 
-  // Fetch all guests for the current wedding with invitation data
-  const { data: guests, error: guestsError } = await supabase
-    .from("guests")
-    .select(`
-      *,
-      invitations(id, token, sent_at, opened_at, responded_at)
-    `)
-    .eq("wedding_id", currentWedding.id)
-    .order("created_at", { ascending: false })
-
-  // Fetch all groups for the wedding
-  const { data: groups } = await supabase
-    .from("guest_groups")
-    .select("*")
-    .eq("wedding_id", currentWedding.id)
+  // Fetch guests and groups in parallel
+  const [
+    { data: guests, error: guestsError },
+    { data: groups }
+  ] = await Promise.all([
+    // Fetch only necessary guest fields with invitation data
+    supabase
+      .from("guests")
+      .select(`
+        id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        group_id,
+        rsvp_status,
+        created_at,
+        invitations!inner(id, token, sent_at, opened_at, responded_at)
+      `)
+      .eq("wedding_id", currentWedding.id)
+      .order("created_at", { ascending: false }),
+      
+    // Fetch only necessary group fields
+    supabase
+      .from("guest_groups")
+      .select("id, name, description")
+      .eq("wedding_id", currentWedding.id)
+  ])
 
   // Stats are now calculated in the refactored component
 
