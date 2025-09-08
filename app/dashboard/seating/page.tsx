@@ -319,7 +319,7 @@ export default function SeatingPage() {
                     tables={tables} 
                     guests={guests} 
                     weddingId={wedding.id} 
-                    heightClass="h-[60vh]"
+                    heightClass="h-[85vh]"
                     onGuestAssigned={() => {
                       // Refresh data without full page reload
                       const supabase = createClient()

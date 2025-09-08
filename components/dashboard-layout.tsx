@@ -20,7 +20,6 @@ import { AccessibilityToolbar } from "@/components/accessibility-improvements"
 interface DashboardLayoutProps {
   children: ReactNode
   title: string
-  description: string
   icon: string
   actions?: ReactNode
   gradientFrom?: string
@@ -46,7 +45,6 @@ const iconMap = {
 export function DashboardLayout({
   children,
   title,
-  description,
   icon,
   actions,
   gradientFrom,
@@ -54,40 +52,27 @@ export function DashboardLayout({
   gradientVia
 }: DashboardLayoutProps) {
   const Icon = iconMap[icon as keyof typeof iconMap] || CheckSquare
+
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-6">
+        
         {/* Header Card */}
-        <div className="bg-white rounded-lg border shadow-sm p-6 mb-6">
-          <div className="flex flex-col space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center border">
-                  <Icon className="h-6 w-6 text-gray-600" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-semibold text-gray-900">
-                    {title}
-                  </h1>
-                  {description && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      {description}
-                    </p>
-                  )}
-                </div>
+        <div className="bg-white rounded-lg border shadow-sm p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center border">
+                <Icon className="h-5 w-5 text-gray-600" />
               </div>
+              <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
             </div>
-            {actions && (
-              <div className="flex items-center justify-end">
-                {actions}
-              </div>
-            )}
+            {actions && <div>{actions}</div>}
           </div>
         </div>
 
         {/* Main Content */}
         {children}
-        
+
         <AccessibilityToolbar />
       </div>
     </div>

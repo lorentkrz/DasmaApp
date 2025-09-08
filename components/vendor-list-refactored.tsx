@@ -155,7 +155,7 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
       attire: "👗",
       other: "🎉"
     }
-    return icons[category] || "📦"
+    return icons[category] || ""
   }
 
   const renderStars = (rating: number) => {
@@ -227,36 +227,9 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
 
   return (
     <div className="space-y-6">
-      {/* Motivational Quote */}
-      <Card className="bg-gradient-to-r from-purple-50 via-pink-50 to-rose-50 border-0">
-        <CardContent className="py-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white/80 rounded-full flex items-center justify-center shadow-lg">
-              <Heart className="h-6 w-6 text-purple-500" />
-            </div>
-            <div className="flex-1">
-              <p className="text-lg font-medium text-gray-800 italic">
-                "Ekipi i përsosur krijon dasmën e përsosur"
-              </p>
-              <p className="text-sm text-gray-600 mt-1">
-                Zgjidhni shitësit më të mirë për ditën tuaj të veçantë
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-0 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                <Store className="h-5 w-5 text-white" />
-              </div>
-              <Sparkles className="h-4 w-4 text-indigo-400" />
-            </div>
-          </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-1">Total Shitës</p>
             <p className="text-2xl font-bold text-gray-900">{vendors.length}</p>
@@ -264,14 +237,6 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
         </Card>
 
         <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-0 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-white" />
-              </div>
-              <Building className="h-4 w-4 text-green-400" />
-            </div>
-          </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-1">Të Rezervuar</p>
             <p className="text-2xl font-bold text-gray-900">{bookedCount}</p>
@@ -279,14 +244,6 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
         </Card>
 
         <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-0 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-full flex items-center justify-center">
-                <CreditCard className="h-5 w-5 text-white" />
-              </div>
-              <DollarSign className="h-4 w-4 text-blue-400" />
-            </div>
-          </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-1">Vlera Totale</p>
             <p className="text-2xl font-bold text-gray-900">€{totalContract.toLocaleString()}</p>
@@ -294,14 +251,6 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
         </Card>
 
         <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-0 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center">
-                <Clock className="h-5 w-5 text-white" />
-              </div>
-              <Calendar className="h-4 w-4 text-amber-400" />
-            </div>
-          </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-1">Depozita Paguar</p>
             <p className="text-2xl font-bold text-gray-900">€{totalDeposit.toLocaleString()}</p>
@@ -315,7 +264,6 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl font-bold text-gray-800">Filtro Shitësit</CardTitle>
-              <CardDescription>Gjeni shpejt shitësit që kërkoni</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button

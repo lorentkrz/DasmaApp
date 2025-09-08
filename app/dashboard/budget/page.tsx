@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic"
 
 export async function generateMetadata() {
   return {
-    title: 'Financat e Dasmës - Wedding ERP',
+    title: 'Financat e Dasmës - Dasma ERP',
     description: 'Menaxhoni buxhetin dhe shpenzimet e dasmës suaj'
   }
 }
@@ -66,24 +66,12 @@ export default async function BudgetPage() {
   ])
 
   return (
-    <DashboardLayout
-      title="Financat e Dasmës"
-      actions={
-        <Button asChild className="bg-gray-900 hover:bg-gray-800 text-white">
-          <Link href="/dashboard/budget/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Shto Shpenzim
-          </Link>
-        </Button>
-      }
-    >
-      <FinancialOverviewRefactored 
-        wedding={wedding}
-        expenses={expenses || []}
-        categories={categories || []}
-        gifts={gifts || []}
-        vendors={vendors || []}
-      />
-    </DashboardLayout>
+    <FinancialOverviewRefactored 
+      wedding={wedding}
+      expenses={expenses || []}
+      categories={categories || []}
+      gifts={gifts || []}
+      vendors={vendors || []}
+    />
   )
 }

@@ -281,8 +281,8 @@ export default function InvitePreview({ searchParams }: { searchParams: { theme?
   const mode = (searchParams?.mode || 'single').toLowerCase()
 
   const wedding = {
-    bride_name: 'Albiona',
     groom_name: 'Lorent',
+    bride_name: 'Albiona',
     wedding_date: new Date().toISOString(),
     ceremony_time: '19:00',
     venue: 'Evropa Deluxe',

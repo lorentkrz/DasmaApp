@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic"
 
 export async function generateMetadata() {
   return {
-    title: 'Lista e Punëve - Wedding ERP',
+    title: 'Lista e Punëve - Dasma ERP',
     description: 'Organizoni dhe ndiqni të gjitha detyrat për dasmën tuaj të përsosur'
   }
 }
@@ -65,20 +65,6 @@ export default async function TasksPage() {
     .order("position", { ascending: true })
 
   return (
-    <DashboardLayout
-      title="Lista e Punëve"
-      description="Organizoni dhe ndiqni të gjitha detyrat për dasmën tuaj të përsosur"
-      icon="CheckSquare"
-      actions={
-        <Button asChild className="bg-gray-900 hover:bg-gray-800 text-white">
-          <Link href="/dashboard/tasks/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Shto Detyrë të Re
-          </Link>
-        </Button>
-      }
-    >
-      <TaskBoardRefactored boards={boards || []} tasks={tasks || []} weddingId={wedding.id} />
-    </DashboardLayout>
+    <TaskBoardRefactored boards={boards || []} tasks={tasks || []} weddingId={wedding.id} />
   )
 }

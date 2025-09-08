@@ -255,91 +255,9 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
     const doneBoard = boards.find(b => b.name.toLowerCase().includes('done') || b.name.toLowerCase().includes('përfunduar'))
     return doneBoard && t.board_id === doneBoard.id
   }).length
-  const urgentTasks = tasks.filter(t => t.priority === 'urgent').length
-  const overdueTasks = tasks.filter(t => isOverdue(t.due_date)).length
 
   return (
     <div className="space-y-6">
-      {/* Motivational Quote */}
-  
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-0 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                <FileText className="h-5 w-5 text-white" />
-              </div>
-              <Sparkles className="h-4 w-4 text-blue-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-1">Total Detyra</p>
-            <p className="text-2xl font-bold text-gray-900">{totalTasks}</p>
-            <p className="text-xs text-gray-500 mt-2">Të gjitha detyrat</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-0 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="h-5 w-5 text-white" />
-              </div>
-              <CheckSquare className="h-4 w-4 text-green-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-1">Të Përfunduara</p>
-            <p className="text-2xl font-bold text-gray-900">{completedTasks}</p>
-            <div className="flex items-center gap-1 mt-2">
-              <div className="flex-1 bg-gray-200 rounded-full h-1.5">
-                <div 
-                  className="bg-gradient-to-r from-green-500 to-emerald-500 h-1.5 rounded-full"
-                  style={{ width: `${totalTasks > 0 ? (completedTasks / totalTasks * 100) : 0}%` }}
-                />
-              </div>
-              <span className="text-xs text-gray-500">
-                {totalTasks > 0 ? Math.round(completedTasks / totalTasks * 100) : 0}%
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-0 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center">
-                <AlertCircle className="h-5 w-5 text-white" />
-              </div>
-              <Flag className="h-4 w-4 text-red-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-1">Urgjente</p>
-            <p className="text-2xl font-bold text-gray-900">{urgentTasks}</p>
-            <p className="text-xs text-gray-500 mt-2">Kërkon vëmendje</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border-0 shadow-xl">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-full flex items-center justify-center">
-                <Timer className="h-5 w-5 text-white" />
-              </div>
-              <CalendarClock className="h-4 w-4 text-amber-400" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-1">Të Vonuara</p>
-            <p className="text-2xl font-bold text-gray-900">{overdueTasks}</p>
-            <p className="text-xs text-gray-500 mt-2">Kaluar afatin</p>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Search and Filters */}
       <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
         <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b">

@@ -13,7 +13,7 @@ import { revalidatePath } from "next/cache"
 
 export async function generateMetadata() {
   return {
-    title: 'Ftesat e Dasmës - Wedding ERP',
+    title: 'Ftesat e Dasmës - Dasma ERP',
     description: 'Dërgoni ftesa të bukura dhe ndiqni përgjigjet e mysafirëve tuaj'
   }
 }

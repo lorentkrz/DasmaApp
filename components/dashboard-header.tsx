@@ -92,7 +92,7 @@ export function DashboardHeader({ user, profile, weddings }: DashboardHeaderProp
               ♥
             </div>
             <h1 className={`${dancingScript.className} text-xl font-medium text-stone-700`}>
-              Planifikuesi i Dasmave
+              Dasma ERP
             </h1>
           </div>
           

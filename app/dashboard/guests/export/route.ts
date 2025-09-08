@@ -30,7 +30,7 @@ export async function GET() {
       plus_one_name,
       rsvp_status,
       guest_groups!guests_group_id_fkey(
-        group_name
+        name
       )
     `)
     .eq("wedding_id", currentWedding.id)

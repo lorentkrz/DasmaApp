@@ -64,7 +64,7 @@ export function DashboardSidebarEnterprise({ weddings }: DashboardSidebarProps) 
         <div className="flex items-center justify-between">
           {!collapsed && (
             <div>
-              <h2 className="text-xl font-semibold">Wedding ERP</h2>
+              <h2 className="text-xl font-semibold">Dasma ERP</h2>
               {currentWedding && (
                 <p className="text-sm text-gray-400 mt-2">
                   {currentWedding.bride_name} & {currentWedding.groom_name}

@@ -21,7 +21,7 @@ export default async function AuthErrorPage({
                 <Heart className="h-8 w-8 text-primary" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-primary">Planifikuesi i Dasmave</h1>
+            <h1 className="text-2xl font-bold text-primary">Dasma ERP</h1>
           </div>
 
           <Card className="border-destructive/20">

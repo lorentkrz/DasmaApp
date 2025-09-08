@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic"
 
 export async function generateMetadata() {
   return {
-    title: 'Cilësimet - Wedding ERP',
+    title: 'Cilësimet - Dasma ERP',
     description: 'Menaxhoni preferencat dhe cilësimet e llogarisë suaj'
   }
 }

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
-import { X, MapPin, Plus, ChevronsUpDown } from "lucide-react"
+import { X, MapPin, Plus, ChevronsUpDown, Settings } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -50,7 +50,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
   const [draggedTable, setDraggedTable] = useState<string | null>(null)
   const chartRef = useRef<HTMLDivElement>(null)
   // Zoom & pan state
-  const [scale, setScale] = useState(1)
+  const [scale, setScale] = useState(0.85)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
   const panStart = useRef<{ x: number; y: number } | null>(null)
@@ -63,6 +63,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
   useEffect(() => setInternalGuests(guests), [guests])
   useEffect(() => setInternalTables(tables), [tables])
   const [seatWholeGroup, setSeatWholeGroup] = useState(false)
+  const [showZoomControls, setShowZoomControls] = useState(false)
 
   // Get guests assigned to a specific table
   const getTableGuests = (tableId: string) => {
@@ -435,16 +436,29 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
           </div>
         )}
 
-        {/* Zoom controls */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-2 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-md p-1 shadow-sm">
-          <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.max(0.5, s - 0.1))}>
-            -
+        {/* Zoom controls toggle */}
+        <div className="absolute bottom-3 left-3">
+          <Button 
+            size="icon" 
+            variant="outline" 
+            onClick={() => setShowZoomControls(!showZoomControls)}
+            className="bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+          >
+            <Settings className="h-4 w-4" />
           </Button>
-          <div className="px-2 text-xs tabular-nums">{Math.round(scale * 100)}%</div>
-          <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.min(2, s + 0.1))}>
-            +
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setScale(1)}>Reset</Button>
+          
+          {showZoomControls && (
+            <div className="flex items-center gap-2 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border rounded-md p-1 shadow-sm mt-2">
+              <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.max(0.3, s - 0.1))}>
+                -
+              </Button>
+              <div className="px-2 text-xs tabular-nums">{Math.round(scale * 100)}%</div>
+              <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.min(3, s + 0.1))}>
+                +
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => { setScale(0.6); setPan({ x: 0, y: 0 }) }}>Fit All</Button>
+            </div>
+          )}
         </div>
       </div>
 

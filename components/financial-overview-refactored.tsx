@@ -40,7 +40,6 @@ interface FinancialOverviewProps {
 }
 
 export function FinancialOverviewRefactored({ wedding, expenses, categories, gifts, vendors }: FinancialOverviewProps) {
-  const [selectedTab, setSelectedTab] = useState("overview")
   
   // Calculate totals
   const totalSpent = expenses.reduce((sum, expense) => sum + Number(expense.amount || 0), 0) +
@@ -56,27 +55,100 @@ export function FinancialOverviewRefactored({ wedding, expenses, categories, gif
 
   // Expense table columns
   const expenseColumns = [
-    { key: "description", label: "Përshkrimi", sortable: true },
-    { key: "category", label: "Kategoria", sortable: true },
-    { key: "amount", label: "Shuma", sortable: true },
-    { key: "payment_status", label: "Statusi", sortable: true },
-    { key: "created_at", label: "Data", sortable: true },
+    {
+      key: "description",
+      header: "Përshkrimi",
+      accessor: (expense: any) => expense.description,
+      sortable: true
+    },
+    {
+      key: "category",
+      header: "Kategoria",
+      accessor: (expense: any) => expense.category,
+      sortable: true
+    },
+    {
+      key: "amount",
+      header: "Shuma",
+      accessor: (expense: any) => `€${Number(expense.amount).toLocaleString()}`,
+      sortable: true
+    },
+    {
+      key: "payment_status",
+      header: "Statusi",
+      accessor: (expense: any) => (
+        <Badge className={expense.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}>
+          {expense.payment_status === 'paid' ? 'Paguar' : 'Në pritje'}
+        </Badge>
+      ),
+      sortable: true
+    },
+    {
+      key: "created_at",
+      header: "Data",
+      accessor: (expense: any) => new Date(expense.created_at).toLocaleDateString('sq-AL'),
+      sortable: true
+    },
   ]
 
   // Vendor table columns
   const vendorColumns = [
-    { key: "name", label: "Emri", sortable: true },
-    { key: "category", label: "Kategoria", sortable: true },
-    { key: "contract_amount", label: "Kontrata", sortable: true },
-    { key: "deposit_amount", label: "Depozita", sortable: true },
-    { key: "deposit_paid", label: "Statusi", sortable: true },
+    {
+      key: "name",
+      header: "Emri",
+      accessor: (vendor: any) => vendor.name,
+      sortable: true
+    },
+    {
+      key: "category",
+      header: "Kategoria",
+      accessor: (vendor: any) => vendor.category,
+      sortable: true
+    },
+    {
+      key: "contract_amount",
+      header: "Kontrata",
+      accessor: (vendor: any) => `€${Number(vendor.contract_amount || 0).toLocaleString()}`,
+      sortable: true
+    },
+    {
+      key: "deposit_amount",
+      header: "Depozita",
+      accessor: (vendor: any) => `€${Number(vendor.deposit_amount || 0).toLocaleString()}`,
+      sortable: true
+    },
+    {
+      key: "deposit_paid",
+      header: "Statusi",
+      accessor: (vendor: any) => (
+        <Badge className={vendor.deposit_paid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}>
+          {vendor.deposit_paid ? 'Paguar' : 'Në pritje'}
+        </Badge>
+      ),
+      sortable: true
+    },
   ]
 
   // Gift table columns
   const giftColumns = [
-    { key: "gift_date", label: "Data", sortable: true },
-    { key: "amount", label: "Shuma", sortable: true },
-    { key: "notes", label: "Shënime", sortable: false },
+    {
+      key: "gift_date",
+      header: "Data",
+      accessor: (gift: any) => new Date(gift.gift_date).toLocaleDateString('sq-AL'),
+      sortable: true
+    },
+    {
+      key: "amount",
+      header: "Shuma",
+      accessor: (gift: any) => `€${Number(gift.amount).toLocaleString()}`,
+      sortable: true
+    },
+    {
+      key: "notes",
+      header: "Shënime",
+      accessor: (gift: any) => gift.notes || '-',
+      sortable: false
+    },
   ]
 
   // Format expense data for table
@@ -118,14 +190,6 @@ export function FinancialOverviewRefactored({ wedding, expenses, categories, gif
       {/* Financial Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-0 shadow-xl hover:shadow-2xl transition-all">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                <PiggyBank className="h-5 w-5 text-white" />
-              </div>
-              <Sparkles className="h-4 w-4 text-blue-400" />
-            </div>
-          </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-1">Buxheti Total</p>
             <p className="text-2xl font-bold text-gray-900">€{totalBudget.toLocaleString()}</p>
@@ -134,14 +198,6 @@ export function FinancialOverviewRefactored({ wedding, expenses, categories, gif
         </Card>
 
         <Card className="bg-gradient-to-br from-red-50 to-orange-50 border-0 shadow-xl hover:shadow-2xl transition-all">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-600 rounded-full flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-white" />
-              </div>
-              <Receipt className="h-4 w-4 text-red-400" />
-            </div>
-          </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-1">Shpenzuar Deri Tani</p>
             <p className="text-2xl font-bold text-gray-900">€{totalSpent.toLocaleString()}</p>
@@ -158,14 +214,6 @@ export function FinancialOverviewRefactored({ wedding, expenses, categories, gif
         </Card>
 
         <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-0 shadow-xl hover:shadow-2xl transition-all">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
-                <Gift className="h-5 w-5 text-white" />
-              </div>
-              <Heart className="h-4 w-4 text-green-400" />
-            </div>
-          </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-1">Dhurata Marrë</p>
             <p className="text-2xl font-bold text-gray-900">€{totalGifts.toLocaleString()}</p>
@@ -178,22 +226,6 @@ export function FinancialOverviewRefactored({ wedding, expenses, categories, gif
             ? 'bg-gradient-to-br from-purple-50 to-pink-50' 
             : 'bg-gradient-to-br from-red-50 to-rose-50'
         }`}>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                remainingBudget >= 0
-                  ? 'bg-gradient-to-br from-purple-500 to-pink-600'
-                  : 'bg-gradient-to-br from-red-500 to-rose-600'
-              }`}>
-                {remainingBudget >= 0 ? (
-                  <Wallet className="h-5 w-5 text-white" />
-                ) : (
-                  <AlertTriangle className="h-5 w-5 text-white" />
-                )}
-              </div>
-              <Calculator className="h-4 w-4 text-purple-400" />
-            </div>
-          </CardHeader>
           <CardContent>
             <p className="text-sm text-gray-600 mb-1">
               {remainingBudget >= 0 ? 'Mbetur në Buxhet' : 'Mbi Buxhet'}
@@ -214,14 +246,8 @@ export function FinancialOverviewRefactored({ wedding, expenses, categories, gif
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-4 w-4 text-white" />
-                </div>
-                Përmbledhje e Buxhetit
+                Përmbledhja e Buxhetit
               </CardTitle>
-              <CardDescription className="mt-1">
-                Shikoni progresin e shpenzimeve tuaja
-              </CardDescription>
             </div>
             <Button asChild size="sm" className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white border-0">
               <Link href="/dashboard/budget/new">
@@ -276,183 +302,71 @@ export function FinancialOverviewRefactored({ wedding, expenses, categories, gif
         </CardContent>
       </Card>
 
-      {/* Detailed Tabs */}
+      {/* Financial Overview */}
       <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
         <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b">
-          <CardTitle className="text-xl font-bold text-gray-800">Detajet Financiare</CardTitle>
-          <CardDescription>Menaxhoni shpenzimet, kontratat dhe dhuratat</CardDescription>
+          <CardTitle className="text-xl font-bold text-gray-800">Përmbledhje Financiare</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-            <TabsList className="w-full rounded-none border-b bg-gray-50 p-0 h-auto">
-              <TabsTrigger 
-                value="overview" 
-                className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-rose-500 data-[state=active]:bg-white py-3"
-              >
-                <div className="flex items-center gap-2">
-                  <Calculator className="h-4 w-4" />
-                  <span>Përmbledhje</span>
-                  <Badge variant="secondary" className="ml-1">{expenses.length + vendors.length + gifts.length}</Badge>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="expenses" 
-                className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-rose-500 data-[state=active]:bg-white py-3"
-              >
-                <div className="flex items-center gap-2">
-                  <Receipt className="h-4 w-4" />
-                  <span>Shpenzime</span>
-                  <Badge variant="secondary" className="ml-1">{expenses.length}</Badge>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="vendors" 
-                className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-rose-500 data-[state=active]:bg-white py-3"
-              >
-                <div className="flex items-center gap-2">
-                  <Store className="h-4 w-4" />
-                  <span>Shitës</span>
-                  <Badge variant="secondary" className="ml-1">{vendors.length}</Badge>
-                </div>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="gifts" 
-                className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-rose-500 data-[state=active]:bg-white py-3"
-              >
-                <div className="flex items-center gap-2">
-                  <Gift className="h-4 w-4" />
-                  <span>Dhurata</span>
-                  <Badge variant="secondary" className="ml-1">{gifts.length}</Badge>
-                </div>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="p-6 space-y-4">
-              <div className="space-y-4">
-                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-                  <Banknote className="h-5 w-5" />
-                  Transaksionet e Fundit
-                </h3>
-                
-                {/* Combined recent transactions */}
-                <div className="space-y-3">
-                  {[...expenses.slice(0, 3), ...vendors.slice(0, 2), ...gifts.slice(0, 2)]
-                    .sort((a, b) => new Date(b.created_at || b.gift_date).getTime() - new Date(a.created_at || a.gift_date).getTime())
-                    .slice(0, 5)
-                    .map((item, index) => {
-                      const isExpense = 'payment_status' in item && !('deposit_paid' in item)
-                      const isVendor = 'deposit_paid' in item
-                      const isGift = 'gift_date' in item
-                      
-                      return (
-                        <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                              isGift ? 'bg-green-100' : 'bg-red-100'
-                            }`}>
-                              {isGift ? (
-                                <Gift className="h-5 w-5 text-green-600" />
-                              ) : isVendor ? (
-                                <Store className="h-5 w-5 text-red-600" />
-                              ) : (
-                                <Receipt className="h-5 w-5 text-red-600" />
-                              )}
-                            </div>
-                            <div>
-                              <p className="font-medium text-gray-900">
-                                {isExpense ? item.description : isVendor ? item.name : 'Dhuratë në para'}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {new Date(item.created_at || item.gift_date).toLocaleDateString('sq-AL')}
-                              </p>
-                            </div>
-                          </div>
-                          <div className={`text-lg font-bold ${isGift ? 'text-green-600' : 'text-red-600'}`}>
-                            {isGift ? '+' : '-'}€{Number(isGift ? item.amount : (isVendor ? item.deposit_amount : item.amount)).toLocaleString()}
-                          </div>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+              Transaksionet e Fundit
+            </h3>
+            
+            {/* Combined recent transactions */}
+            <div className="space-y-3">
+              {[...expenses.slice(0, 3), ...vendors.slice(0, 2), ...gifts.slice(0, 2)]
+                .sort((a, b) => new Date(b.created_at || b.gift_date).getTime() - new Date(a.created_at || a.gift_date).getTime())
+                .slice(0, 5)
+                .map((item, index) => {
+                  const isExpense = 'payment_status' in item && !('deposit_paid' in item)
+                  const isVendor = 'deposit_paid' in item
+                  const isGift = 'gift_date' in item
+                  
+                  return (
+                    <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          isGift ? 'bg-green-100' : 'bg-red-100'
+                        }`}>
+                          {isGift ? (
+                            <Gift className="h-5 w-5 text-green-600" />
+                          ) : isVendor ? (
+                            <Store className="h-5 w-5 text-red-600" />
+                          ) : (
+                            <Receipt className="h-5 w-5 text-red-600" />
+                          )}
                         </div>
-                      )
-                    })}
-                </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {isExpense ? item.description : isVendor ? item.name : 'Dhuratë në para'}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(item.created_at || item.gift_date).toLocaleDateString('sq-AL')}
+                          </p>
+                        </div>
+                      </div>
+                      <div className={`text-lg font-bold ${isGift ? 'text-green-600' : 'text-red-600'}`}>
+                        {isGift ? '+' : '-'}€{Number(isGift ? item.amount : (isVendor ? item.deposit_amount : item.amount)).toLocaleString()}
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
 
-                {expenses.length === 0 && vendors.length === 0 && gifts.length === 0 && (
-                  <div className="text-center py-12 bg-gray-50 rounded-lg">
-                    <PiggyBank className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-500">Nuk ka transaksione të regjistruara ende</p>
-                    <Button asChild className="mt-4" variant="outline">
-                      <Link href="/dashboard/budget/new">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Shto Transaksionin e Parë
-                      </Link>
-                    </Button>
-                  </div>
-                )}
+            {expenses.length === 0 && vendors.length === 0 && gifts.length === 0 && (
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <PiggyBank className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-500">Nuk ka transaksione të regjistruara ende</p>
+                <Button asChild className="mt-4" variant="outline">
+                  <Link href="/dashboard/budget/new">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Shto Transaksionin e Parë
+                  </Link>
+                </Button>
               </div>
-            </TabsContent>
-
-            <TabsContent value="expenses" className="p-6">
-              {expenses.length > 0 ? (
-                <StandardTable
-                  columns={expenseColumns}
-                  data={expenseData}
-                  pageSize={10}
-                />
-              ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <Receipt className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500">Nuk ka shpenzime të regjistruara ende</p>
-                  <Button asChild className="mt-4" variant="outline">
-                    <Link href="/dashboard/budget/new">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Shto Shpenzimin e Parë
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="vendors" className="p-6">
-              {vendors.length > 0 ? (
-                <StandardTable
-                  columns={vendorColumns}
-                  data={vendorData}
-                  pageSize={10}
-                />
-              ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <Store className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500">Nuk ka shitës të regjistruar ende</p>
-                  <Button asChild className="mt-4" variant="outline">
-                    <Link href="/dashboard/vendors/new">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Shto Shitësin e Parë
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="gifts" className="p-6">
-              {gifts.length > 0 ? (
-                <StandardTable
-                  columns={giftColumns}
-                  data={giftData}
-                  pageSize={10}
-                />
-              ) : (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <Gift className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500">Nuk ka dhurata të regjistruara ende</p>
-                  <Button asChild className="mt-4" variant="outline">
-                    <Link href="/dashboard/cash-gifts/new">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Shto Dhuratën e Parë
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

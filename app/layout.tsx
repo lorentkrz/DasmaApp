@@ -5,9 +5,9 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Planifikuesi i Dasmave',
+  title: 'Dasma ERP',
   description: 'Aplikacion për menaxhimin e dasmave',
-  generator: 'Wedding ERP',
+  generator: 'Dasma ERP',
   viewport: 'width=device-width, initial-scale=1',
   icons: {
     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♥</text></svg>",

@@ -5,7 +5,7 @@ import { DashboardEnterprise } from "@/components/dashboard-enterprise"
 
 export async function generateMetadata() {
   return {
-    title: 'Dashboard - Wedding ERP',
+    title: 'Dashboard - Dasma ERP',
     description: 'Pamje e përgjithshme e dasmës'
   }
 }
