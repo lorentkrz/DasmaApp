@@ -46,7 +46,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      {/* Left panel with storytelling */}
       <div className="hidden lg:flex flex-col justify-center items-center bg-gradient-to-br from-rose-50 via-white to-pink-50 relative overflow-hidden">
         <div className="absolute inset-0 flex justify-center items-center opacity-10">
           <Heart className="h-[450px] w-[450px] text-rose-200" />
@@ -64,7 +63,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right panel with form */}
       <div className="flex items-center justify-center bg-white">
         <Card className="w-full max-w-md bg-white/80 backdrop-blur-xl border border-rose-100 shadow-2xl rounded-2xl mx-6">
           <CardHeader className="text-center pb-2">

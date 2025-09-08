@@ -1,53 +1,39 @@
-import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
-import { NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr"
+import { NextRequest, NextResponse } from "next/server"
 
-export function createServerClient(response?: NextResponse) {
-  const getCookie = (name: string) => {
-    if (!response) return null;
-    return response.cookies.get(name)?.value || null;
-  };
-
-  const setCookie = (name: string, value: string, options: any = {}) => {
-    if (!response) return;
-    response.cookies.set({
-      name,
-      value,
-      path: "/",
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      ...options,
-    });
-  };
-
-  const removeCookie = (name: string, options: any = {}) => {
-    if (!response) return;
-    response.cookies.set({
-      name,
-      value: "",
-      path: "/",
-      maxAge: 0,
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      ...options,
-    });
-  };
-
-  return createSupabaseServerClient(
+export function createSupabaseServerClient(request: NextRequest, response: NextResponse) {
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get: getCookie,
-        set: setCookie,
-        remove: removeCookie,
-      } as any,
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: any) {
+          response.cookies.set({
+            name,
+            value,
+            path: "/",
+            httpOnly: true,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            ...options,
+          })
+        },
+        remove(name: string, options: any) {
+          response.cookies.set({
+            name,
+            value: "",
+            path: "/",
+            httpOnly: true,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 0,
+            ...options,
+          })
+        },
+      },
     }
-  );
-}
-
-// Backwards compatibility
-export async function createClient(response?: NextResponse) {
-  return createServerClient(response);
+  )
 }
