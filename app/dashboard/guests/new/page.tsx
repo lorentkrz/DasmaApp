@@ -1,83 +1,46 @@
-"use client"
+import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
+import { GuestForm } from "@/components/guest-form"
 
-import type React from "react"
+export default async function NewGuestPage() {
+  const supabase = await createClient()
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, UserPlus } from "lucide-react"
-import Link from "next/link"
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+  if (error || !user) {
+    redirect("/auth/login")
+  }
 
-export default function NewGuestPage() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
-  const supabase = createClient()
+  // Get current wedding
+  const { data: weddings } = await supabase
+    .from("weddings")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(1)
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    address: "",
-    guestType: "regular",
-    dietaryRestrictions: "",
-    groupInvite: false,
-  })
+  if (!weddings || weddings.length === 0) {
+    redirect("/dashboard/weddings/new")
+  }
 
-  const [members, setMembers] = useState<Array<{ firstName: string; lastName: string }>>([])
+  const currentWedding = weddings[0]
 
-  const addMember = () => setMembers((prev) => [...prev, { firstName: "", lastName: "" }])
-  const removeMember = (idx: number) => setMembers((prev) => prev.filter((_, i) => i !== idx))
-  const updateMember = (idx: number, field: "firstName" | "lastName", value: string) =>
-    setMembers((prev) => prev.map((m, i) => (i === idx ? { ...m, [field]: value } : m)))
+  // Fetch tables for table assignment
+  const { data: tables } = await supabase
+    .from("wedding_tables")
+    .select("*")
+    .eq("wedding_id", currentWedding.id)
+    .order("table_number", { ascending: true })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) throw new Error("Not authenticated")
-
-      // Get current wedding via RLS (owner or collaborator)
-      const { data: weddings } = await supabase
-        .from("weddings")
-        .select("id")
-        .order("created_at", { ascending: false })
-        .limit(1)
-
-      if (!weddings || weddings.length === 0) {
-        throw new Error("No wedding found")
-      }
-
-      const weddingId = weddings[0].id as string
-
-      if (formData.groupInvite) {
-        // 1) Create guest group
-        const { data: groupRows, error: groupErr } = await supabase
-          .from("guest_groups")
-          .insert({ wedding_id: weddingId, name: null })
-          .select("id")
-          .single()
-        if (groupErr) {
-          console.error("Group creation error:", groupErr)
-          throw groupErr
-        }
-        const groupId = groupRows.id as string
-
-        // 2) Insert primary guest with group_id
-        const { data: primaryRows, error: primErr } = await supabase
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-3xl mx-auto px-4 py-6">
+        <GuestForm weddingId={currentWedding.id} tables={tables || []} />
+      </div>
+    </div>
+  )
+}
           .from("guests")
           .insert({
             wedding_id: weddingId,

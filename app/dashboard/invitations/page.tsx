@@ -7,10 +7,16 @@ import { buildInvitationUrl } from "@/lib/utils"
 import { Send, Plus, Mail, Users, CheckCircle } from "lucide-react"
 import { CopyButton } from "@/components/copy-button"
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
-import { InvitationTemplateForm } from "@/components/invitation-template-form"
-import { InvitationAnalytics } from "@/components/invitation-analytics"
-import { InvitationManagement } from "@/components/invitation-management"
+import { InvitationsListEnterprise } from "@/components/invitations-list-enterprise"
+import { DashboardLayout } from "@/components/dashboard-layout"
 import { revalidatePath } from "next/cache"
+
+export async function generateMetadata() {
+  return {
+    title: 'Ftesat e Dasmës - Wedding ERP',
+    description: 'Dërgoni ftesa të bukura dhe ndiqni përgjigjet e mysafirëve tuaj'
+  }
+}
 
 export default async function InvitationsPage() {
   const supabase = await createClient()
@@ -30,60 +36,27 @@ export default async function InvitationsPage() {
   if (!weddings || weddings.length === 0) redirect("/dashboard/weddings/new")
   const currentWedding = weddings[0]
 
-  // Try simpler query first to avoid RLS issues
-  const { data: rawInvitations, error: invitationsError } = await supabase
+  // Fetch invitations with guest and group data
+  const { data: invitations } = await supabase
     .from("invitations")
     .select(`
-      id, 
-      token, 
-      sent_at, 
-      opened_at,
-      responded_at, 
-      reminder_sent_at,
-      invitation_type,
-      template_id,
-      guest_id,
-      group_id,
-      wedding_id,
-      created_at
+      *,
+      guest:guests(*),
+      group:guest_groups(*)
     `)
     .eq("wedding_id", currentWedding.id)
     .order("created_at", { ascending: false })
 
-  // Check for errors and handle them gracefully
-  if (invitationsError) {
-    console.error('Invitations query error:', invitationsError)
-    // Return error page or fallback
-    return (
-      <div className="container mx-auto py-6">
-        <Card className="border-red-200 bg-red-50">
-          <CardHeader>
-            <CardTitle className="text-red-800">Error Loading Invitations</CardTitle>
-            <CardDescription className="text-red-600">
-              {invitationsError.message || 'Failed to load invitations data'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild>
-              <Link href="/dashboard">Return to Dashboard</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Get all guests for the current wedding
+  // Fetch all guests for the wedding with group relationships
   const { data: guests } = await supabase
     .from("guests")
-    .select("id, first_name, last_name, phone, group_id, rsvp_status, plus_one_allowed, plus_one_name, guest_type")
+    .select("*")
     .eq("wedding_id", currentWedding.id)
-    .order("first_name")
 
-  // Get all guest groups
+  // Fetch all groups for the wedding with primary guest info
   const { data: groups } = await supabase
     .from("guest_groups")
-    .select("id, name, primary_guest_id")
+    .select("*")
     .eq("wedding_id", currentWedding.id)
 
   // Get invitation templates
@@ -92,51 +65,6 @@ export default async function InvitationsPage() {
     .select("*")
     .eq("wedding_id", currentWedding.id)
     .order("created_at", { ascending: false })
-
-  // Manually fetch guest and group data to avoid RLS join issues
-  const guestIds = rawInvitations?.map(inv => inv.guest_id).filter(Boolean) || []
-  const groupIds = rawInvitations?.map(inv => inv.group_id).filter(Boolean) || []
-
-  // Fetch guests separately
-  const { data: invitationGuests } = guestIds.length > 0 ? await supabase
-    .from("guests")
-    .select("id, first_name, last_name, phone, rsvp_status, plus_one_allowed, plus_one_name")
-    .in("id", guestIds) : { data: [] }
-
-  // Fetch groups separately  
-  const { data: invitationGroups } = groupIds.length > 0 ? await supabase
-    .from("guest_groups")
-    .select("id, name, primary_guest_id")
-    .in("id", groupIds) : { data: [] }
-
-  // Transform the data to match our interface
-  const invitations = rawInvitations?.map((inv: any) => {
-    const guest = invitationGuests?.find(g => g.id === inv.guest_id)
-    const group = invitationGroups?.find(g => g.id === inv.group_id)
-    
-    return {
-      ...inv,
-      guest,
-      group
-    }
-  })
-
-  // Debug logging
-  console.log('Debug - Raw invitations:', rawInvitations)
-  console.log('Debug - Invitations error:', invitationsError)
-  console.log('Debug - Transformed invitations:', invitations)
-  console.log('Debug - Guests count:', guests?.length)
-  console.log('Debug - Groups count:', groups?.length)
-  console.log('Debug - Current wedding ID:', currentWedding.id)
-  
-  // Test direct query
-  const { data: testInvitations, error: testError } = await supabase
-    .from('invitations')
-    .select('*')
-    .eq('wedding_id', currentWedding.id)
-  
-  console.log('Debug - Direct invitations query:', testInvitations)
-  console.log('Debug - Direct query error:', testError)
 
   // Calculate invitation statistics
   const stats = {
@@ -232,64 +160,28 @@ export default async function InvitationsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex flex-col space-y-4 mb-6">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center border">
-                <Mail className="h-5 w-5 text-gray-600" />
-              </div>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                Ftesat e Dasmës
-              </h1>
-            </div>
-            <div className="bg-gray-50 rounded-lg px-4 py-2 border">
-              <p className="text-gray-700 text-sm">
-                Dërgoni ftesa të bukura dhe ndiqni përgjigjet e mysafirëve tuaj
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-3">
-            <form action={createMissingInvitations}>
-              <Button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Krijo Ftesa
-              </Button>
-            </form>
-            <InvitationTemplateForm 
-              weddingId={currentWedding.id} 
-            />
-          </div>
+    <DashboardLayout
+      title="Ftesat e Dasmës"
+      description="Dërgoni ftesa të bukura dhe ndiqni përgjigjet e mysafirëve tuaj"
+      icon="Mail"
+      actions={
+        <div className="flex gap-3">
+          <form action={createMissingInvitations}>
+            <Button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Krijo Ftesa
+            </Button>
+          </form>
         </div>
-
-        {/* Invitation Analytics */}
-        <InvitationAnalytics stats={stats} />
-
-        {/* Invitation Management */}
-        <InvitationManagement
-          weddingId={currentWedding.id}
-          invitations={invitations || []}
-          guests={guests || []}
-          groups={groups || []}
-        />
-
-        {/* Footer */}
-        {(invitations || []).length > 0 && (
-          <div className="bg-gray-50 rounded-lg p-4 border text-center mt-6">
-            <div className="flex items-center justify-center gap-2">
-              <Mail className="h-4 w-4 text-gray-600" />
-              <span className="text-gray-700 text-sm">
-                Gjithsej <span className="font-medium">{(invitations || []).length}</span> ftesa të krijuara
-              </span>
-            </div>
-            <p className="text-xs text-gray-600 mt-1">
-              Çdo ftesë është e krijuar me kujdes për ditën tuaj të veçantë
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
+      }
+    >
+      {/* Invitations List */}
+      <InvitationsListEnterprise
+        weddingId={currentWedding.id}
+        invitations={invitations || []}
+        guests={guests || []}
+        groups={groups || []}
+      />
+    </DashboardLayout>
   )
 }

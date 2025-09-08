@@ -45,6 +45,8 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
   const [editAmount, setEditAmount] = useState('')
   const [editNotes, setEditNotes] = useState('')
   const [editDate, setEditDate] = useState(new Date().toISOString().split('T')[0])
+  const [startDate, setStartDate] = useState<string>('')
+  const [endDate, setEndDate] = useState<string>('')
   const supabase = createClient()
 
   useEffect(() => {
@@ -171,6 +173,34 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
   const totalAmount = cashGifts.reduce((sum, gift) => sum + gift.amount, 0)
   const averageGift = cashGifts.length > 0 ? totalAmount / cashGifts.length : 0
 
+  const filteredGifts = cashGifts.filter((g) => {
+    const d = new Date(g.gift_date).toISOString().split('T')[0]
+    const afterStart = startDate ? d >= startDate : true
+    const beforeEnd = endDate ? d <= endDate : true
+    return afterStart && beforeEnd
+  })
+
+  const downloadCsv = () => {
+    const rows = [
+      ['id','guest_name','amount','gift_date','notes'],
+      ...filteredGifts.map(g => [
+        g.id,
+        g.guest ? `${g.guest.first_name} ${g.guest.last_name}` : (g.guest_name || 'Anonim'),
+        String(g.amount),
+        new Date(g.gift_date).toISOString().split('T')[0],
+        (g.notes || '').replace(/\n/g,' '),
+      ])
+    ]
+    const csv = rows.map(r => r.map((c) => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'cash_gifts.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -259,9 +289,16 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
         </Card>
       </div>
 
-      {/* Add Gift Button */}
-      <div className="flex justify-between items-center">
+      {/* Filters and Actions */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
         <h3 className="text-lg font-semibold text-gray-800">Dhurata në Para (Bakshish)</h3>
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-700">Prej</label>
+          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-9" />
+          <label className="text-sm text-gray-700">Deri</label>
+          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-9" />
+          <Button variant="outline" onClick={downloadCsv}>Shkarko CSV</Button>
+        </div>
         <Dialog open={isAddingGift} onOpenChange={setIsAddingGift}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600">
@@ -337,7 +374,7 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
 
       {/* Gifts List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {cashGifts.map((gift) => (
+        {filteredGifts.map((gift) => (
           <Card key={gift.id} className="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-lg hover:shadow-xl transition-all">
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-2">

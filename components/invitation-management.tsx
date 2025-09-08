@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { User, Users, Calendar, CheckCircle, Trash2, Edit, Plus, Copy, MessageSquare, Eye, Bell, Mail, Sparkles, Heart, Send, FileText } from 'lucide-react'
+import { User, Users, Calendar, CheckCircle, Trash2, Edit, Plus, Copy, MessageSquare, Eye, Bell, Mail, Sparkles, Heart, Send, FileText, Loader2, ChevronDown } from 'lucide-react'
 import { CopyButton } from "@/components/copy-button"
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
 import { buildInvitationUrl } from "@/lib/utils"
@@ -63,20 +64,76 @@ export function InvitationManagement({
 }: InvitationManagementProps) {
   const [editingInvitation, setEditingInvitation] = useState<Invitation | null>(null)
   const [loading, setLoading] = useState(false)
+  const [copyingId, setCopyingId] = useState<string | null>(null)
   const { toast } = useToast()
   const supabase = createClient()
 
-  const handleCopyFullMessage = async (invitationId: string) => {
+  const copyShortTemplate = async (invitation: Invitation) => {
     try {
-      const resp = await fetch(`/dashboard/invitations/send/${invitationId}?preview=1`, { cache: 'no-store' })
+      setCopyingId(invitation.id)
+      const token = invitation.token
+      if (!token) {
+        throw new Error('Ftesa nuk ka token të gjeneruar')
+      }
+      const url = buildInvitationUrl(token)
+      const targetName = invitation.guest 
+        ? `${invitation.guest.first_name} ${invitation.guest.last_name}`
+        : invitation.group?.name || 'Mik i dashur'
+
+      // Minimal, reusable WhatsApp template with the unique token URL
+      const message = `I/E dashur ${targetName},\n\nJu ftojmë me shumë kënaqësi në dasmën tonë.\n\nJu lutemi konfirmoni pjesëmarrjen këtu:\n👉 ${url}\n\nMe respekt dhe dashuri! 💍✨`
+
+      await navigator.clipboard.writeText(message)
+      toast({ title: 'Mesazhi u kopjua', description: 'Mesazhi i plotë i WhatsApp u kopjua në kujtesë.' })
+    } catch (e: any) {
+      toast({ title: 'Gabim në kopjim', description: e?.message || 'Nuk u kopjua mesazhi', variant: 'destructive' })
+    } finally {
+      setCopyingId(null)
+    }
+  }
+
+  const copyFullTemplate = async (invitation: Invitation) => {
+    try {
+      setCopyingId(invitation.id)
+      const resp = await fetch(`/dashboard/invitations/send/${invitation.id}?preview=1`, { cache: 'no-store' })
       const data = await resp.json()
       if (!resp.ok || !data?.message) {
-        throw new Error(data?.error || 'Nuk u gjenerua mesazhi')
+        throw new Error(data?.error || 'Nuk u gjenerua mesazhi i plotë')
       }
       await navigator.clipboard.writeText(data.message)
       toast({ title: 'Mesazhi u kopjua', description: 'Mesazhi i plotë i WhatsApp u kopjua në kujtesë.' })
     } catch (e: any) {
       toast({ title: 'Gabim në kopjim', description: e?.message || 'Nuk u kopjua mesazhi', variant: 'destructive' })
+    } finally {
+      setCopyingId(null)
+    }
+  }
+
+  const sendReminder = async (invitation: Invitation) => {
+    try {
+      setCopyingId(invitation.id)
+      const token = invitation.token
+      if (!token) throw new Error('Ftesa nuk ka token')
+      const url = buildInvitationUrl(token)
+      const targetName = invitation.guest 
+        ? `${invitation.guest.first_name} ${invitation.guest.last_name}`
+        : invitation.group?.name || 'Mik i dashur'
+
+      const reminderMsg = `Përshëndetje ${targetName},\n\nKjo është një kujtesë e vogël për ftesën tonë të dasmës.\n\nJu lutemi konfirmoni pjesëmarrjen këtu:\n👉 ${url}\n\nFaleminderit! 💍✨`
+
+      await navigator.clipboard.writeText(reminderMsg)
+
+      const { error } = await supabase
+        .from('invitations')
+        .update({ reminder_sent_at: new Date().toISOString() })
+        .eq('id', invitation.id)
+      if (error) throw error
+
+      toast({ title: 'Kujtesa u përgatit', description: 'Mesazhi u kopjua dhe u shënua si kujtesë.' })
+    } catch (e: any) {
+      toast({ title: 'Gabim në kujtesë', description: e?.message || 'Nuk u dërgua kujtesa', variant: 'destructive' })
+    } finally {
+      setCopyingId(null)
     }
   }
 
@@ -235,16 +292,61 @@ export function InvitationManagement({
                     {/* Copy Invitation Link */}
                     <CopyButton text={buildInvitationUrl(invitation.token || '')} />
 
-                    {/* Copy Full WhatsApp Message */}
+                    {/* Copy WhatsApp Message - Dropdown (Short / Full) */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={copyingId === invitation.id}
+                          aria-busy={copyingId === invitation.id}
+                          className="hover:bg-green-50 border-green-200"
+                        >
+                          {copyingId === invitation.id ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Duke kopjuar...
+                            </>
+                          ) : (
+                            <>
+                              <FileText className="h-4 w-4 mr-2" />
+                              Kopjo Mesazhin
+                              <ChevronDown className="h-4 w-4 ml-2" />
+                            </>
+                          )}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="min-w-[220px]">
+                        <DropdownMenuItem onClick={() => copyShortTemplate(invitation)}>
+                          Mesazh i shkurtër (me link)
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => copyFullTemplate(invitation)}>
+                          Mesazh i plotë (me datë/vend/emra)
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    
+                    {/* Reminder action - stamps reminder_sent_at and copies reminder text */}
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => handleCopyFullMessage(invitation.id)}
-                      className="hover:bg-green-50 border-green-200"
+                      onClick={() => sendReminder(invitation)}
+                      disabled={copyingId === invitation.id}
+                      className="hover:bg-amber-50 border-amber-200"
                     >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Kopjo Mesazhin e Plotë
+                      {copyingId === invitation.id ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Duke përgatitur...
+                        </>
+                      ) : (
+                        <>
+                          <Bell className="h-4 w-4 mr-2" />
+                          Kujto
+                        </>
+                      )}
                     </Button>
                     
                     {/* WhatsApp Send Button - only if guest has phone */}

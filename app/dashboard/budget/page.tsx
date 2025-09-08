@@ -1,12 +1,19 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { FinancialOverview } from "@/components/financial-overview"
+import { FinancialOverviewRefactored } from "@/components/financial-overview-refactored"
 import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"
+
+export async function generateMetadata() {
+  return {
+    title: 'Financat e Dasmës - Wedding ERP',
+    description: 'Menaxhoni buxhetin dhe shpenzimet e dasmës suaj'
+  }
+}
 
 export default async function BudgetPage() {
   const supabase = await createClient()
@@ -61,8 +68,6 @@ export default async function BudgetPage() {
   return (
     <DashboardLayout
       title="Financat e Dasmës"
-      description="Pamje e plotë e të gjitha financave: shpenzimet, depozitat dhe dhuratat"
-      icon="DollarSign"
       actions={
         <Button asChild className="bg-gray-900 hover:bg-gray-800 text-white">
           <Link href="/dashboard/budget/new">
@@ -72,7 +77,7 @@ export default async function BudgetPage() {
         </Button>
       }
     >
-      <FinancialOverview 
+      <FinancialOverviewRefactored 
         wedding={wedding}
         expenses={expenses || []}
         categories={categories || []}

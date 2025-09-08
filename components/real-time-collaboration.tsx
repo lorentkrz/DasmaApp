@@ -58,7 +58,7 @@ export function RealTimeCollaboration({ weddingId, currentPage }: RealTimeCollab
         filter: `wedding_id=eq.${weddingId}`
       }, (payload) => {
         // Handle real-time collaboration updates
-        console.log('Collaboration update:', payload)
+        // Update handled silently
       })
       .subscribe()
 

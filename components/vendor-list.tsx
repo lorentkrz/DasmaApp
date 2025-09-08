@@ -17,31 +17,19 @@ interface VendorListProps {
   onEdit?: (vendor: any) => void
 }
 
-// Use DB enum codes for filtering, show labels in UI
-const VENDOR_CATEGORIES = [
-  "all",
-  "photographer",
-  "videographer",
-  "florist",
-  "caterer",
-  "venue",
-  "dj",
-  "band",
-  "baker",
-  "decorator",
-  "transportation",
-  "other",
-]
+// Categories removed per request; keep UI minimal with only status filters
 
 export function VendorList({ vendors, onEdit }: VendorListProps) {
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [selectedStatus, setSelectedStatus] = useState("all")
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const { toast } = useToast()
   const router = useRouter()
   const supabase = createClient()
 
   const handleDelete = async (vendorId: string, vendorName: string) => {
     try {
+      setDeletingId(vendorId)
       const { error } = await supabase
         .from('vendors')
         .delete()
@@ -62,6 +50,21 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
         description: "Nuk u arrit të fshihet shitësi. Provoni përsëri.",
         variant: "destructive",
       })
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  const isOverdue = (vendor: any) => {
+    try {
+      const due = vendor.final_payment_due ? new Date(vendor.final_payment_due) : null
+      const today = new Date()
+      const total = Number(vendor.contract_amount || 0)
+      const paid = Number(vendor.deposit_amount || 0)
+      const remaining = total - paid
+      return due && !Number.isNaN(due.getTime()) && due < today && remaining > 0
+    } catch {
+      return false
     }
   }
 
@@ -69,15 +72,15 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
     const name = (vendor.name || "").toString().toLowerCase()
     const contact = (vendor.contact_person || "").toString().toLowerCase()
     const company = (vendor.company || "").toString().toLowerCase()
-    const category = (vendor.category || "").toString()
+    const status = (vendor.status || "").toString()
     const query = (searchTerm || "").toString().toLowerCase()
 
     const matchesSearch =
       name.includes(query) ||
       contact.includes(query) ||
       company.includes(query)
-    const matchesCategory = selectedCategory === "all" || category === selectedCategory
-    return matchesSearch && matchesCategory
+    const matchesStatus = selectedStatus === "all" || status === selectedStatus
+    return matchesSearch && matchesStatus
   })
 
   const labelize = (code: string) => (code ? code.charAt(0).toUpperCase() + code.slice(1) : "")
@@ -92,22 +95,7 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
     return colors[status] || "bg-gray-100 text-gray-800 border-gray-200"
   }
 
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      photographer: "bg-purple-50 text-purple-800 border-purple-200",
-      videographer: "bg-blue-50 text-blue-800 border-blue-200",
-      florist: "bg-green-50 text-green-800 border-green-200",
-      caterer: "bg-orange-50 text-orange-800 border-orange-200",
-      venue: "bg-yellow-50 text-yellow-800 border-yellow-200",
-      dj: "bg-cyan-50 text-cyan-800 border-cyan-200",
-      band: "bg-teal-50 text-teal-800 border-teal-200",
-      baker: "bg-amber-50 text-amber-800 border-amber-200",
-      decorator: "bg-violet-50 text-violet-800 border-violet-200",
-      transportation: "bg-emerald-50 text-emerald-800 border-emerald-200",
-      other: "bg-gray-50 text-gray-800 border-gray-200",
-    }
-    return colors[category] || "bg-gray-50 text-gray-800 border-gray-200"
-  }
+  // Category colors and badges removed
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -117,32 +105,40 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
 
   return (
     <div className="space-y-6">
-      {/* Search and Filter */}
+      {/* Search and Status Filter (Categories removed) */}
       <Card className="border">
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative sm:flex-[2]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="Kërko shitës sipas emrit, kompanisë apo personit të kontaktit..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-9 h-10"
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-gray-400" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 bg-white"
-              >
-                {VENDOR_CATEGORIES.map((category) => (
-                  <option key={category} value={category}>
-                    {category === "all" ? "Të gjitha kategoritë" : labelize(category)}
-                  </option>
+            <div className="sm:flex-[1] space-y-2">
+              <div className="flex items-center gap-2 text-xs text-gray-700">
+                <Filter className="h-4 w-4" />
+                Statusi
+              </div>
+              <div className="flex items-center gap-1 bg-white/70 backdrop-blur border rounded-full p-0.5 shadow-sm overflow-x-auto">
+                {["all","considering","contacted","booked","cancelled"].map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => setSelectedStatus(st)}
+                    aria-pressed={selectedStatus === st}
+                    className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 ${
+                      selectedStatus === st
+                        ? "bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 text-emerald-800"
+                        : "text-gray-600 hover:bg-white hover:text-gray-900"
+                    }`}
+                  >
+                    {st === "all" ? "Të gjitha" : labelize(st)}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -177,9 +173,6 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
                     <CardTitle className="text-xl font-bold text-gray-900">{vendor.name}</CardTitle>
                     {vendor.company && <p className="text-sm text-gray-600 font-medium">{vendor.company}</p>}
                   </div>
-                  <Badge variant="outline" className={getCategoryColor(vendor.category)}>
-                    {labelize(vendor.category)}
-                  </Badge>
                 </div>
 
                 {vendor.rating && (
@@ -243,6 +236,11 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
                     {vendor.deposit_amount && (
                       <span className="text-xs text-gray-500">Depozitë: ${Number(vendor.deposit_amount).toLocaleString()}</span>
                     )}
+                    {isOverdue(vendor) && (
+                      <span className="mt-1 inline-flex items-center gap-1 text-xs text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
+                        Vonesa
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -291,8 +289,14 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
                           variant="outline" 
                           size="sm" 
                           className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 shadow-sm transition-all duration-200 hover:shadow-md"
+                          disabled={deletingId === vendor.id}
+                          aria-busy={deletingId === vendor.id}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {deletingId === vendor.id ? (
+                            <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25"/><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.75"/></svg>
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -307,8 +311,9 @@ export function VendorList({ vendors, onEdit }: VendorListProps) {
                           <AlertDialogAction 
                             onClick={() => handleDelete(vendor.id, vendor.name)}
                             className="bg-red-600 hover:bg-red-700"
+                            disabled={deletingId === vendor.id}
                           >
-                            Fshi
+                            {deletingId === vendor.id ? 'Duke fshirë...' : 'Fshi'}
                           </AlertDialogAction>
                         </AlertDialogFooter>
                       </AlertDialogContent>

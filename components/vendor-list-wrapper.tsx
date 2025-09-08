@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { VendorList } from "@/components/vendor-list"
+import { VendorListRefactored } from "@/components/vendor-list-refactored"
 import { VendorEditDialog } from "@/components/vendor-edit-dialog"
 
 interface VendorListWrapperProps {
@@ -15,7 +15,7 @@ export function VendorListWrapper({ wedding, vendors }: VendorListWrapperProps) 
 
   return (
     <>
-      <VendorList
+      <VendorListRefactored
         vendors={vendors}
         onEdit={(vendor) => {
           setSelected(vendor)

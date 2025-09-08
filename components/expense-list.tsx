@@ -21,6 +21,7 @@ interface ExpenseListProps {
 export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [paymentFilter, setPaymentFilter] = useState<"all" | "paid" | "pending">("all")
   const { toast } = useToast()
   const router = useRouter()
   const supabase = createClient()
@@ -60,7 +61,8 @@ export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) 
     const resolvedName = expense.category_id ? categoryMap.get(expense.category_id)?.name : undefined
     const expenseCategory = resolvedName ?? "Uncategorized"
     const matchesCategory = selectedCategory === "all" || (resolvedName ? resolvedName === selectedCategory : selectedCategory === "Uncategorized")
-    return matchesSearch && matchesCategory
+    const matchesPayment = paymentFilter === "all" || expense.payment_status === paymentFilter
+    return matchesSearch && matchesCategory && matchesPayment
   })
 
   const getCategoryColor = (category: string) => {
@@ -115,6 +117,34 @@ export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) 
                 </option>
               ))}
             </select>
+            {/* Payment status pill filters */}
+            <div className="flex items-center gap-1 bg-white/70 backdrop-blur border rounded-full p-1 shadow-sm">
+              {(["all","paid","pending"] as const).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPaymentFilter(p)}
+                  aria-pressed={paymentFilter === p}
+                  className={`px-3 py-1.5 rounded-full text-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 ${
+                    paymentFilter === p
+                      ? p === 'paid' 
+                        ? 'bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 text-emerald-800 shadow'
+                        : p === 'pending'
+                          ? 'bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 text-amber-800 shadow'
+                          : 'bg-gradient-to-r from-rose-50 to-pink-50 border border-pink-200 text-pink-800 shadow'
+                      : 'text-gray-600 hover:bg-white hover:text-gray-900'
+                  }`}
+                >
+                  {p === 'all' ? 'Të gjitha' : p === 'paid' ? 'Paguar' : 'Në pritje'}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => { setSelectedCategory('all'); setPaymentFilter('all'); setSearchTerm('') }}
+              className="px-3 py-1.5 rounded-full text-sm bg-white/80 border hover:bg-white transition shadow-sm"
+            >
+              Reseto filtrat
+            </button>
           </div>
         </div>
       </CardHeader>
@@ -169,6 +199,11 @@ export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) 
                         <span className="text-sm text-gray-600 bg-amber-50 px-3 py-1 rounded-lg">
                           {new Date(expense.date).toLocaleDateString('sq-AL')}
                         </span>
+                        {expense.receipt_url && (
+                          <Badge variant="outline" className="text-xs font-medium bg-gradient-to-r from-slate-50 to-gray-50 text-slate-700 border-slate-200">
+                            Faturë
+                          </Badge>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -189,6 +224,13 @@ export function ExpenseList({ expenses, categories, onEdit }: ExpenseListProps) 
                   </div>
 
                   <div className="flex items-center space-x-2">
+                    {expense.receipt_url && (
+                      <a href={expense.receipt_url} target="_blank" rel="noopener noreferrer">
+                        <Button variant="outline" size="sm" className="rounded-xl hover:bg-slate-50 border-slate-200">
+                          Shiko Faturën
+                        </Button>
+                      </a>
+                    )}
                     {expense.source !== 'vendor' && (
                       <>
                         {onEdit ? (

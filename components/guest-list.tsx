@@ -80,6 +80,7 @@ function GuestList({ guests }: { guests: Guest[] }) {
   const [selectedType, setSelectedType] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards")
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -135,15 +136,33 @@ function GuestList({ guests }: { guests: Guest[] }) {
     return matchesSearch && matchesStatus
   })
 
-  const handleDelete = async (guestId: string, guestName: string) => {
+  const handleDelete = async (guest: Guest) => {
     try {
       const supabase = createClient()
-      const { error } = await supabase.from("guests").delete().eq("id", guestId)
+      setDeletingId(guest.id)
+      const removed = guest
+      const { error } = await supabase.from("guests").delete().eq("id", guest.id)
 
       if (error) throw error
+      // Undo snackbar
       toast({
         title: "Mysafiri u fshi!",
-        description: `${guestName} u largua me sukses nga lista.`,
+        description: `${guest.first_name} ${guest.last_name} u largua.`,
+      })
+      // Offer an undo using sonner toast for action
+      ;(require('sonner') as any).toast?.message?.("Fshirë. Anulo?", {
+        action: {
+          label: "Anulo",
+          onClick: async () => {
+            try {
+              const sup = createClient()
+              await sup.from('guests').insert([{ ...removed, created_at: undefined, updated_at: undefined }])
+              router.refresh()
+            } catch (e) {
+              console.error('Undo failed', e)
+            }
+          }
+        }
       })
       router.refresh()
     } catch (error) {
@@ -153,12 +172,14 @@ function GuestList({ guests }: { guests: Guest[] }) {
         description: "Nuk u arrit të fshihet mysafiri. Provoni përsëri.",
         variant: "destructive",
       })
+    } finally {
+      setDeletingId(null)
     }
   }
 
   return (
     <div className="space-y-6">
-      {/* Search and Filter Bar - Mobile Responsive */}
+      {/* Search and Filter Bar */}
       <div className="flex flex-col gap-4 bg-white/80 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg">
         <div className="flex flex-col sm:flex-row gap-4 flex-1">
           <div className="relative flex-1">
@@ -170,26 +191,51 @@ function GuestList({ guests }: { guests: Guest[] }) {
               className="pl-10 bg-white/90 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-rose-300"
             />
           </div>
-          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="w-full sm:w-48 bg-white/90 border-gray-200 rounded-xl shadow-sm">
-              <Filter className="h-4 w-4 mr-2 text-gray-400" />
-              <SelectValue placeholder="Filtroni sipas statusit" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Të gjithë</SelectItem>
-              <SelectItem value="pending">Në pritje</SelectItem>
-              <SelectItem value="attending">Pranojnë</SelectItem>
-              <SelectItem value="not_attending">Nuk pranojnë</SelectItem>
-              <SelectItem value="maybe">Ndoshta</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-full sm:w-auto">
+            <div className="flex items-center gap-2 text-sm mb-2 text-gray-700">
+              <Filter className="h-4 w-4" />
+              Statusi i RSVP
+            </div>
+            <div className="flex items-center gap-1 bg-white/70 backdrop-blur border rounded-full p-1 shadow-sm">
+              {(["all","pending","attending","not_attending","maybe"] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSelectedStatus(s)}
+                  aria-pressed={selectedStatus === s}
+                  className={`px-3 py-1.5 rounded-full text-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-300 ${
+                    selectedStatus === s
+                      ? "bg-gradient-to-r from-rose-50 to-pink-50 border border-pink-200 text-pink-800 shadow"
+                      : "text-gray-600 hover:bg-white hover:text-gray-900"
+                  }`}
+                >
+                  {s === 'all' ? 'Të gjithë' : statusTranslations[s]}
+                </button>
+              ))}
+            </div>
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={() => { setSelectedStatus('all'); setSearchTerm('') }}
+                className="px-3 py-1.5 rounded-full text-sm bg-white/80 border hover:bg-white transition shadow-sm"
+              >
+                Reseto filtrat
+              </button>
+            </div>
+          </div>
         </div>
-        <Button asChild className="w-full sm:w-auto bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-          <Link href="/dashboard/guests/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Shto Mysafir
-          </Link>
-        </Button>
+        {/* Active filter chips */}
+        <div className="-mb-2 mt-1 flex flex-wrap items-center gap-2">
+          {searchTerm && (
+            <button onClick={() => setSearchTerm("")} className="px-2.5 py-1 rounded-full text-xs bg-white border shadow-sm hover:bg-gray-50">
+              Kërkim: “{searchTerm}” ✕
+            </button>
+          )}
+          {selectedStatus !== 'all' && (
+            <button onClick={() => setSelectedStatus('all')} className="px-2.5 py-1 rounded-full text-xs bg-white border shadow-sm hover:bg-gray-50">
+              Status: {statusTranslations[selectedStatus]} ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Mobile Card View */}
@@ -253,10 +299,11 @@ function GuestList({ guests }: { guests: Guest[] }) {
                           <AlertDialogFooter>
                             <AlertDialogCancel>Anulo</AlertDialogCancel>
                             <AlertDialogAction 
-                              onClick={() => handleDelete(guest.id, `${guest.first_name} ${guest.last_name}`)}
+                              onClick={() => handleDelete(guest)}
                               className="bg-red-600 hover:bg-red-700"
+                              disabled={deletingId === guest.id}
                             >
-                              Fshi
+                              {deletingId === guest.id ? 'Duke fshirë...' : 'Fshi'}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -431,8 +478,12 @@ function GuestList({ guests }: { guests: Guest[] }) {
                                 onSelect={(e) => e.preventDefault()}
                                 className="text-destructive focus:text-destructive"
                               >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Fshi
+                                {deletingId === guest.id ? (
+                                  <svg className="h-4 w-4 mr-2 animate-spin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25"/><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.75"/></svg>
+                                ) : (
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                )}
+                                {deletingId === guest.id ? 'Duke fshirë...' : 'Fshi'}
                               </DropdownMenuItem>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
@@ -445,10 +496,11 @@ function GuestList({ guests }: { guests: Guest[] }) {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Anulo</AlertDialogCancel>
                                 <AlertDialogAction 
-                                  onClick={() => handleDelete(guest.id, `${guest.first_name} ${guest.last_name}`)}
+                                  onClick={() => handleDelete(guest)}
                                   className="bg-red-600 hover:bg-red-700"
+                                  disabled={deletingId === guest.id}
                                 >
-                                  Fshi
+                                  {deletingId === guest.id ? 'Duke fshirë...' : 'Fshi'}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>

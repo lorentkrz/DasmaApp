@@ -33,6 +33,7 @@ interface Guest {
   plus_one_name: string | null
   table_assignment: string | null
   dietary_restrictions: string | null
+  group_id?: string | null
 }
 
 interface SeatingChartProps {
@@ -61,6 +62,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
   const [internalTables, setInternalTables] = useState<Table[]>(tables)
   useEffect(() => setInternalGuests(guests), [guests])
   useEffect(() => setInternalTables(tables), [tables])
+  const [seatWholeGroup, setSeatWholeGroup] = useState(false)
 
   // Get guests assigned to a specific table
   const getTableGuests = (tableId: string) => {
@@ -81,6 +83,30 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
       onGuestAssigned?.()
     } catch (error) {
       console.error("Error assigning guest to table:", error)
+    }
+  }
+
+  // Assign unseated members of the selected guest's group to the same table, respecting capacity
+  const assignGroupMembersToTable = async (primaryGuestId: string, tableId: string) => {
+    const table = internalTables.find((t) => t.id === tableId)
+    if (!table) return
+    const primary = internalGuests.find((g) => g.id === primaryGuestId)
+    if (!primary || !primary.group_id) return
+    const currentCount = getTableGuests(tableId).length
+    const remaining = Math.max(0, table.capacity - currentCount)
+    if (remaining <= 0) return
+    const candidates = internalGuests.filter((g) => g.group_id === primary.group_id && !g.table_assignment && g.id !== primaryGuestId)
+    if (candidates.length === 0) return
+    const toSeat = candidates.slice(0, remaining)
+    // Optimistic update
+    const ids = toSeat.map((g) => g.id)
+    setInternalGuests((prev) => prev.map((g) => (ids.includes(g.id) ? { ...g, table_assignment: tableId } : g)))
+    try {
+      const { error } = await supabase.from("guests").update({ table_assignment: tableId }).in("id", ids)
+      if (error) throw error
+      onGuestAssigned?.()
+    } catch (error) {
+      console.error("Error assigning group members:", error)
     }
   }
 
@@ -432,46 +458,6 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Quick add guest */}
-            {selectedTable && (
-              <div>
-                <div className="text-sm font-medium mb-2">Add guest</div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between">
-                      <span>Select guest...</span>
-                      <ChevronsUpDown className="h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="Search guests..." />
-                      <CommandList>
-                        <CommandEmpty>No guests found.</CommandEmpty>
-                        <CommandGroup>
-                          {internalGuests
-                            .filter((g) => !g.table_assignment)
-                            .map((g) => (
-                              <CommandItem
-                                key={g.id}
-                                value={`${g.first_name} ${g.last_name}`}
-                                onSelect={async () => {
-                                  await assignGuestToTable(g.id, selectedTable.id)
-                                }}
-                              >
-                                <Plus className="mr-2 h-4 w-4" />
-                                {g.first_name} {g.last_name}
-                                {g.plus_one_name ? ` (+ ${g.plus_one_name})` : ""}
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
-
             {selectedTable && (
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Occupancy</span>

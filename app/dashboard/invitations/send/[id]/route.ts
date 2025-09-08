@@ -38,11 +38,6 @@ export async function GET(
   
   const phone: string | null = guest?.phone ?? null
   console.log('📞 Guest phone:', phone)
-  
-  if (!phone) {
-    console.error('❌ Guest phone missing')
-    return new Response(JSON.stringify({ error: "Guest phone missing" }), { status: 400 })
-  }
 
   const url = buildInvitationUrl(invitation.token)
   const guestName = `${guest?.first_name} ${guest?.last_name}`
@@ -80,22 +75,31 @@ Prania juaj na nderon, dhe e bën këtë ditë edhe më të paharrueshme për ne
 Me dashuri,
 ${groomName} & ${brideName}`
 
-  // Support preview mode to fetch the composed message without actually sending
+  // Determine preview mode early
+  let isPreview = false
   try {
     const urlObj = new URL((_req as any).url)
-    const preview = urlObj.searchParams.get('preview')
-    if (preview) {
-      return new Response(JSON.stringify({
-        success: true,
-        preview: true,
-        message,
-        invitationUrl: url,
-        guestName,
-        phone
-      }), { status: 200 })
-    }
+    isPreview = !!urlObj.searchParams.get('preview')
   } catch (e) {
-    // ignore URL parse errors and proceed with normal flow
+    // ignore URL parse errors
+  }
+
+  // In preview mode, return the composed message even if phone is missing
+  if (isPreview) {
+    return new Response(JSON.stringify({
+      success: true,
+      preview: true,
+      message,
+      invitationUrl: url,
+      guestName,
+      phone,
+    }), { status: 200 })
+  }
+
+  // For actual send, require phone
+  if (!phone) {
+    console.error('❌ Guest phone missing')
+    return new Response(JSON.stringify({ error: "Guest phone missing" }), { status: 400 })
   }
 
   try {

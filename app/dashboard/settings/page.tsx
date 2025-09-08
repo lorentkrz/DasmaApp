@@ -8,6 +8,13 @@ import { SecuritySettingsForm } from "@/components/security-settings-form"
 
 export const dynamic = "force-dynamic"
 
+export async function generateMetadata() {
+  return {
+    title: 'Cilësimet - Wedding ERP',
+    description: 'Menaxhoni preferencat dhe cilësimet e llogarisë suaj'
+  }
+}
+
 export default async function SettingsPage() {
   const supabase = await createClient()
 

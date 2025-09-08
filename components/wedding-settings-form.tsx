@@ -54,16 +54,11 @@ export function WeddingSettingsForm({ wedding }: WeddingSettingsFormProps) {
         (updateData as any).budget_total = budgetValue;
       }
 
-      console.log('Updating wedding with data:', updateData)
-      console.log('Wedding ID:', wedding.id)
-      
       const { error, data } = await supabase
         .from('weddings')
         .update(updateData)
         .eq('id', wedding.id)
         .select()
-      
-      console.log('Update result:', { error, data })
 
       if (error) throw error
 

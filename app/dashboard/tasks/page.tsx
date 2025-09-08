@@ -1,12 +1,19 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { TaskBoard } from "@/components/task-board"
+import { TaskBoardRefactored } from "@/components/task-board-refactored"
 import { Button } from "@/components/ui/button"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Plus, CheckSquare } from "lucide-react"
 import Link from "next/link"
 
 export const dynamic = "force-dynamic"
+
+export async function generateMetadata() {
+  return {
+    title: 'Lista e Punëve - Wedding ERP',
+    description: 'Organizoni dhe ndiqni të gjitha detyrat për dasmën tuaj të përsosur'
+  }
+}
 
 export default async function TasksPage() {
   const supabase = await createClient()
@@ -71,7 +78,7 @@ export default async function TasksPage() {
         </Button>
       }
     >
-      <TaskBoard boards={boards || []} tasks={tasks || []} weddingId={wedding.id} />
+      <TaskBoardRefactored boards={boards || []} tasks={tasks || []} weddingId={wedding.id} />
     </DashboardLayout>
   )
 }

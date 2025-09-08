@@ -56,28 +56,32 @@ export function DashboardLayout({
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex flex-col space-y-4 mb-6">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center border">
-                <Icon className="h-5 w-5 text-gray-600" />
+        {/* Header Card */}
+        <div className="bg-white rounded-lg border shadow-sm p-6 mb-6">
+          <div className="flex flex-col space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center border">
+                  <Icon className="h-6 w-6 text-gray-600" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-semibold text-gray-900">
+                    {title}
+                  </h1>
+                  {description && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      {description}
+                    </p>
+                  )}
+                </div>
               </div>
-              <h1 className="text-2xl font-semibold text-gray-900">
-                {title}
-              </h1>
             </div>
-            <div className="bg-gray-50 rounded-lg px-4 py-2 border">
-              <p className="text-gray-700 text-sm">
-                {description}
-              </p>
-            </div>
+            {actions && (
+              <div className="flex gap-3 pt-2 border-t">
+                {actions}
+              </div>
+            )}
           </div>
-          {actions && (
-            <div className="flex gap-3">
-              {actions}
-            </div>
-          )}
         </div>
 
         {/* Content */}
