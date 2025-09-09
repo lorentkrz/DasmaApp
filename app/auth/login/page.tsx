@@ -1,48 +1,66 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { createClient } from "@/lib/supabase/client"
-import { Mail, Lock, Heart } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card"
-import { Cormorant_Garamond } from "next/font/google"
+import type React from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { Mail, Lock, Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Cormorant_Garamond } from "next/font/google";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["400", "700"],
-})
+});
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const supabase = createClient()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    const supabase = createClient();
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-      })
-      if (error) throw error
-      router.push("/dashboard")
+      });
+
+      if (error) throw error;
+
+      // Ensure the session is properly established before redirecting
+      if (data?.session) {
+        console.log("Login successful, session established");
+
+        // Force a small delay to ensure cookies are set
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Check if we need to redirect to a specific page
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectTo = urlParams.get("redirectedFrom") || "/dashboard";
+
+        // Use window.location for more reliable redirect after auth
+        window.location.href = redirectTo;
+      } else {
+        throw new Error("Sesioni nuk u krijua");
+      }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Ndodhi një gabim")
+      console.error("Login error:", err);
+      setError(err instanceof Error ? err.message : "Ndodhi një gabim");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
@@ -58,8 +76,8 @@ export default function LoginPage() {
             Dasma ERP
           </h1>
           <p className="text-gray-600 text-lg max-w-md mx-auto leading-relaxed">
-            Një ERP e krijuar posaçërisht për ditën më të rëndësishme. 
-            Organizim i përsosur, stil elegant dhe gjithçka në një vend.
+            Një ERP e krijuar posaçërisht për ditën më të rëndësishme. Organizim
+            i përsosur, stil elegant dhe gjithçka në një vend.
           </p>
         </div>
       </div>
@@ -157,5 +175,5 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

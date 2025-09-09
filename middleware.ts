@@ -11,12 +11,12 @@ export const config = {
      * Match all request paths except:
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * - favicon.ico, robots.txt, sitemap.xml (SEO files)
      * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     * Feel free to modify this pattern to include more paths.
+     * - invite routes (public wedding invitations)
+     * - api/auth routes (handled by Supabase)
+     * - manifest files and service workers
      */
-    // Skip middleware entirely for public invite pages
-    // Also continue to skip static assets and images
-    "/((?!_next/static|_next/image|favicon.ico|invite(?:/.*)?|.*.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|invite(?:/.*)?|api/auth(?:/.*)?|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2|ttf|eot|css|js|json|xml|txt|pdf)$).*)",
   ],
 }
