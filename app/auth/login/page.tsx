@@ -66,10 +66,10 @@ export default function LoginPage() {
 
       {/* Right panel with form */}
       <div className="flex items-center justify-center bg-white">
-        <Card className="w-full max-w-md bg-white/80 backdrop-blur-xl border border-rose-100 shadow-2xl rounded-2xl mx-6">
+        <Card className="w-full max-w-md bg-white/80 backdrop-blur-xl border-4 border-red-500 shadow-2xl rounded-2xl mx-6">
           <CardHeader className="text-center pb-2">
             <div className="flex justify-center mb-3">
-              <div className="p-3 bg-rose-100 rounded-full">
+              <div className="p-3 bg-rose-100 rounded-full border-4 border-red-500">
                 <Heart className="h-6 w-6 text-rose-500" />
               </div>
             </div>
@@ -101,7 +101,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="rounded-md border-rose-100 focus:border-rose-300 focus:ring-rose-200 bg-white"
+                    className="rounded-md border-4 border-red-500 focus:border-red-300 focus:ring-red-200 bg-white"
                   />
                 </div>
                 <div className="space-y-2">
@@ -127,20 +127,20 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="rounded-md border-rose-100 focus:border-rose-300 focus:ring-rose-200 bg-white"
+                    className="rounded-md border-4 border-red-500 focus:border-red-300 focus:ring-red-200 bg-white"
                   />
                 </div>
               </div>
 
               {error && (
-                <div className="bg-rose-50 border border-rose-200 rounded-md p-3">
+                <div className="bg-rose-50 border-4 border-red-500 rounded-md p-3">
                   <p className="text-sm text-rose-700 font-medium">{error}</p>
                 </div>
               )}
 
               <Button
                 type="submit"
-                className="w-full rounded-full font-semibold py-3 text-base bg-rose-500 hover:bg-rose-600 text-white transition-all shadow-md hover:shadow-lg"
+                className="w-full rounded-full font-semibold py-3 text-base bg-rose-500 hover:bg-rose-600 text-white transition-all shadow-md hover:shadow-lg border-4 border-red-500"
                 disabled={isLoading}
               >
                 {isLoading ? (
