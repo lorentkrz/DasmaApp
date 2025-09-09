@@ -1,4 +1,7 @@
-import { createBrowserClient } from "@supabase/ssr"
+import { createBrowserClient } from '@supabase/ssr'
+
+// Backwards compatibility: allow imports that expect createBrowserClient from this module
+export { createBrowserClient }
 
 export function createClient() {
   return createBrowserClient(

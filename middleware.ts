@@ -1,40 +1,22 @@
-import { NextRequest, NextResponse } from "next/server"
-import { createSupabaseServerClient } from "@/lib/supabase/server"
-
-const PUBLIC_PATHS = [
-  "/",
-  "/auth",
-  "/invite",
-  "/favicon.ico",
-  "/api/auth",
-  "/auth/login",
-  "/auth/signup",
-  "/auth/forgot-password",
-  "/auth/callback",
-]
+import { updateSession } from "@/lib/supabase/middleware"
+import type { NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next()
-  const supabase = createSupabaseServerClient(request, response)
-
-  const { data: { session }, error } = await supabase.auth.getSession()
-  if (error) console.error("Supabase middleware error:", error)
-
-  const isPublicPath = PUBLIC_PATHS.some(
-    (path) =>
-      request.nextUrl.pathname === path ||
-      request.nextUrl.pathname.startsWith(`${path}/`)
-  )
-
-  if (!session && !isPublicPath) {
-    const redirectUrl = new URL("/auth/login", request.url)
-    redirectUrl.searchParams.set("redirectedFrom", request.nextUrl.pathname)
-    return NextResponse.redirect(redirectUrl)
-  }
-
-  return response
+  return await updateSession(request)
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
+     * Feel free to modify this pattern to include more paths.
+     */
+    // Skip middleware entirely for public invite pages
+    // Also continue to skip static assets and images
+    "/((?!_next/static|_next/image|favicon.ico|invite(?:/.*)?|.*.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 }

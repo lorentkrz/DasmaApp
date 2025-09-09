@@ -23,11 +23,10 @@ export default async function BudgetPage() {
   } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
-  // Get accessible wedding (RLS enforces access)
+  // Get current wedding
   const { data: weddings } = await supabase
     .from("weddings")
     .select("*")
-    .eq("owner_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)
 

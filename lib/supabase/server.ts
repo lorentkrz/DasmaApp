@@ -1,39 +1,36 @@
-import { createServerClient } from "@supabase/ssr"
-import { NextRequest, NextResponse } from "next/server"
+import { createServerClient as createSupabaseServerClient } from "@supabase/ssr"
+import { cookies } from "next/headers"
 
-export function createSupabaseServerClient(request: NextRequest, response: NextResponse) {
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          response.cookies.set({
-            name,
-            value,
-            path: "/",
-            httpOnly: true,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
-            ...options,
-          })
-        },
-        remove(name: string, options: any) {
-          response.cookies.set({
-            name,
-            value: "",
-            path: "/",
-            httpOnly: true,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production",
-            maxAge: 0,
-            ...options,
-          })
-        },
+/**
+ * Especially important if using Fluid compute: Don't put this client in a
+ * global variable. Always create a new client within each function when using
+ * it.
+ */
+export async function createServerClient() {
+  const cookieStore = await cookies()
+
+  return createSupabaseServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll()
       },
-    }
-  )
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        } catch (error) {
+          // The "setAll" method was called from a Server Component.
+          // This can be ignored if you have middleware refreshing
+          // user sessions.
+          console.warn("Cookie setting failed in Server Component:", error)
+        }
+      },
+    },
+  })
+}
+
+// Keep the original export for backward compatibility
+export async function createClient() {
+  return createServerClient()
 }

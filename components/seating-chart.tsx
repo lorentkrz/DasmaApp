@@ -1,6 +1,8 @@
 "use client"
 
-import React, { useEffect, useMemo, useState, useRef } from "react"
+import type React from "react"
+
+import { useEffect, useMemo, useState, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -424,11 +426,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
               </div>
             </div>
           ) : (
-            internalTables.map((table) => (
-              <div key={table.id}>
-                {renderTable(table)}
-              </div>
-            ))
+            internalTables.map(renderTable)
           )}
         </div>
 

@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -123,10 +123,15 @@
     @apply bg-background text-foreground;
   }
   /* Universal cursor feedback for clickable elements */
-  a, button, [role="button"], label, summary {
+  a,
+  button,
+  [role="button"],
+  label,
+  summary {
     cursor: pointer;
   }
-  [disabled], [aria-disabled="true"] {
+  [disabled],
+  [aria-disabled="true"] {
     cursor: not-allowed !important;
   }
 }

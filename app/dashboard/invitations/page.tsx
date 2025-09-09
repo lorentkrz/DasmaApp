@@ -26,11 +26,10 @@ export default async function InvitationsPage() {
   } = await supabase.auth.getUser()
   if (error || !user) redirect("/auth/login")
 
-  // Get accessible wedding (RLS enforces access)
+  // current wedding
   const { data: weddings } = await supabase
     .from("weddings")
     .select("*")
-    .eq("owner_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)
 

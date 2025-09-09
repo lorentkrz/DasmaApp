@@ -29,8 +29,12 @@ export default function LoginPage() {
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
+
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
       if (error) throw error
       router.push("/dashboard")
     } catch (err: unknown) {
@@ -42,18 +46,25 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+      {/* Left panel with storytelling */}
       <div className="hidden lg:flex flex-col justify-center items-center bg-gradient-to-br from-rose-50 via-white to-pink-50 relative overflow-hidden">
         <div className="absolute inset-0 flex justify-center items-center opacity-10">
           <Heart className="h-[450px] w-[450px] text-rose-200" />
         </div>
         <div className="relative z-10 text-center px-12">
-          <h1 className={`${cormorant.className} text-4xl font-bold text-gray-800 mb-4`}>Dasma ERP</h1>
+          <h1
+            className={`${cormorant.className} text-4xl font-bold text-gray-800 mb-4`}
+          >
+            Dasma ERP
+          </h1>
           <p className="text-gray-600 text-lg max-w-md mx-auto leading-relaxed">
-            Një ERP e krijuar posaçërisht për ditën më të rëndësishme. Organizim i përsosur, stil elegant dhe gjithçka në një vend.
+            Një ERP e krijuar posaçërisht për ditën më të rëndësishme. 
+            Organizim i përsosur, stil elegant dhe gjithçka në një vend.
           </p>
         </div>
       </div>
 
+      {/* Right panel with form */}
       <div className="flex items-center justify-center bg-white">
         <Card className="w-full max-w-md bg-white/80 backdrop-blur-xl border border-rose-100 shadow-2xl rounded-2xl mx-6">
           <CardHeader className="text-center pb-2">
@@ -62,15 +73,24 @@ export default function LoginPage() {
                 <Heart className="h-6 w-6 text-rose-500" />
               </div>
             </div>
-            <CardTitle className={`${cormorant.className} text-3xl font-bold text-gray-800`}>Mirë se u ktheve</CardTitle>
-            <p className="text-sm text-gray-500">Hyr për të vazhduar me organizimin e dasmës</p>
+            <CardTitle
+              className={`${cormorant.className} text-3xl font-bold text-gray-800`}
+            >
+              Mirë se u ktheve
+            </CardTitle>
+            <p className="text-sm text-gray-500">
+              Hyr për të vazhduar me organizimin e dasmës
+            </p>
           </CardHeader>
 
           <CardContent className="pt-4">
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="flex items-center gap-2 text-gray-700 font-medium">
+                  <Label
+                    htmlFor="email"
+                    className="flex items-center gap-2 text-gray-700 font-medium"
+                  >
                     <Mail className="h-4 w-4 text-rose-400" />
                     Email
                   </Label>
@@ -86,11 +106,17 @@ export default function LoginPage() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="flex items-center gap-2 text-gray-700 font-medium">
+                    <Label
+                      htmlFor="password"
+                      className="flex items-center gap-2 text-gray-700 font-medium"
+                    >
                       <Lock className="h-4 w-4 text-rose-400" />
                       Fjalëkalimi
                     </Label>
-                    <Link href="/auth/forgot-password" className="text-sm text-rose-600 hover:text-rose-700 hover:underline font-medium">
+                    <Link
+                      href="/auth/forgot-password"
+                      className="text-sm text-rose-600 hover:text-rose-700 hover:underline font-medium"
+                    >
                       E harruat?
                     </Link>
                   </div>
@@ -119,7 +145,7 @@ export default function LoginPage() {
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                     Duke hyrë...
                   </div>
                 ) : (
