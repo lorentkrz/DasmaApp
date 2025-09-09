@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Calendar,
   Users,
@@ -28,24 +28,38 @@ import {
   Camera,
   Palette,
   Truck,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Playfair_Display, Great_Vibes, Cormorant_Garamond, Dancing_Script } from 'next/font/google'
+import {
+  Playfair_Display,
+  Great_Vibes,
+  Cormorant_Garamond,
+  Dancing_Script,
+} from "next/font/google";
 
-const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400','600','700'] })
-const greatVibes = Great_Vibes({ subsets: ['latin'], weight: '400' })
-const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['400','700'] })
-const dancingScript = Dancing_Script({ subsets: ['latin'], weight: ['400','600','700'] })
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
+const greatVibes = Great_Vibes({ subsets: ["latin"], weight: "400" });
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+const dancingScript = Dancing_Script({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
 
 interface Wedding {
-  id: string
-  bride_name: string
-  groom_name: string
-  wedding_date: string
+  id: string;
+  bride_name: string;
+  groom_name: string;
+  wedding_date: string;
 }
 
 interface DashboardSidebarProps {
-  weddings: Wedding[]
+  weddings: Wedding[];
 }
 
 const navigation = [
@@ -94,31 +108,33 @@ const navigation = [
     href: "/dashboard/whatsapp",
     icon: Sparkles,
   },
-]
+];
 
 export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
-  const [collapsed, setCollapsed] = useState(false)
-  const pathname = usePathname()
+  const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
 
   return (
-    <div className={cn(
-      "flex h-full flex-col bg-gradient-to-b from-stone-50 via-rose-50/30 to-amber-50/20 border-r border-stone-200/50 backdrop-blur-sm transition-all duration-300 relative",
-      collapsed ? "w-16" : "w-64"
-    )}>
+    <div
+      className={cn(
+        "flex h-full flex-col bg-gradient-to-b from-stone-50 via-rose-50/30 to-amber-50/20 border-r border-stone-200/50 backdrop-blur-sm transition-all duration-300 relative",
+        collapsed ? "w-16" : "w-64"
+      )}
+    >
       {/* Subtle decorative elements */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-8 left-4 w-6 h-6">
           <svg viewBox="0 0 24 24" className="w-full h-full">
-            <circle cx="12" cy="6" r="2" fill="#E8B4CB"/>
-            <circle cx="8" cy="10" r="1.5" fill="#F5E6A3"/>
-            <circle cx="16" cy="14" r="1" fill="#C8A2C8"/>
+            <circle cx="12" cy="6" r="2" fill="#E8B4CB" />
+            <circle cx="8" cy="10" r="1.5" fill="#F5E6A3" />
+            <circle cx="16" cy="14" r="1" fill="#C8A2C8" />
           </svg>
         </div>
         <div className="absolute bottom-16 right-4 w-4 h-4">
           <svg viewBox="0 0 16 16" className="w-full h-full">
-            <circle cx="8" cy="4" r="1" fill="#F0E68C"/>
-            <circle cx="6" cy="8" r="0.8" fill="#E8B4CB"/>
-            <circle cx="10" cy="12" r="0.6" fill="#C8A2C8"/>
+            <circle cx="8" cy="4" r="1" fill="#F0E68C" />
+            <circle cx="6" cy="8" r="0.8" fill="#E8B4CB" />
+            <circle cx="10" cy="12" r="0.6" fill="#C8A2C8" />
           </svg>
         </div>
       </div>
@@ -127,11 +143,13 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
       <div className="relative flex items-center justify-between p-4 border-b border-stone-200/50">
         {!collapsed && (
           <div className="flex items-center gap-3">
-            <div className="text-xl text-stone-700">
-              ♥
-            </div>
+            <div className="text-xl text-stone-700">♥</div>
             <div>
-              <span className={`${playfair.className} font-semibold text-stone-700 text-lg`}>Dasma Aktuale</span>
+              <span
+                className={`${playfair.className} font-semibold text-stone-700 text-lg`}
+              >
+                Dasma Aktuale
+              </span>
             </div>
           </div>
         )}
@@ -160,18 +178,25 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <Crown className="h-4 w-4 text-amber-600" />
-                      <span className={`${playfair.className} text-sm font-semibold text-stone-800`}>
+                      <span
+                        className={`${playfair.className} text-sm font-semibold text-stone-800`}
+                      >
                         {weddings[0].groom_name} & {weddings[0].bride_name}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-stone-500" />
-                      <span className={`${playfair.className} text-xs text-stone-600 font-medium`}>
-                        {new Date(weddings[0].wedding_date).toLocaleDateString('sq-AL', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
+                      <span
+                        className={`${playfair.className} text-xs text-stone-600 font-medium`}
+                      >
+                        {new Date(weddings[0].wedding_date).toLocaleDateString(
+                          "sq-AL",
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
                       </span>
                     </div>
                   </div>
@@ -182,10 +207,16 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
 
           {/* Navigation */}
           <nav>
-            {!collapsed && <h3 className={`${playfair.className} text-sm font-semibold text-stone-600 mb-3 tracking-wide`}>NAVIGIMI</h3>}
+            {!collapsed && (
+              <h3
+                className={`${playfair.className} text-sm font-semibold text-stone-600 mb-3 tracking-wide`}
+              >
+                NAVIGIMI
+              </h3>
+            )}
             <ul className="space-y-1">
               {navigation.map((item) => {
-                const isActive = pathname === item.href
+                const isActive = pathname === item.href;
                 return (
                   <li key={item.href}>
                     <Link
@@ -202,11 +233,10 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
                       {!collapsed && <span>{item.name}</span>}
                     </Link>
                   </li>
-                )
+                );
               })}
             </ul>
           </nav>
-
         </div>
       </ScrollArea>
 
@@ -216,7 +246,10 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
           asChild
           variant="ghost"
           size="sm"
-          className={cn(`${playfair.className} w-full justify-start hover:bg-white/60 text-stone-600 hover:text-stone-800 rounded-xl font-medium border-2 border-stone-200/30 hover:border-stone-300/50 hover:shadow-md transition-all duration-200`, collapsed && "justify-center px-2")}
+          className={cn(
+            `${playfair.className} w-full justify-start hover:bg-white/60 text-stone-600 hover:text-stone-800 rounded-xl font-medium border-2 border-stone-200/30 hover:border-stone-300/50 hover:shadow-md transition-all duration-200`,
+            collapsed && "justify-center px-2"
+          )}
         >
           <Link href="/dashboard/settings">
             <Settings className="h-4 w-4" />
@@ -225,5 +258,5 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
         </Button>
       </div>
     </div>
-  )
+  );
 }

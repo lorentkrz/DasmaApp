@@ -35,25 +35,41 @@ export async function updateSession(request: NextRequest) {
   // with the Supabase client, your users may be randomly logged out.
   const {
     data: { user },
+    error: userError
   } = await supabase.auth.getUser()
 
   // Allow access to auth pages, home page, and invite routes without authentication
   const publicPaths = [
-    "/auth",
+    "/auth/login",
+    "/auth/register",
+    "/auth/error",
+    "/auth/logout",
     "/",
     "/invite"
   ]
-  
-  const isPublicPath = publicPaths.some(path => 
-    request.nextUrl.pathname === path || 
+
+  const isPublicPath = publicPaths.some(path =>
+    request.nextUrl.pathname === path ||
     request.nextUrl.pathname.startsWith(`${path}/`)
   )
 
-  if (!user && !isPublicPath) {
-    // Redirect to login if not authenticated and not on a public path
+  // If there's an auth error or no user, and it's not a public path, redirect to login
+  if ((userError || !user) && !isPublicPath) {
+    console.log("Middleware redirecting to login:", {
+      path: request.nextUrl.pathname,
+      hasUser: !!user,
+      error: userError?.message
+    })
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
     url.searchParams.set("redirectedFrom", request.nextUrl.pathname)
+    return NextResponse.redirect(url)
+  }
+
+  // If user is authenticated and trying to access auth pages, redirect to dashboard
+  if (user && request.nextUrl.pathname.startsWith("/auth/") && request.nextUrl.pathname !== "/auth/logout") {
+    const url = request.nextUrl.clone()
+    url.pathname = "/dashboard"
     return NextResponse.redirect(url)
   }
 

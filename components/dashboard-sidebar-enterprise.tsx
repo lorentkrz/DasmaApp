@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Calendar,
   Users,
@@ -22,18 +22,18 @@ import {
   BarChart3,
   UserCircle,
   LogOut,
-  CreditCard
-} from "lucide-react"
+  CreditCard,
+} from "lucide-react";
 
 interface Wedding {
-  id: string
-  bride_name: string
-  groom_name: string
-  wedding_date: string
+  id: string;
+  bride_name: string;
+  groom_name: string;
+  wedding_date: string;
 }
 
 interface DashboardSidebarProps {
-  weddings: Wedding[]
+  weddings: Wedding[];
 }
 
 const navigation = [
@@ -46,19 +46,23 @@ const navigation = [
   { name: "Ftesat", href: "/dashboard/invitations", icon: Mail },
   { name: "Dhurata", href: "/dashboard/cash-gifts", icon: Gift },
   { name: "WhatsApp", href: "/dashboard/whatsapp", icon: MessageSquare },
-  { name: "Cilësimet", href: "/dashboard/settings", icon: Settings }
-]
+  { name: "Cilësimet", href: "/dashboard/settings", icon: Settings },
+];
 
-export function DashboardSidebarEnterprise({ weddings }: DashboardSidebarProps) {
-  const [collapsed, setCollapsed] = useState(false)
-  const pathname = usePathname()
-  const currentWedding = weddings?.[0]
+export function DashboardSidebarEnterprise({
+  weddings,
+}: DashboardSidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
+  const currentWedding = weddings?.[0];
 
   return (
-    <div className={cn(
-      "flex flex-col bg-gray-900 text-white transition-all duration-300",
-      collapsed ? "w-16" : "w-72"
-    )}>
+    <div
+      className={cn(
+        "flex flex-col  bg-gray-800 text-white transition-all duration-300",
+        collapsed ? "w-20" : "w-72"
+      )}
+    >
       {/* Header */}
       <div className="p-6 border-b border-gray-800">
         <div className="flex items-center justify-between">
@@ -71,20 +75,25 @@ export function DashboardSidebarEnterprise({ weddings }: DashboardSidebarProps) 
                 </p>
               )}
               {/* Current Page Indicator */}
-              <div className="mt-3 px-3 py-1 bg-gray-800 rounded-full">
+              {/* <div className="mt-3 px-3 py-1 bg-gray-800 rounded-full">
                 <p className="text-xs text-gray-300">
-                  {navigation.find(item => item.href === pathname)?.name || "Dashboard"}
+                  {navigation.find((item) => item.href === pathname)?.name ||
+                    "Dashboard"}
                 </p>
-              </div>
+              </div> */}
             </div>
           )}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setCollapsed(!collapsed)}
-            className="text-gray-400 hover:text-white"
+            className="text-gray-400 hover:bg-transparent hover:text-white"
           >
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>
@@ -92,24 +101,24 @@ export function DashboardSidebarEnterprise({ weddings }: DashboardSidebarProps) 
       {/* Navigation */}
       <nav className="flex-1 p-4">
         {navigation.map((item) => {
-          const isActive = pathname === item.href
-          const Icon = item.icon
-          
+          const isActive = pathname === item.href;
+          const Icon = item.icon;
+
           return (
             <Link
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center gap-4 px-4 py-3 rounded-lg text-sm font-medium transition-colors mb-2",
+                "flex items-center gap-4 px-4 hover:bg-white/10 bg-white/5 py-3 rounded-lg text-sm font-medium transition-colors mb-2",
                 isActive
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+                  ? "text-white bg-white/20"
+                  : "text-gray-300 hover:text-white"
               )}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
               {!collapsed && <span>{item.name}</span>}
             </Link>
-          )
+          );
         })}
       </nav>
 
@@ -130,5 +139,5 @@ export function DashboardSidebarEnterprise({ weddings }: DashboardSidebarProps) 
         </Button>
       </div>
     </div>
-  )
+  );
 }
