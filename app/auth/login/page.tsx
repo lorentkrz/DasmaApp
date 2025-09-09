@@ -42,15 +42,19 @@ export default function LoginPage() {
       if (data?.session) {
         console.log("Login successful, session established");
 
-        // Force a small delay to ensure cookies are set
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Force refresh session to ensure cookies are properly set
+        await supabase.auth.refreshSession();
+        
+        // Give cookies time to propagate, especially important in production
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Check if we need to redirect to a specific page
         const urlParams = new URLSearchParams(window.location.search);
         const redirectTo = urlParams.get("redirectedFrom") || "/dashboard";
 
-        // Use window.location for more reliable redirect after auth
-        window.location.href = redirectTo;
+        // Use window.location.replace for more reliable redirect after auth
+        // This ensures the auth state is properly propagated
+        window.location.replace(redirectTo);
       } else {
         throw new Error("Sesioni nuk u krijua");
       }

@@ -19,10 +19,13 @@ export async function createServerClient() {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, {
               ...options,
-              // Enhanced cookie options for better reliability
+              // Critical cookie settings for production
               sameSite: 'lax',
               secure: process.env.NODE_ENV === 'production',
-              httpOnly: false, // Allow client-side access for auth
+              httpOnly: true, // More secure for auth cookies
+              path: '/',
+              // Max age for persistent sessions (30 days)
+              maxAge: 60 * 60 * 24 * 30,
             })
           })
         } catch (error: any) {

@@ -17,17 +17,27 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          // Update request cookies first
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value)
+          })
+          
+          // Create a new response with updated request
           supabaseResponse = NextResponse.next({
             request,
           })
+          
+          // Set cookies in the response with proper options for production
           cookiesToSet.forEach(({ name, value, options }) => {
-            // Ensure we properly handle cookie options
             supabaseResponse.cookies.set(name, value, {
               ...options,
-              // Force secure settings for better reliability
+              // Critical: ensure proper cookie settings for production
               sameSite: 'lax',
-              secure: process.env.NODE_ENV === 'production'
+              secure: process.env.NODE_ENV === 'production',
+              httpOnly: true,
+              path: '/',
+              // Ensure domain is not set to allow cookies to work properly
+              domain: undefined
             })
           })
         },
