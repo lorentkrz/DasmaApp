@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { FormField } from "@/components/ui/form-field"
 import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Save } from "lucide-react"
 import Link from "next/link"
@@ -120,27 +121,23 @@ export function TaskForm({ wedding, boards, defaultBoardId, task, onSuccess }: T
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">Titulli i Detyrës *</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Rezervo sallën e dasmës"
-              required
-            />
-          </div>
+          <FormField
+            id="title"
+            label="Titulli i Detyrës"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            required
+            hint="Titulli i shkurtër i detyrës"
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Përshkrimi</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Kontakto sallat dhe planifiko vizitat..."
-              rows={3}
-            />
-          </div>
+          <FormField
+            id="description"
+            label="Përshkrimi"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            textarea
+            hint="Përshkrim i detajuar i detyrës"
+          />
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
@@ -175,15 +172,14 @@ export function TaskForm({ wedding, boards, defaultBoardId, task, onSuccess }: T
               </select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="due_date">Data e Afatit</Label>
-              <Input
-                id="due_date"
-                type="date"
-                value={formData.due_date}
-                onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-              />
-            </div>
+            <FormField
+              id="due_date"
+              label="Data e Mbarimit"
+              type="date"
+              value={formData.due_date}
+              onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+              hint="Data kur duhet të përfundojë detyra"
+            />
           </div>
 
           <div className="flex justify-end space-x-4">

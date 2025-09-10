@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { GuestListEnterprise } from "@/components/guest-list-enterprise"
+import { GuestAddButton } from "@/components/guest-add-button"
+import { GuestListWrapper } from "@/components/guest-list-wrapper"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, UserPlus, Download, Upload } from "lucide-react"
@@ -58,40 +60,32 @@ export default async function GuestsPage() {
   // Stats are now calculated in the refactored component
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--bg)] dark:bg-[var(--bg-dark)]">
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Compact Header */}
-        <div className="bg-white rounded-lg border shadow-sm p-4 mb-6">
+        <div className="glass rounded-lg border p-4 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Menaxhimi i Mysafirëve</h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-xl font-bold text-[color:var(--text-2025)] dark:text-[color:var(--text-dark)]">Menaxhimi i Mysafirëve</h1>
+              <p className="text-sm text-[color:var(--muted-2025)] dark:text-[color:var(--muted-dark)] mt-1">
                 Dasma e {currentWedding.groom_name} & {currentWedding.bride_name}
               </p>
             </div>
             <div className="flex gap-2">
               <Button asChild variant="outline" size="sm">
                 <Link href="/dashboard/guests/import">
-                  <Upload className="h-3 w-3 mr-1" />
-                  Importo
+                  Import
                 </Link>
               </Button>
               <Button asChild variant="outline" size="sm">
                 <Link href="/dashboard/guests/export">
-                  <Download className="h-3 w-3 mr-1" />
-                  Eksporto
+                  Export
                 </Link>
               </Button>
-              <Button asChild size="sm" className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white">
-                <Link href="/dashboard/guests/new">
-                  <UserPlus className="h-3 w-3 mr-1" />
-                  Shto Mysafir
-                </Link>
-              </Button>
+              <GuestAddButton weddingId={currentWedding.id} />
             </div>
           </div>
         </div>
-
 
         {/* Guest List Component */}
         {guestsError ? (
@@ -102,7 +96,7 @@ export default async function GuestsPage() {
             </CardContent>
           </Card>
         ) : (
-          <GuestListEnterprise guests={guests || []} groups={groups || []} />
+          <GuestListWrapper wedding={currentWedding} guests={guests || []} groups={groups || []} />
         )}
       </div>
     </div>

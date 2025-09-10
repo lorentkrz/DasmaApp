@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { FormField } from "@/components/ui/form-field"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -202,63 +203,51 @@ export function GuestForm({ weddingId, tables }: GuestFormProps) {
             <CardContent className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">Emri *</Label>
-                    <Input
-                      id="firstName"
-                      type="text"
-                      required
-                      value={formData.firstName}
-                      onChange={(e) => handleInputChange("firstName", e.target.value)}
-                      className="border-slate-200 focus:border-slate-400 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Mbiemri *</Label>
-                    <Input
-                      id="lastName"
-                      type="text"
-                      required
-                      value={formData.lastName}
-                      onChange={(e) => handleInputChange("lastName", e.target.value)}
-                      className="border-slate-200 focus:border-slate-400 rounded-xl"
-                    />
-                  </div>
+                  <FormField
+                    id="firstName"
+                    label="Emri"
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange("firstName", e.target.value)}
+                    required
+                    hint="Emri i mysafirit"
+                  />
+                  <FormField
+                    id="lastName"
+                    label="Mbiemri"
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange("lastName", e.target.value)}
+                    required
+                    hint="Mbiemri i mysafirit"
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange("email", e.target.value)}
-                      className="border-slate-200 focus:border-slate-400 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefoni</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange("phone", e.target.value)}
-                      className="border-slate-200 focus:border-slate-400 rounded-xl"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address">Adresa</Label>
-                  <Textarea
-                    id="address"
-                    placeholder="Adresa e plotë"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange("address", e.target.value)}
-                    className="border-slate-200 focus:border-slate-400 rounded-xl"
+                  <FormField
+                    id="email"
+                    label="Email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    hint="Email për komunikim"
+                  />
+                  <FormField
+                    id="phone"
+                    label="Telefoni"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    hint="Numri i telefonit"
                   />
                 </div>
+
+                <FormField
+                  id="address"
+                  label="Adresa"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  textarea
+                  hint="Adresa e plotë e mysafirit"
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="guestType">Lloji i mysafirit</Label>
@@ -277,16 +266,14 @@ export function GuestForm({ weddingId, tables }: GuestFormProps) {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="dietaryRestrictions">Kufizime ushqimore</Label>
-                  <Textarea
-                    id="dietaryRestrictions"
-                    placeholder="Kufizime ushqimore ose alergji"
-                    value={formData.dietaryRestrictions}
-                    onChange={(e) => handleInputChange("dietaryRestrictions", e.target.value)}
-                    className="border-slate-200 focus:border-slate-400 rounded-xl"
-                  />
-                </div>
+                <FormField
+                  id="dietaryRestrictions"
+                  label="Kufizime ushqimore"
+                  value={formData.dietaryRestrictions}
+                  onChange={(e) => handleInputChange("dietaryRestrictions", e.target.value)}
+                  textarea
+                  hint="Alergji, kufizime ushqimore ose preferenca"
+                />
 
                 {/* Group Invitation */}
                 <div className="space-y-3 pt-2">

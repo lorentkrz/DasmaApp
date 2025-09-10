@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
-import { createServerClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 
 async function doLogout(request: Request) {
-  const supabase = await createServerClient()
+  const supabase = await createClient()
   await supabase.auth.signOut()
-  // Redirect to login after sign-out
+  
   const url = new URL("/auth/login", request.url)
   return NextResponse.redirect(url, { status: 302 })
 }

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { DensityToggle } from "@/components/ui/density-toggle"
 import { 
   HelpCircle, 
   Phone, 
@@ -19,8 +20,9 @@ export function AccessibilityToolbar({ className = "" }: AccessibilityToolbarPro
 
   return (
     <>
-      {/* Help Button */}
-      <div className={`fixed top-4 right-4 z-50 ${className}`}>
+      {/* Accessibility Toolbar */}
+      <div className={`fixed top-4 right-4 z-50 flex flex-col gap-2 ${className}`}>
+        {/* Help Button */}
         <Button
           onClick={() => setShowHelp(!showHelp)}
           className="group relative bg-white/90 backdrop-blur-sm hover:bg-white border border-rose-200 hover:border-rose-300 text-rose-600 hover:text-rose-700 shadow-lg hover:shadow-xl rounded-full w-11 h-11 p-0 transition-all duration-300 ease-out hover:scale-110"
@@ -29,6 +31,9 @@ export function AccessibilityToolbar({ className = "" }: AccessibilityToolbarPro
           <HelpCircle className="h-5 w-5 transition-transform group-hover:scale-110" />
           <div className="absolute inset-0 rounded-full bg-rose-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </Button>
+        
+        {/* Density Toggle */}
+        <DensityToggle />
       </div>
 
       {/* Help Modal */}

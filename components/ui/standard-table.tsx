@@ -89,18 +89,18 @@ export function StandardTable<T extends { id: string }>({
 
   return (
     <div className={cn("space-y-4", className)}>
-      <div className="rounded-lg border bg-white overflow-hidden">
-        <Table>
+      <div className="glass rounded-lg overflow-hidden">
+        <Table className="density-table">
           <TableHeader>
-            <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
+            <TableRow className="bg-[var(--sidebar-bg)] dark:bg-[var(--sidebar-bg-dark)] border-b border-[var(--border-2025)] dark:border-[var(--border-dark)]">
               {columns.map((column) => (
                 <TableHead
                   key={column.key}
                   className={cn(
-                    "font-medium text-gray-700",
-                    compact ? "py-2 px-3 text-xs" : "py-3 px-4 text-sm",
+                    "font-medium text-[var(--text-heading)] dark:text-[var(--text-heading-dark)]",
+                    compact ? "text-xs" : "text-sm",
                     column.className,
-                    column.sortable && "cursor-pointer select-none hover:bg-gray-100/50"
+                    column.sortable && "cursor-pointer select-none hover:bg-[var(--card-bg)] dark:hover:bg-[var(--card-bg-dark)]"
                   )}
                   onClick={() => column.sortable && handleSort(column.key)}
                 >
@@ -120,7 +120,7 @@ export function StandardTable<T extends { id: string }>({
             {loading ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center py-8">
-                  <div className="flex items-center justify-center gap-2 text-gray-500">
+                  <div className="flex items-center justify-center gap-2 text-[var(--text-secondary)] dark:text-[var(--text-secondary-dark)]">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
                     Loading...
                   </div>
@@ -129,7 +129,7 @@ export function StandardTable<T extends { id: string }>({
             ) : sortedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center py-8">
-                  <p className="text-gray-500">{emptyMessage}</p>
+                  <p className="text-[var(--text-2025)] dark:text-[var(--text-dark)]">{emptyMessage}</p>
                 </TableCell>
               </TableRow>
             ) : (
@@ -137,7 +137,7 @@ export function StandardTable<T extends { id: string }>({
                 <TableRow
                   key={item.id}
                   className={cn(
-                    "hover:bg-gray-50/50 transition-colors",
+                    "transition-colors hover:bg-[var(--card-bg)] dark:hover:bg-[var(--card-bg-dark)] text-[var(--text-2025)] dark:text-[var(--text-dark)]",
                     onRowClick && "cursor-pointer"
                   )}
                   onClick={() => onRowClick?.(item)}
@@ -146,8 +146,9 @@ export function StandardTable<T extends { id: string }>({
                     <TableCell
                       key={column.key}
                       className={cn(
-                        compact ? "py-2 px-3 text-xs" : "py-3 px-4 text-sm",
-                        column.className
+                        compact ? "text-xs" : "text-sm",
+                        column.className,
+                        "text-[var(--text-2025)] dark:text-[var(--text-dark)]"
                       )}
                     >
                       {column.accessor(item)}

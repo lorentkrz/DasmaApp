@@ -6,7 +6,7 @@
 -- 1. BASIC CONNECTIVITY AND SETUP CHECKS
 -- ============================================================================
 
-\echo '=== BASIC SETUP CHECKS ==='
+select '=== BASIC SETUP CHECKS ===' as section;
 
 -- Check if auth.users table exists and is accessible
 SELECT 
@@ -41,7 +41,7 @@ FROM public.weddings;
 -- 2. RLS POLICY VALIDATION
 -- ============================================================================
 
-\echo '=== RLS POLICY VALIDATION ==='
+select '=== RLS POLICY VALIDATION ===' as section;
 
 -- Check RLS is enabled on critical tables
 SELECT 
@@ -80,7 +80,7 @@ ORDER BY tablename, operation;
 -- 3. AUTHENTICATION CONTEXT CHECKS
 -- ============================================================================
 
-\echo '=== AUTHENTICATION CONTEXT CHECKS ==='
+select '=== AUTHENTICATION CONTEXT CHECKS ===' as section;
 
 -- Test auth.uid() function
 SELECT 
@@ -107,7 +107,7 @@ FROM public.weddings;
 -- 4. SPECIFIC AUTHENTICATION ISSUES DIAGNOSIS
 -- ============================================================================
 
-\echo '=== AUTHENTICATION ISSUES DIAGNOSIS ==='
+select '=== AUTHENTICATION ISSUES DIAGNOSIS ===' as section;
 
 -- Check for users without profiles
 SELECT 
@@ -133,7 +133,7 @@ FROM public.weddings w
 LEFT JOIN auth.users u ON w.owner_id = u.id
 WHERE u.id IS NULL;
 
--- Check for circular dependencies in policies (common cause of infinite loops)
+-- Check for circular dependencies in policies
 WITH policy_dependencies AS (
     SELECT 
         schemaname,
@@ -161,7 +161,7 @@ FROM policy_dependencies;
 -- 5. MIDDLEWARE COMPATIBILITY CHECKS
 -- ============================================================================
 
-\echo '=== MIDDLEWARE COMPATIBILITY CHECKS ==='
+select '=== MIDDLEWARE COMPATIBILITY CHECKS ===' as section;
 
 -- Check for functions that might be called by middleware
 SELECT 
@@ -191,9 +191,8 @@ FROM (
 -- 6. RECOMMENDATIONS
 -- ============================================================================
 
-\echo '=== RECOMMENDATIONS ==='
+select '=== RECOMMENDATIONS ===' as section;
 
--- Generate recommendations based on findings
 SELECT 
     'RECOMMENDATION' as type,
     recommendation
@@ -231,10 +230,10 @@ FROM (
 -- FINAL SUMMARY
 -- ============================================================================
 
-\echo '=== SUMMARY ==='
-\echo 'This diagnostic script has completed. Review the results above to identify specific issues.'
-\echo 'Common solutions:'
-\echo '1. Run 051_ensure_profiles_table.sql if profiles issues found'
-\echo '2. Run 052_fix_authentication_issues.sql for RLS policy fixes'
-\echo '3. Check middleware configuration if auth.uid() issues persist'
-\echo '4. Verify environment variables for Supabase connection'
+select '=== SUMMARY ===' as section;
+select 'This diagnostic script has completed. Review the results above to identify specific issues.' as note;
+select 'Common solutions:' as note;
+select '1. Run 051_ensure_profiles_table.sql if profiles issues found' as note;
+select '2. Run 052_fix_authentication_issues.sql for RLS policy fixes' as note;
+select '3. Check middleware configuration if auth.uid() issues persist' as note;
+select '4. Verify environment variables for Supabase connection' as note;

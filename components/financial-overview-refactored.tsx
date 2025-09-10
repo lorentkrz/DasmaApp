@@ -30,6 +30,7 @@ import {
   Banknote
 } from "lucide-react"
 import Link from "next/link"
+import { ExpenseAddModal } from "@/components/expense-add-modal"
 
 interface FinancialOverviewProps {
   wedding: any
@@ -249,12 +250,7 @@ export function FinancialOverviewRefactored({ wedding, expenses, categories, gif
                 Përmbledhja e Buxhetit
               </CardTitle>
             </div>
-            <Button asChild size="sm" className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white border-0">
-              <Link href="/dashboard/budget/new">
-                <Plus className="h-4 w-4 mr-2" />
-                Shto Shpenzim
-              </Link>
-            </Button>
+            <ExpenseAddModal wedding={wedding} categories={categories} vendors={vendors} />
           </div>
         </CardHeader>
         <CardContent className="pt-6">

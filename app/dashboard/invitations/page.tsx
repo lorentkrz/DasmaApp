@@ -10,6 +10,7 @@ import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
 import { InvitationsListEnterprise } from "@/components/invitations-list-enterprise"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { revalidatePath } from "next/cache"
+import { InvitationCreateModal } from "@/components/invitation-create-modal"
 
 export async function generateMetadata() {
   return {
@@ -18,7 +19,7 @@ export async function generateMetadata() {
   }
 }
 
-export default async function InvitationsPage() {
+export default async function InvitationsPage({ searchParams }: { searchParams?: { q?: string; status?: string } }) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -159,6 +160,10 @@ export default async function InvitationsPage() {
     revalidatePath("/dashboard/invitations")
   }
 
+  const initialQuery = (searchParams?.q || "").trim()
+  const statusRaw = (searchParams?.status || "").trim()
+  const initialStatus = statusRaw === 'sent' || statusRaw === 'not_sent' ? statusRaw : 'all'
+
   return (
     <DashboardLayout
       title="Ftesat e Dasmës"
@@ -172,6 +177,7 @@ export default async function InvitationsPage() {
               Krijo Ftesa
             </Button>
           </form>
+          <InvitationCreateModal weddingId={currentWedding.id} guests={guests || []} groups={groups || []} />
         </div>
       }
     >
@@ -181,6 +187,8 @@ export default async function InvitationsPage() {
         invitations={invitations || []}
         guests={guests || []}
         groups={groups || []}
+        initialQuery={initialQuery}
+        initialStatus={initialStatus as any}
       />
     </DashboardLayout>
   )

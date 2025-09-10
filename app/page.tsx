@@ -26,14 +26,12 @@ const dancingScript = Dancing_Script({
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  
+  const { data: { user }, error } = await supabase.auth.getUser();
+  
   if (user) {
     redirect("/dashboard");
+  } else {
+    redirect("/auth/login");
   }
-
-  // If no user, redirect to login
-  redirect("/auth/login");
 }

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { FormField } from "@/components/ui/form-field"
 import { createClient } from "@/lib/supabase/client"
 import { ArrowLeft, Save, Star } from "lucide-react"
 import Link from "next/link"
@@ -179,87 +180,72 @@ export function VendorForm({ wedding, vendor, onSuccess }: VendorFormProps) {
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-slate-900">Informacionet e Kontaktit</h3>
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="contact_person">Personi i Kontaktit</Label>
-                <Input
-                  id="contact_person"
-                  value={formData.contact_person}
-                  onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
-                  placeholder="Agim Krasniqi"
-                />
-              </div>
+              <FormField
+                id="contact_person"
+                label="Personi i Kontaktit"
+                value={formData.contact_person}
+                onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
+                hint="Emri i personit për kontakt"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefoni</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="+383 44 123 456"
-                />
-              </div>
+              <FormField
+                id="phone"
+                label="Telefoni"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                hint="Numri i telefonit për kontakt"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="agim@fotografia.com"
-                />
-              </div>
+              <FormField
+                id="email"
+                label="Email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                hint="Adresa elektronike"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="website">Faqja Web</Label>
-                <Input
-                  id="website"
-                  type="url"
-                  value={formData.website}
-                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                  placeholder="https://fotografia.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="address">Adresa</Label>
-              <Input
-                id="address"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Rr. Nëna Terezë 123, Prishtinë"
+              <FormField
+                id="website"
+                label="Faqja Web"
+                type="url"
+                value={formData.website}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                hint="Faqja zyrtare e biznesit"
               />
             </div>
+
+            <FormField
+              id="address"
+              label="Adresa"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              hint="Adresa fizike e biznesit"
+            />
           </div>
 
           {/* Business Details */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-slate-900">Detajet e Biznesit</h3>
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="contract_amount">Shuma e Kontratës</Label>
-                <Input
-                  id="contract_amount"
-                  type="number"
-                  step="0.01"
-                  value={formData.contract_amount}
-                  onChange={(e) => setFormData({ ...formData, contract_amount: e.target.value })}
-                  placeholder="0.00"
-                />
-              </div>
+              <FormField
+                id="contract_amount"
+                label="Shuma e Kontratës"
+                type="number"
+                value={formData.contract_amount}
+                onChange={(e) => setFormData({ ...formData, contract_amount: e.target.value })}
+                hint="Shuma totale e kontratës"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="deposit_amount">Shuma e Paradhënies</Label>
-                <Input
-                  id="deposit_amount"
-                  type="number"
-                  step="0.01"
-                  value={formData.deposit_amount}
-                  onChange={(e) => setFormData({ ...formData, deposit_amount: e.target.value })}
-                />
-              </div>
+              <FormField
+                id="deposit_amount"
+                label="Shuma e Paradhënies"
+                type="number"
+                value={formData.deposit_amount}
+                onChange={(e) => setFormData({ ...formData, deposit_amount: e.target.value })}
+                hint="Shuma e paradhënies së paguar"
+              />
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">

@@ -16,10 +16,15 @@ interface TaskAddModalProps {
   boardName?: string
   weddingId: string
   trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function TaskAddModal({ boardId, boardName, weddingId, trigger }: TaskAddModalProps) {
-  const [open, setOpen] = useState(false)
+export function TaskAddModal({ boardId, boardName, weddingId, trigger, open, onOpenChange }: TaskAddModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isControlled = typeof open === 'boolean'
+  const openState = isControlled ? open! : internalOpen
+  const setOpenState = isControlled ? (onOpenChange || (() => {})) : setInternalOpen
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
@@ -65,7 +70,7 @@ export function TaskAddModal({ boardId, boardName, weddingId, trigger }: TaskAdd
         due_date: "",
         board_id: boardId || ""
       })
-      setOpen(false)
+      setOpenState(false)
       router.refresh()
     } catch (error) {
       console.error("Error creating task:", error)
@@ -82,7 +87,7 @@ export function TaskAddModal({ boardId, boardName, weddingId, trigger }: TaskAdd
   )
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={openState} onOpenChange={setOpenState}>
       <DialogTrigger asChild>
         {trigger || defaultTrigger}
       </DialogTrigger>
@@ -160,7 +165,7 @@ export function TaskAddModal({ boardId, boardName, weddingId, trigger }: TaskAdd
           )}
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="hover:bg-gray-50 shadow-sm transition-all duration-200 hover:shadow-md">
+            <Button type="button" variant="outline" onClick={() => setOpenState(false)} className="hover:bg-gray-50 shadow-sm transition-all duration-200 hover:shadow-md">
               Anulo
             </Button>
             <Button type="submit" disabled={loading || !formData.title.trim()}>

@@ -117,7 +117,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
   return (
     <div
       className={cn(
-        "flex h-full flex-col bg-gradient-to-b from-stone-50 via-rose-50/30 to-amber-50/20 border-r border-stone-200/50 backdrop-blur-sm transition-all duration-300 relative",
+        "flex h-full flex-col bg-[var(--sidebar-bg)] dark:bg-[var(--sidebar-bg-dark)] border-r border-[var(--border-2025)] dark:border-[var(--border-dark)] backdrop-blur-sm transition-all duration-300 relative",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -140,13 +140,13 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
       </div>
 
       {/* Header */}
-      <div className="relative flex items-center justify-between p-4 border-b border-stone-200/50">
+      <div className="relative flex items-center justify-between p-4 border-b border-[var(--border-2025)] dark:border-[var(--border-dark)]">
         {!collapsed && (
           <div className="flex items-center gap-3">
-            <div className="text-xl text-stone-700">♥</div>
+            <div className="text-xl text-[var(--text-heading)] dark:text-[var(--text-heading-dark)]">♥</div>
             <div>
               <span
-                className={`${playfair.className} font-semibold text-stone-700 text-lg`}
+                className={`${playfair.className} font-semibold text-[var(--text-heading)] dark:text-[var(--text-heading-dark)] text-lg`}
               >
                 Dasma Aktuale
               </span>
@@ -157,7 +157,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
           variant="ghost"
           size="sm"
           onClick={() => setCollapsed(!collapsed)}
-          className="h-8 w-8 p-0 hover:bg-stone-100/50 text-stone-600"
+          className="h-8 w-8 p-0 hover:bg-[var(--card-bg)] dark:hover:bg-[var(--card-bg-dark)] text-[var(--text-2025)] dark:text-[var(--text-dark)]"
         >
           {collapsed ? (
             <ChevronRight className="h-4 w-4" />
@@ -174,20 +174,20 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
             <div>
               {/* Wedding Info */}
               {!collapsed && (
-                <div className="relative p-4 border-b border-stone-200/50 bg-white/30 backdrop-blur-sm">
+                <div className="relative p-4 border-b border-[var(--border-2025)] dark:border-[var(--border-dark)] bg-[var(--card-bg)]/50 dark:bg-[var(--card-bg-dark)]/50 backdrop-blur-sm">
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <Crown className="h-4 w-4 text-amber-600" />
+                      <Crown className="h-4 w-4 text-[#4338CA]" />
                       <span
-                        className={`${playfair.className} text-sm font-semibold text-stone-800`}
+                        className={`${playfair.className} text-sm font-semibold text-[var(--text-heading)] dark:text-[var(--text-heading-dark)]`}
                       >
                         {weddings[0].groom_name} & {weddings[0].bride_name}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-stone-500" />
+                      <Calendar className="h-4 w-4 text-[var(--text-muted)] dark:text-[var(--text-muted-dark)]" />
                       <span
-                        className={`${playfair.className} text-xs text-stone-600 font-medium`}
+                        className={`${playfair.className} text-xs text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] font-medium`}
                       >
                         {new Date(weddings[0].wedding_date).toLocaleDateString(
                           "sq-AL",
@@ -209,7 +209,7 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
           <nav>
             {!collapsed && (
               <h3
-                className={`${playfair.className} text-sm font-semibold text-stone-600 mb-3 tracking-wide`}
+                className={`${playfair.className} text-sm font-semibold text-[var(--text-muted)] dark:text-[var(--text-muted-dark)] mb-3 tracking-wide`}
               >
                 NAVIGIMI
               </h3>
@@ -222,14 +222,15 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
                     <Link
                       href={item.href}
                       className={cn(
-                        `${playfair.className} flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 hover:bg-white/60 hover:shadow-md border-2 border-stone-200/30 hover:border-stone-300/50`,
+                        `${playfair.className} group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 hover:shadow-md border border-[var(--border-2025)] dark:border-[var(--border-dark)]`,
                         isActive
-                          ? "bg-white/80 text-stone-800 font-semibold shadow-md border-stone-300/60 backdrop-blur-sm"
-                          : "text-stone-600 hover:text-stone-800",
+                          ? "bg-[var(--card-bg)] dark:bg-[var(--card-bg-dark)] text-[var(--text-heading)] dark:text-[var(--text-heading-dark)] font-semibold"
+                          : "text-[var(--text-2025)] dark:text-[var(--text-dark)] hover:bg-[var(--card-bg)]/70 dark:hover:bg-[var(--card-bg-dark)]/40 hover:text-[var(--text-heading)] dark:hover:text-[var(--text-heading-dark)]",
                         collapsed && "justify-center px-2"
                       )}
                     >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className={cn("absolute inset-y-0 left-0 w-2 rounded-l-xl", isActive ? "bg-[linear-gradient(180deg,#4338CA,#2563EB)]" : "bg-transparent group-hover:bg-[linear-gradient(180deg,#4338CA,#2563EB)]/60")}/>
+                      <item.icon className="h-4 w-4 flex-shrink-0 transition-colors text-[var(--text-muted)] group-hover:text-[var(--text-heading)] dark:text-[var(--text-muted-dark)] dark:group-hover:text-[var(--text-heading-dark)]" />
                       {!collapsed && <span>{item.name}</span>}
                     </Link>
                   </li>
@@ -241,13 +242,13 @@ export function DashboardSidebar({ weddings }: DashboardSidebarProps) {
       </ScrollArea>
 
       {/* Footer */}
-      <div className="relative p-4 border-t border-stone-200/50 bg-white/20 backdrop-blur-sm">
+      <div className="relative p-4 border-t border-[var(--border-2025)] dark:border-[var(--border-dark)] bg-[var(--card-bg)]/30 dark:bg-[var(--card-bg-dark)]/30 backdrop-blur-sm">
         <Button
           asChild
           variant="ghost"
           size="sm"
           className={cn(
-            `${playfair.className} w-full justify-start hover:bg-white/60 text-stone-600 hover:text-stone-800 rounded-xl font-medium border-2 border-stone-200/30 hover:border-stone-300/50 hover:shadow-md transition-all duration-200`,
+            `${playfair.className} w-full justify-start hover:bg-[var(--card-bg)] dark:hover:bg-[var(--card-bg-dark)] text-[var(--text-2025)] dark:text-[var(--text-dark)] hover:text-[var(--text-heading)] dark:hover:text-[var(--text-heading-dark)] rounded-xl font-medium border border-[var(--border-2025)] dark:border-[var(--border-dark)] hover:border-[#4338CA]/50 hover:shadow-md transition-all duration-200`,
             collapsed && "justify-center px-2"
           )}
         >

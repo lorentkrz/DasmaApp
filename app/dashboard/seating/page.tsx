@@ -7,7 +7,7 @@ import { SeatingChart } from "@/components/seating-chart"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Plus, Download, Armchair, MapPin, X, Loader2, Settings } from "lucide-react"
+import { Users, Plus, Download, LayoutGrid, MapPin, X, Loader2, Settings } from "lucide-react"
 import Link from "next/link"
 import { BeautifulPDFExport } from "@/components/beautiful-pdf-export"
 import { TableCardsExport } from "@/components/table-cards-export"
@@ -135,7 +135,7 @@ export default function SeatingPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center border">
-                <Armchair className="h-5 w-5 text-gray-600" />
+                <LayoutGrid className="h-5 w-5 text-gray-600" />
               </div>
               <h1 className="text-2xl font-semibold text-gray-900">
                 Plani i Uljes
@@ -305,7 +305,7 @@ export default function SeatingPage() {
             <Card className="border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <Armchair className="h-6 w-6 text-gray-600" />
+                  <LayoutGrid className="h-6 w-6 text-gray-600" />
                   <div>
                     <CardTitle className="text-xl font-semibold text-gray-900">Rregullimi i Uljes</CardTitle>
                     <CardDescription className="text-gray-600 mt-1">

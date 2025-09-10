@@ -7,9 +7,10 @@ import { VendorEditDialog } from "@/components/vendor-edit-dialog"
 interface VendorListWrapperProps {
   wedding: any
   vendors: any[]
+  initialQuery?: string
 }
 
-export function VendorListWrapper({ wedding, vendors }: VendorListWrapperProps) {
+export function VendorListWrapper({ wedding, vendors, initialQuery }: VendorListWrapperProps) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<any | null>(null)
 
@@ -17,6 +18,7 @@ export function VendorListWrapper({ wedding, vendors }: VendorListWrapperProps) 
     <>
       <VendorListRefactored
         vendors={vendors}
+        initialQuery={initialQuery}
         onEdit={(vendor) => {
           setSelected(vendor)
           setOpen(true)

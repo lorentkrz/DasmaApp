@@ -4,26 +4,26 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated to wedding theme colors - warm amber primary, soft lavender accent, cream neutrals */
-  --background: oklch(1 0 0); /* Warm cream background */
-  --foreground: oklch(0.145 0 0); /* Deep charcoal text */
-  --card: oklch(1 0 0); /* Slightly warmer card background */
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0); /* Warm amber primary */
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0); /* Soft cream secondary */
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0); /* Soft lavender accent */
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* High-contrast palette per user spec */
+  --background: #D9E0EB;         /* page bg */
+  --foreground: #0F172A;         /* main text */
+  --card: rgba(255, 255, 255, 0.95);
+  --card-foreground: #0F172A;
+  --popover: rgba(255, 255, 255, 0.95);
+  --popover-foreground: #0F172A;
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #E4E9F2;          /* sidebar */
+  --secondary-foreground: #1F2937;
+  --muted: #F1F3F7;
+  --muted-foreground: #4B5563;   /* secondary/muted */
+  --accent: #E2E8F0;
+  --accent-foreground: #1E293B;  /* headings/bold */
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(0,0,0,0.16);
+  --input: rgba(0,0,0,0.16);
+  --ring: #4338CA;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -38,35 +38,84 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* 2025 Tokens used by components */
+  --bg: #E4E9F2;
+  --bg-dark: #0A0F1A;
+  --card-bg: rgba(255,255,255,0.95);
+  --card-bg-dark: rgba(8,12,24,0.88);
+  --overlay-bg: rgba(255,255,255,0.45);
+  --overlay-bg-dark: rgba(0,0,0,0.18);
+  --sidebar-bg: #E4E9F2;
+  --sidebar-bg-dark: #111827;
+  --border-2025: rgba(0,0,0,0.16);
+  --border-dark: rgba(255,255,255,0.16);
+  --text-2025: #0F172A;
+  --text-dark: #F1F5F9;
+  --text-secondary: #4B5563;
+  --text-secondary-dark: #A0AEC0;
+  --text-heading: #1E293B;
+  --text-heading-dark: #E2E8F0;
+  --gradient-primary-2025: linear-gradient(90deg, #4338CA 0%, #2563EB 100%);
+  /* Density tokens */
+  --space-card: 1rem;           /* default card padding */
+  --space-table-y: 0.75rem;     /* default table cell y padding */
+  --space-table-x: 1rem;        /* default table cell x padding */
+}
+
+/* Compact density overrides */
+html[data-density="compact"] {
+  --space-card: 0.5rem;
+  --space-table-y: 0.375rem;
+  --space-table-x: 0.5rem;
+}
+
+/* Density helpers */
+.density-card {
+  padding: var(--space-card);
+}
+
+.density-table thead th,
+.density-table tbody td {
+  padding-top: var(--space-table-y);
+  padding-bottom: var(--space-table-y);
+  padding-left: var(--space-table-x);
+  padding-right: var(--space-table-x);
 }
 
 .dark {
-  /* Dark mode with elegant wedding theme */
-  --background: oklch(0.145 0 0); /* Deep charcoal background */
-  --foreground: oklch(0.985 0 0); /* Warm cream text */
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0); /* Brighter amber for dark mode */
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0); /* Brighter lavender for dark mode */
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  /* Dark mode per user spec */
+  --background: #0A0F1A;
+  --foreground: #F1F5F9;
+  --card: rgba(8,12,24,0.88);
+  --card-foreground: #F1F5F9;
+  --popover: rgba(8,12,24,0.88);
+  --popover-foreground: #F1F5F9;
+  --primary: #3B82F6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #111827;
+  --secondary-foreground: #CBD5E1;
+  --muted: #141B2E;
+  --muted-foreground: #A0AEC0;
+  --accent: #141B2E;
+  --accent-foreground: #E2E8F0;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(255,255,255,0.16);
+  --input: rgba(255,255,255,0.16);
+  --ring: #4338CA;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
+  --sidebar: #111827;
+  --sidebar-foreground: #F1F5F9;
+  --sidebar-primary: #3B82F6;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #141B2E;
+  --sidebar-accent-foreground: #E2E8F0;
+  --sidebar-border: rgba(255,255,255,0.16);
+  --sidebar-ring: #4338CA;
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -124,4 +173,32 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Density-aware helpers */
+  .density-table th,
+  .density-table td {
+    padding-top: var(--space-table-y);
+    padding-bottom: var(--space-table-y);
+    padding-left: var(--space-table-x);
+    padding-right: var(--space-table-x);
+  }
+  .density-card {
+    padding: var(--space-card);
+  }
+  /* Glass surface and motion */
+  .glass {
+    background-color: var(--card-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border-2025);
+    box-shadow: 0 10px 16px rgba(0,0,0,0.12);
+  }
+  .dark .glass {
+    background-color: var(--card-bg-dark);
+    border: 1px solid var(--border-dark);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+  }
+  [data-slot="card"] {
+    transition: transform 200ms cubic-bezier(.2,.9,.27,1), box-shadow 200ms cubic-bezier(.2,.9,.27,1);
+  }
+  [data-slot="card"]:hover { transform: scale(1.02); }
 }

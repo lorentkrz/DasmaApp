@@ -32,29 +32,44 @@ export default async function TasksPage() {
 
   const wedding = weddings?.[0]
   if (!wedding) redirect("/dashboard/weddings/new")
+  const isOwner = wedding?.owner_id === user.id
 
   // Load task boards
-  let { data: boards } = await supabase
+  let { data: boards, error: boardsError } = await supabase
     .from("task_boards")
     .select("*")
     .eq("wedding_id", wedding.id)
     .order("position", { ascending: true })
 
+  console.log('Boards query debug:', {
+    weddingId: wedding.id,
+    boardsCount: boards?.length || 0,
+    boardsError: boardsError?.message,
+    boards: boards
+  })
+
   // Seed default boards if none exist
   if (!boards || boards.length === 0) {
-    const defaults = [
-      { name: "To Do", position: 1, color: "#e5e7eb" },
-      { name: "In Progress", position: 2, color: "#bfdbfe" },
-      { name: "Review", position: 3, color: "#fef3c7" },
-      { name: "Done", position: 4, color: "#bbf7d0" },
-    ].map((b) => ({ ...b, wedding_id: wedding.id }))
-    await supabase.from("task_boards").insert(defaults)
-    const boardsRes = await supabase
-      .from("task_boards")
-      .select("*")
-      .eq("wedding_id", wedding.id)
-      .order("position", { ascending: true })
-    boards = boardsRes.data || []
+    if (isOwner) {
+      const defaults = [
+        { name: "To Do", position: 1, color: "#e5e7eb" },
+        { name: "In Progress", position: 2, color: "#bfdbfe" },
+        { name: "Review", position: 3, color: "#fef3c7" },
+        { name: "Done", position: 4, color: "#bbf7d0" },
+      ].map((b) => ({ ...b, wedding_id: wedding.id }))
+      const { error: insertErr } = await supabase.from("task_boards").insert(defaults)
+      if (insertErr) {
+        console.log('Boards seed insert error:', insertErr.message)
+      }
+      const boardsRes = await supabase
+        .from("task_boards")
+        .select("*")
+        .eq("wedding_id", wedding.id)
+        .order("position", { ascending: true })
+      boards = boardsRes.data || []
+    } else {
+      console.log('Skipping default boards seeding: user is not wedding owner')
+    }
   }
 
   // Get tasks (order by position within board)

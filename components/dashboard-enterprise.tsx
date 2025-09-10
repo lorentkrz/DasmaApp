@@ -26,11 +26,12 @@ interface DashboardProps {
   tasks: any[]
   invitations: any[]
   cashGifts: any[]
+  hideHeaderStats?: boolean
 }
 
 const COLORS = ['#34d399', '#f87171', '#fbbf24', '#9ca3af']
 
-export function DashboardEnterprise({ wedding, guests, expenses, vendors, tasks, invitations, cashGifts }: DashboardProps) {
+export function DashboardEnterprise({ wedding, guests, expenses, vendors, tasks, invitations, cashGifts, hideHeaderStats = false }: DashboardProps) {
   const totalGuests = guests.length
   const confirmedGuests = guests.filter(g => g.rsvp_status === 'attending').length
   const totalBudget = Number(wedding.budget_total || 0)
@@ -92,6 +93,7 @@ export function DashboardEnterprise({ wedding, guests, expenses, vendors, tasks,
   return (
     <div className="space-y-6">
       {/* Header Stats */}
+      {!hideHeaderStats && (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <Card>
           <CardHeader className="flex justify-between items-center pb-2">
@@ -134,6 +136,7 @@ export function DashboardEnterprise({ wedding, guests, expenses, vendors, tasks,
           </CardContent>
         </Card>
       </div>
+      )}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

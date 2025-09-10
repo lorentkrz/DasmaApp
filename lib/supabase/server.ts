@@ -1,105 +1,30 @@
-import { createServerClient as createSupabaseServerClient } from "@supabase/ssr"
+import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
-/**
- * Especially important if using Fluid compute: Don't put this client in a
- * global variable. Always create a new client within each function when using
- * it.
- */
-export async function createServerClient() {
+export async function createClient() {
   const cookieStore = await cookies()
 
-  return createSupabaseServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll()
-      },
-      setAll(cookiesToSet) {
-        try {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, {
-              ...options,
-              // Critical cookie settings for production
-              sameSite: 'lax',
-              secure: process.env.NODE_ENV === 'production',
-              httpOnly: true, // More secure for auth cookies
-              path: '/',
-              // Max age for persistent sessions (30 days)
-              maxAge: 60 * 60 * 24 * 30,
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              // IMPORTANT: preserve options from Supabase as-is
+              // Do not override httpOnly/sameSite/secure/path
+              cookieStore.set(name, value, options)
             })
-          })
-        } catch (error: any) {
-          // The "setAll" method was called from a Server Component.
-          // This can be ignored if you have middleware refreshing
-          // user sessions.
-          console.warn("Cookie setting failed in Server Component:", {
-            error: error?.message,
-            cookieCount: cookiesToSet.length,
-            hasMiddleware: true
-          })
-        }
+          } catch (error: any) {
+            // If setAll is called in a Server Component context and fails,
+            // it is safe to ignore because middleware will refresh sessions.
+          }
+        },
       },
-    },
-  })
-}
-
-/**
- * Enhanced server client with automatic retry and better error handling
- */
-export async function createServerClientWithRetry() {
-  let retries = 0
-  const maxRetries = 2
-
-  while (retries < maxRetries) {
-    try {
-      const client = await createServerClient()
-
-      // Test the connection with a simple auth check
-      const { data, error } = await client.auth.getUser()
-
-      if (error && retries < maxRetries - 1) {
-        console.log(`Auth check failed (attempt ${retries + 1}/${maxRetries}):`, error.message)
-        retries++
-        // Small delay before retry
-        await new Promise(resolve => setTimeout(resolve, 100))
-        continue
-      }
-
-      return client
-    } catch (error: any) {
-      console.error(`Server client creation failed (attempt ${retries + 1}/${maxRetries}):`, error?.message)
-      if (retries >= maxRetries - 1) {
-        throw error
-      }
-      retries++
     }
-  }
-
-  // Fallback to regular client
-  return createServerClient()
-}
-
-// Keep the original export for backward compatibility
-export async function createClient() {
-  return createServerClient()
-}
-
-/**
- * Utility function to safely get user with proper error handling
- */
-export async function getSafeUser() {
-  try {
-    const supabase = await createServerClient()
-    const { data: { user }, error } = await supabase.auth.getUser()
-
-    if (error) {
-      console.warn("User fetch error:", error.message)
-      return { user: null, error }
-    }
-
-    return { user, error: null }
-  } catch (error: any) {
-    console.error("Safe user fetch failed:", error?.message)
-    return { user: null, error }
-  }
+  )
 }

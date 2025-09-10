@@ -7,7 +7,7 @@ import { Store } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
-export default async function VendorsPage() {
+export default async function VendorsPage({ searchParams }: { searchParams?: { q?: string } }) {
   const supabase = await createClient()
 
   const {
@@ -33,6 +33,8 @@ export default async function VendorsPage() {
     .eq("wedding_id", wedding.id)
     .order("created_at", { ascending: false })
 
+  const initialQuery = (searchParams?.q || "").trim()
+
   return (
     <DashboardLayout
       title="Shitësit & Kontratat"
@@ -40,7 +42,7 @@ export default async function VendorsPage() {
       icon="Store"
       actions={<VendorAddButton wedding={wedding} />}
     >
-      <VendorListWrapper wedding={wedding} vendors={vendors || []} />
+      <VendorListWrapper wedding={wedding} vendors={vendors || []} initialQuery={initialQuery} />
     </DashboardLayout>
   )
 }

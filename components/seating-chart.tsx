@@ -436,8 +436,8 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
           </div>
         )}
 
-        {/* Zoom controls toggle */}
-        <div className="absolute bottom-3 left-3">
+        {/* Zoom controls toggle (top-right) */}
+        <div className="absolute top-3 right-3 flex flex-col items-end">
           <Button 
             size="icon" 
             variant="outline" 

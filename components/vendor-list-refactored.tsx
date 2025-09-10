@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { StandardDropdown } from "@/components/ui/standard-dropdown"
-import { StandardTable } from "@/components/ui/standard-table"
+import { StandardTableEnhanced } from "@/components/standard-table-enhanced"
+import { KPIGrid } from "@/components/dashboard/KPIGrid"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { 
@@ -34,11 +35,13 @@ import {
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { useRouter } from "next/navigation"
 
 interface VendorListProps {
   vendors: any[]
   onEdit?: (vendor: any) => void
+  initialQuery?: string
 }
 
 const statusOptions = [
@@ -59,8 +62,8 @@ const categoryOptions = [
   { label: "Tjetër", value: "other" }
 ]
 
-export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
-  const [searchTerm, setSearchTerm] = useState("")
+export function VendorListRefactored({ vendors, onEdit, initialQuery }: VendorListProps) {
+  const [searchTerm, setSearchTerm] = useState(initialQuery || "")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [selectedView, setSelectedView] = useState("cards")
@@ -136,7 +139,7 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
   })
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
+    const statusConfig: Record<string, { label: string; className: string }> = {
       considering: { label: "Duke menduar", className: "bg-gray-100 text-gray-800" },
       contacted: { label: "Kontaktuar", className: "bg-blue-100 text-blue-800" },
       booked: { label: "Rezervuar", className: "bg-green-100 text-green-800" },
@@ -147,7 +150,7 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
   }
 
   const getCategoryIcon = (category: string) => {
-    const icons = {
+    const icons: Record<string, string> = {
       photography: "📸",
       music: "🎵",
       flowers: "🌺",
@@ -197,12 +200,12 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
       <div className="flex items-center gap-2">
         {onEdit ? (
           <Button size="sm" variant="ghost" onClick={() => onEdit(vendor)}>
-            <Edit className="h-4 w-4" />
+            Edit
           </Button>
         ) : (
           <Link href={`/dashboard/vendors/${vendor.id}/edit`}>
             <Button size="sm" variant="ghost">
-              <Edit className="h-4 w-4" />
+              Edit
             </Button>
           </Link>
         )}
@@ -213,108 +216,188 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
             setVendorToDelete(vendor)
             setDeleteDialogOpen(true)
           }}
+          className="text-red-600 hover:text-red-700"
         >
-          <Trash2 className="h-4 w-4 text-red-500" />
+          Delete
         </Button>
       </div>
     )
   }))
 
+  const handleRowEdit = async (vendor: any, key: string, value: any) => {
+    try {
+      const { error } = await supabase
+        .from("vendors")
+        .update({ [key]: value })
+        .eq("id", vendor.id)
+      
+      if (error) throw error
+      
+      toast({
+        title: "Shitësi u përditësua",
+        description: "Të dhënat u ruajtën me sukses"
+      })
+      
+      router.refresh()
+    } catch (error) {
+      console.error("Error updating vendor:", error)
+      toast({
+        title: "Gabim",
+        description: "Nuk u arrit të përditësohen të dhënat",
+        variant: "destructive"
+      })
+    }
+  }
+
   // Calculate totals
   const totalContract = vendors.reduce((sum, v) => sum + Number(v.contract_amount || 0), 0)
   const totalDeposit = vendors.reduce((sum, v) => sum + Number(v.deposit_amount || 0), 0)
   const bookedCount = vendors.filter(v => v.status === 'booked').length
+  const remainingBalance = totalContract - totalDeposit
+
+  const kpis = [
+    { title: "Total Shitës", value: vendors.length.toString(), delta: null },
+    { title: "Të Rezervuar", value: bookedCount.toString(), delta: { value: `${Math.round((bookedCount / vendors.length) * 100)}%`, positive: true } },
+    { title: "Vlera Totale", value: `€${totalContract.toLocaleString()}`, delta: null },
+    { title: "Bilanci i Mbetur", value: `€${remainingBalance.toLocaleString()}`, delta: { value: `${Math.round((totalDeposit / totalContract) * 100)}% paguar`, positive: remainingBalance <= totalContract * 0.5 } },
+  ]
+
+  const vendorColumns = [
+    { 
+      key: "name", 
+      header: "Emri", 
+      accessor: (vendor: any) => (
+        <div>
+          <div className="font-medium">{vendor.name}</div>
+          {vendor.company && <div className="text-sm text-[color:var(--muted-2025)] dark:text-[color:var(--muted-dark)]">{vendor.company}</div>}
+        </div>
+      ),
+      sortable: true,
+      editable: false
+    },
+    { 
+      key: "category", 
+      header: "Kategoria", 
+      accessor: (vendor: any) => (
+        <div className="flex items-center gap-2">
+          <span>{getCategoryIcon(vendor.category)}</span>
+          <span className="capitalize">{vendor.category || 'Tjetër'}</span>
+        </div>
+      ),
+      sortable: true,
+      editable: false
+    },
+    { 
+      key: "status", 
+      header: "Statusi", 
+      accessor: (vendor: any) => getStatusBadge(vendor.status),
+      sortable: true,
+      editable: false
+    },
+    { 
+      key: "contact_person", 
+      header: "Kontakti", 
+      sortable: true,
+      editable: true
+    },
+    { 
+      key: "phone", 
+      header: "Telefoni", 
+      sortable: true,
+      editable: true
+    },
+    { 
+      key: "deposit_amount", 
+      header: "Depozita", 
+      accessor: (vendor: any) => vendor.deposit_amount ? `€${Number(vendor.deposit_amount).toLocaleString()}` : '-',
+      sortable: true,
+      editable: true,
+      className: "text-right tabular-nums"
+    },
+    { 
+      key: "contract_amount", 
+      header: "Kontrata", 
+      accessor: (vendor: any) => `€${Number(vendor.contract_amount || 0).toLocaleString()}`,
+      sortable: true,
+      editable: true,
+      className: "text-right tabular-nums"
+    },
+    {
+      key: "actions",
+      header: "Veprime",
+      accessor: (vendor: any) => (
+        <div className="flex items-center justify-end gap-1">
+          {onEdit ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" variant="ghost" onClick={() => onEdit(vendor)} className="h-7 w-7">
+                  <Edit className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Edito</TooltipContent>
+            </Tooltip>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href={`/dashboard/vendors/${vendor.id}/edit`}>
+                  <Button size="icon" variant="ghost" className="h-7 w-7">
+                    <Edit className="h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>Edito</TooltipContent>
+            </Tooltip>
+          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                size="icon" 
+                variant="ghost" 
+                onClick={() => {
+                  setVendorToDelete(vendor)
+                  setDeleteDialogOpen(true)
+                }}
+                className="h-7 w-7 text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Fshi</TooltipContent>
+          </Tooltip>
+        </div>
+      ),
+      editable: false,
+      className: "text-right"
+    }
+  ] as const
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-0 shadow-xl">
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-1">Total Shitës</p>
-            <p className="text-2xl font-bold text-gray-900">{vendors.length}</p>
-          </CardContent>
-        </Card>
+      <KPIGrid items={kpis as any} />
 
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-0 shadow-xl">
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-1">Të Rezervuar</p>
-            <p className="text-2xl font-bold text-gray-900">{bookedCount}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-0 shadow-xl">
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-1">Vlera Totale</p>
-            <p className="text-2xl font-bold text-gray-900">€{totalContract.toLocaleString()}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-0 shadow-xl">
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-1">Depozita Paguar</p>
-            <p className="text-2xl font-bold text-gray-900">€{totalDeposit.toLocaleString()}</p>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-[color:var(--text-2025)] dark:text-[color:var(--text-dark)]">
+          Shitësit & Kontratat
+        </h2>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={selectedView === "cards" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedView("cards")}
+            className="rounded-r-none"
+          >
+            Kartela
+          </Button>
+          <Button
+            variant={selectedView === "list" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedView("list")}
+            className="rounded-l-none"
+          >
+            Tabelë
+          </Button>
+        </div>
       </div>
-
-      {/* Search and Filters */}
-      <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl font-bold text-gray-800">Filtro Shitësit</CardTitle>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={selectedView === "cards" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedView("cards")}
-                className="rounded-r-none"
-              >
-                Kartela
-              </Button>
-              <Button
-                variant={selectedView === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedView("list")}
-                className="rounded-l-none"
-              >
-                Listë
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Kërko sipas emrit, kompanisë ose kontaktit..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <StandardDropdown
-              value={selectedStatus}
-              onValueChange={setSelectedStatus}
-              options={statusOptions}
-              placeholder="Statusi"
-              className="w-full"
-            />
-            <StandardDropdown
-              value={selectedCategory}
-              onValueChange={setSelectedCategory}
-              options={categoryOptions}
-              placeholder="Kategoria"
-              className="w-full"
-            />
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Vendors Display */}
       {filteredVendors.length === 0 ? (
@@ -428,49 +511,39 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
                   <div className="flex items-center gap-2">
                     {onEdit ? (
                       <Button size="sm" variant="outline" onClick={() => onEdit(vendor)}>
-                        <Edit className="h-4 w-4 mr-1" />
-                        Edito
+                        Edit
                       </Button>
                     ) : (
                       <Link href={`/dashboard/vendors/${vendor.id}/edit`}>
                         <Button size="sm" variant="outline">
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edito
+                          Edit
                         </Button>
                       </Link>
                     )}
                     <Button 
                       size="sm" 
-                      variant="outline"
+                      variant="ghost" 
                       onClick={() => {
                         setVendorToDelete(vendor)
                         setDeleteDialogOpen(true)
                       }}
                       className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      Delete
                     </Button>
                   </div>
-                  {vendor.final_payment_due && (
-                    <span className="text-xs text-gray-600">
-                      Afati: {new Date(vendor.final_payment_due).toLocaleDateString('sq-AL')}
-                    </span>
-                  )}
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       ) : (
-        <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
-          <CardContent className="p-0">
-            <StandardTable
-              columns={columns}
-              data={tableData}
-              pageSize={10}
-            />
-          </CardContent>
-        </Card>
+        <StandardTableEnhanced
+          data={filteredVendors as any}
+          columns={vendorColumns as any}
+          onRowEdit={handleRowEdit}
+          emptyMessage="Nuk ka shitës"
+        />
       )}
 
       {/* Footer */}
@@ -497,7 +570,7 @@ export function VendorListRefactored({ vendors, onEdit }: VendorListProps) {
         confirmText="Fshi"
         cancelText="Anulo"
         onConfirm={handleDelete}
-        isLoading={deletingId === vendorToDelete?.id}
+        loading={deletingId === vendorToDelete?.id}
         variant="destructive"
       />
     </div>

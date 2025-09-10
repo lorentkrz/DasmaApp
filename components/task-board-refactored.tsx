@@ -33,6 +33,7 @@ import {
   Users,
   FileText
 } from "lucide-react"
+import { format } from "date-fns"
 import { createClient } from "@/lib/supabase/client"
 import { TaskAddModal } from "@/components/task-add-modal"
 import Link from "next/link"
@@ -42,7 +43,7 @@ import { useToast } from "@/hooks/use-toast"
 interface TaskBoardProps {
   boards: any[]
   tasks: any[]
-  weddingId?: string
+  weddingId: string
 }
 
 const priorityOptions = [
@@ -67,6 +68,14 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
   const router = useRouter()
   const { toast } = useToast()
 
+  // Debug logging
+  console.log('=== TASK BOARD DEBUG ===')
+  console.log('Boards count:', boards?.length || 0)
+  console.log('Tasks count:', tasks?.length || 0)
+  console.log('Boards:', boards)
+  console.log('Tasks:', tasks)
+  console.log('Wedding ID:', weddingId)
+
   const filteredTasks = tasks.filter((task) => {
     const title = (task.title || "").toString()
     const description = (task.description || "").toString()
@@ -84,7 +93,7 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
   })
 
   const getPriorityBadge = (priority: string) => {
-    const configs = {
+    const configs: Record<"urgent" | "high" | "medium" | "low", { label: string; className: string; icon: React.ReactNode }> = {
       urgent: { 
         label: "Urgjente", 
         className: "bg-red-100 text-red-800 border-red-200",
@@ -106,12 +115,12 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
         icon: <Circle className="h-3 w-3" />
       }
     }
-    
-    const config = configs[priority] || { 
-      label: priority, 
-      className: "bg-gray-100 text-gray-800",
-      icon: null 
-    }
+
+    const allowed = ["urgent", "high", "medium", "low"] as const
+    const isAllowed = (p: string): p is typeof allowed[number] => (allowed as readonly string[]).includes(p)
+    const config = isAllowed(priority)
+      ? configs[priority]
+      : { label: priority, className: "bg-gray-100 text-gray-800", icon: null }
     
     return (
       <Badge className={`${config.className} flex items-center gap-1`}>
@@ -258,57 +267,32 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
 
   return (
     <div className="space-y-6">
-      {/* Search and Filters */}
-      <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-xl">
-        <CardHeader className="bg-gradient-to-r from-gray-50 to-slate-50 border-b">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Filter className="h-4 w-4 text-white" />
-                </div>
-                Filtro Detyrat
-              </CardTitle>
-              <CardDescription>Gjeni dhe organizoni detyrat tuaja</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={selectedView === "kanban" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedView("kanban")}
-                className="rounded-r-none"
-              >
-                Kanban
-              </Button>
-              <Button
-                variant={selectedView === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedView("list")}
-                className="rounded-l-none"
-              >
-                Listë
-              </Button>
-            </div>
+      {/* Glass Header */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-[color:var(--text-2025)] dark:text-[color:var(--text-dark)]">Detyrat e Dasmës</h1>
+            <p className="text-sm text-[color:var(--muted-2025)] dark:text-[color:var(--muted-dark)] mt-1">
+              Organizoni dhe ndiqni detyrat për dasmën tuaj
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Kërko detyra..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <StandardDropdown
-              value={selectedPriority}
-              onValueChange={(value) => setSelectedPriority(Array.isArray(value) ? value[0] : value)}
-              options={priorityOptions}
-              placeholder="Prioriteti"
-              className="w-48"
-            />
+          <div className="flex items-center gap-2">
+            <Button
+              variant={selectedView === "kanban" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedView("kanban")}
+              className="rounded-r-none"
+            >
+              Kanban
+            </Button>
+            <Button
+              variant={selectedView === "list" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedView("list")}
+              className="rounded-l-none"
+            >
+              Listë
+            </Button>
             <Button asChild className="bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white border-0">
               <Link href="/dashboard/tasks/new">
                 <Plus className="h-4 w-4 mr-2" />
@@ -316,8 +300,28 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
               </Link>
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Quick Filters */}
+        <div className="flex gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Kërko detyra..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <StandardDropdown
+            value={selectedPriority}
+            onValueChange={(value) => setSelectedPriority(Array.isArray(value) ? value[0] : value)}
+            options={priorityOptions}
+            placeholder="Prioriteti"
+            className="w-48"
+          />
+        </div>
+      </div>
 
       {/* Task Board View */}
       {selectedView === "kanban" ? (
@@ -329,96 +333,92 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
             >
-              {/* Column Header */}
-              <Card className={`${getBoardColor(column.position)} border-0 shadow-lg mb-4`}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-white/80 rounded-lg flex items-center justify-center shadow">
-                        {getBoardIcon(column.position)}
-                      </div>
-                      {renamingBoardId === column.id ? (
-                        <Input
-                          autoFocus
-                          value={tempBoardName}
-                          onChange={(e) => setTempBoardName(e.target.value)}
-                          onBlur={() => saveBoardName(column)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") saveBoardName(column)
-                            if (e.key === "Escape") setRenamingBoardId(null)
-                          }}
-                          className="h-8 text-sm font-semibold"
-                        />
-                      ) : (
-                        <button
-                          onClick={() => startRenaming(column)}
-                          className="text-left hover:opacity-80 transition-opacity"
-                        >
-                          <h3 className="font-semibold text-gray-800">{column.name}</h3>
-                        </button>
-                      )}
+              {/* Glass Column Header */}
+              <div className="glass rounded-lg p-4 mb-4 border border-white/20 dark:border-white/10 shadow-[var(--shadow-sm)]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-white/80 rounded-lg flex items-center justify-center shadow">
+                      {getBoardIcon(column.position)}
                     </div>
-                    <Badge variant="secondary" className="bg-white/60">
-                      {column.count}
-                    </Badge>
+                    {renamingBoardId === column.id ? (
+                      <Input
+                        autoFocus
+                        value={tempBoardName}
+                        onChange={(e) => setTempBoardName(e.target.value)}
+                        onBlur={() => saveBoardName(column)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveBoardName(column)
+                          if (e.key === "Escape") setRenamingBoardId(null)
+                        }}
+                        className="h-8 text-sm font-semibold"
+                      />
+                    ) : (
+                      <button
+                        onClick={() => startRenaming(column)}
+                        className="text-left hover:opacity-80 transition-opacity"
+                      >
+                        <h3 className="font-semibold text-gray-800">{column.name}</h3>
+                      </button>
+                    )}
                   </div>
-                </CardHeader>
-              </Card>
+                  <Badge variant="secondary" className="bg-white/60">
+                    {column.count}
+                  </Badge>
+                </div>
+              </div>
 
               {/* Tasks in Column */}
               <div className="space-y-3 flex-1">
                 {column.tasks.map((task: any) => (
-                  <Card
+                  <div
                     key={task.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, task)}
-                    className="bg-white/95 backdrop-blur-sm border-0 shadow-md hover:shadow-xl transition-all cursor-move"
+                    className="glass rounded-lg p-4 border border-white/20 dark:border-white/10 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all duration-[var(--duration-fast)] cursor-move"
                   >
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <h4 className="font-medium text-gray-900 flex-1">{task.title}</h4>
-                          {task.priority && getPriorityBadge(task.priority)}
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-medium text-gray-900 flex-1">{task.title}</h4>
+                        {task.priority && getPriorityBadge(task.priority)}
+                      </div>
+                      
+                      {task.description && (
+                        <p className="text-sm text-gray-600 line-clamp-2">{task.description}</p>
+                      )}
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          {task.due_date && (
+                            <div className={`flex items-center gap-1 ${isOverdue(task.due_date) ? 'text-red-600' : ''}`}>
+                              <Calendar className="h-3 w-3" />
+                              {new Date(task.due_date).toLocaleDateString('sq-AL')}
+                            </div>
+                          )}
+                          {task.assigned_to && (
+                            <div className="flex items-center gap-1">
+                              <User className="h-3 w-3" />
+                              {task.assigned_to}
+                            </div>
+                          )}
                         </div>
-                        
-                        {task.description && (
-                          <p className="text-sm text-gray-600 line-clamp-2">{task.description}</p>
-                        )}
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
-                            {task.due_date && (
-                              <div className={`flex items-center gap-1 ${isOverdue(task.due_date) ? 'text-red-600' : ''}`}>
-                                <Calendar className="h-3 w-3" />
-                                {new Date(task.due_date).toLocaleDateString('sq-AL')}
-                              </div>
-                            )}
-                            {task.assigned_to && (
-                              <div className="flex items-center gap-1">
-                                <User className="h-3 w-3" />
-                                {task.assigned_to}
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Link href={`/dashboard/tasks/${task.id}/edit`}>
-                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0">
-                                <Edit className="h-3 w-3" />
-                              </Button>
-                            </Link>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
-                              onClick={() => deleteTask(task.id)}
-                            >
-                              <Trash2 className="h-3 w-3" />
+                        <div className="flex items-center gap-1">
+                          <Link href={`/dashboard/tasks/${task.id}/edit`}>
+                            <Button size="sm" variant="ghost" className="text-xs px-2">
+                              Edit
                             </Button>
-                          </div>
+                          </Link>
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="text-xs px-2 text-red-600 hover:text-red-700"
+                            onClick={() => deleteTask(task.id)}
+                          >
+                            Delete
+                          </Button>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
                 
                 {/* Add Task Button */}
@@ -430,8 +430,7 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
                     setShowAddModal(true)
                   }}
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Shto Detyrë
+                  + Shto Detyrë
                 </Button>
               </div>
             </div>
@@ -460,7 +459,7 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
                         )}
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           {task.due_date && (
-                            <div className={`flex items-center gap-1 ${isOverdue(task.due_date) ? 'text-red-600' : ''}`}>
+                            <div className={`flex items-center gap-1 ${isOverdue(task.due_date) ? 'text-red-600' : ''}`} suppressHydrationWarning>
                               <Calendar className="h-3 w-3" />
                               {new Date(task.due_date).toLocaleDateString('sq-AL')}
                             </div>
@@ -482,11 +481,11 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
                         </Link>
                         <Button 
                           size="sm" 
-                          variant="outline"
+                          variant="ghost" 
                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           onClick={() => deleteTask(task.id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          Delete
                         </Button>
                       </div>
                     </div>
@@ -515,7 +514,7 @@ export function TaskBoardRefactored({ boards, tasks, weddingId }: TaskBoardProps
       {showAddModal && (
         <TaskAddModal
           weddingId={weddingId}
-          boardId={selectedBoardForAdd}
+          boardId={selectedBoardForAdd || undefined}
           open={showAddModal}
           onOpenChange={setShowAddModal}
         />

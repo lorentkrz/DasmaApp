@@ -17,14 +17,12 @@ export function VendorAddButton({ wedding }: VendorAddButtonProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-slate-900 hover:bg-slate-800 text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Vendor
+          + Add Vendor
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Plus className="h-5 w-5 text-indigo-600" />
+          <DialogTitle>
             Shto Ofrues të Ri
           </DialogTitle>
         </DialogHeader>

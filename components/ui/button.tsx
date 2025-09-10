@@ -10,15 +10,15 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 border border-primary/20",
+          "bg-gradient-to-r from-[#4338CA] to-[#2563EB] text-white border border-[#4338CA]/30 hover:from-[#3730A3] hover:to-[#1D4ED8] shadow-md",
         destructive:
-          "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 border border-red-300/20",
+          "bg-gradient-to-r from-[#7F1D1D] to-[#EF4444] text-white border border-red-500/30 hover:from-[#991B1B] hover:to-[#DC2626] shadow-md",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+          "border border-[var(--border-2025)] bg-transparent shadow-sm hover:bg-[var(--card-bg)] hover:border-[#4338CA]/50 dark:border-[var(--border-dark)] dark:hover:bg-[var(--card-bg-dark)]",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80 border border-secondary/20",
+          "bg-[var(--sidebar-bg)] text-[var(--text-2025)] border border-[var(--border-2025)] hover:bg-[var(--card-bg)] shadow-sm dark:bg-[var(--sidebar-bg-dark)] dark:text-[var(--text-dark)] dark:border-[var(--border-dark)]",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 border border-transparent hover:border-accent/20",
+          "hover:bg-[var(--card-bg)] hover:border-[var(--border-2025)] border border-transparent text-[var(--text-2025)] dark:hover:bg-[var(--card-bg-dark)] dark:text-[var(--text-dark)]",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
