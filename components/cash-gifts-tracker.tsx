@@ -47,6 +47,37 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
   const [editDate, setEditDate] = useState(new Date().toISOString().split('T')[0])
   const [startDate, setStartDate] = useState<string>('')
   const [endDate, setEndDate] = useState<string>('')
+  // Display strings in EU format DD/MM/YYYY
+  const [startDateInput, setStartDateInput] = useState<string>('')
+  const [endDateInput, setEndDateInput] = useState<string>('')
+  const [giftDateInput, setGiftDateInput] = useState<string>('')
+  const [editDateInput, setEditDateInput] = useState<string>('')
+
+  // Helpers for EU date format parsing/formatting
+  const toEU = (iso: string | undefined | null) => {
+    if (!iso) return ''
+    const parts = iso.split('-')
+    if (parts.length !== 3) return ''
+    const [y, m, d] = parts
+    return `${d}/${m}/${y}`
+  }
+  const parseEU = (eu: string): string | null => {
+    const m = eu.match(/^\s*(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})\s*$/)
+    if (!m) return null
+    let d = m[1].padStart(2, '0')
+    let mo = m[2].padStart(2, '0')
+    const y = m[3]
+    // Basic bounds check
+    const di = parseInt(d, 10)
+    const mi = parseInt(mo, 10)
+    if (mi < 1 || mi > 12 || di < 1 || di > 31) return null
+    return `${y}-${mo}-${d}`
+  }
+
+  useEffect(() => { setStartDateInput(toEU(startDate)) }, [startDate])
+  useEffect(() => { setEndDateInput(toEU(endDate)) }, [endDate])
+  useEffect(() => { setGiftDateInput(toEU(giftDate)) }, [giftDate])
+  useEffect(() => { setEditDateInput(toEU(editDate)) }, [editDate])
   const supabase = createClient()
 
   useEffect(() => {
@@ -202,9 +233,9 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-0">
         <Card className="bg-gradient-to-br from-emerald-50 to-green-100 border-emerald-200 shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-emerald-700">Totali</CardTitle>
@@ -215,54 +246,7 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
             <div className="flex items-center gap-1 mt-1">
               <TrendingUp className="h-3 w-3 text-emerald-500" />
               <span className="text-xs text-emerald-600">+€{(totalAmount * 0.15).toFixed(0)} këtë javë</span>
-              {/* Edit Gift Dialog */}
-      <Dialog open={!!editingGift} onOpenChange={(open) => !open && setEditingGift(null)}>
-        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle>Përditëso Dhuratën</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleUpdateGift} className="space-y-4">
-            <div>
-              <Label htmlFor="edit_amount">Shuma (€)</Label>
-              <Input
-                id="edit_amount"
-                type="number"
-                step="0.01"
-                value={editAmount}
-                onChange={(e) => setEditAmount(e.target.value)}
-                required
-                className="mt-1"
-              />
             </div>
-            <div>
-              <Label htmlFor="edit_date">Data</Label>
-              <Input
-                id="edit_date"
-                type="date"
-                value={editDate}
-                onChange={(e) => setEditDate(e.target.value)}
-                required
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit_notes">Shënime</Label>
-              <Textarea
-                id="edit_notes"
-                value={editNotes}
-                onChange={(e) => setEditNotes(e.target.value)}
-                className="mt-1"
-                rows={3}
-              />
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => setEditingGift(null)} className="flex-1">Anulo</Button>
-              <Button type="submit" className="flex-1">Ruaj</Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
           </CardContent>
         </Card>
 
@@ -290,13 +274,39 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
       </div>
 
       {/* Filters and Actions */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between relative z-10">
         <h3 className="text-lg font-semibold text-gray-800">Dhurata në Para (Bakshish)</h3>
         <div className="flex items-center gap-2">
           <label className="text-sm text-gray-700">Prej</label>
-          <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-9" />
+          <Input
+            type="text"
+            inputMode="numeric"
+            placeholder="DD/MM/YYYY"
+            value={startDateInput}
+            onChange={(e) => {
+              const val = e.target.value
+              setStartDateInput(val)
+              const iso = parseEU(val)
+              if (iso) setStartDate(iso)
+              else if (val.trim() === '') setStartDate('')
+            }}
+            className="h-9 w-[140px]"
+          />
           <label className="text-sm text-gray-700">Deri</label>
-          <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-9" />
+          <Input
+            type="text"
+            inputMode="numeric"
+            placeholder="DD/MM/YYYY"
+            value={endDateInput}
+            onChange={(e) => {
+              const val = e.target.value
+              setEndDateInput(val)
+              const iso = parseEU(val)
+              if (iso) setEndDate(iso)
+              else if (val.trim() === '') setEndDate('')
+            }}
+            className="h-9 w-[140px]"
+          />
           <Button variant="outline" onClick={downloadCsv}>Shkarko CSV</Button>
         </div>
         <Dialog open={isAddingGift} onOpenChange={setIsAddingGift}>
@@ -340,19 +350,25 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
                   className="mt-1"
                 />
               </div>
-              
+
               <div>
-                <Label htmlFor="gift_date">Data</Label>
+                <Label htmlFor="gift_date">Data (DD/MM/YYYY)</Label>
                 <Input
                   id="gift_date"
-                  type="date"
-                  value={giftDate}
-                  onChange={(e) => setGiftDate(e.target.value)}
-                  required
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="DD/MM/YYYY"
+                  value={giftDateInput}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setGiftDateInput(val)
+                    const iso = parseEU(val)
+                    if (iso) setGiftDate(iso)
+                  }}
                   className="mt-1"
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="notes">Shënime (opsionale)</Label>
                 <Textarea
@@ -363,7 +379,7 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
                   rows={3}
                 />
               </div>
-              
+
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? 'Duke shtuar...' : 'Shto Dhuratë'}
               </Button>
@@ -383,7 +399,7 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
                     {gift.guest ? `${gift.guest.first_name} ${gift.guest.last_name}` : 'Anonim'}
                   </div>
                   <div className="text-sm text-gray-600">
-                    {new Date(gift.gift_date).toLocaleDateString('sq-AL')}
+                    {new Date(gift.gift_date).toLocaleDateString('en-GB')}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -412,6 +428,59 @@ export function CashGiftsTracker({ weddingId, guests }: CashGiftsTrackerProps) {
           </div>
         )}
       </div>
+      {/* Edit Gift Dialog (global) */}
+      <Dialog open={!!editingGift} onOpenChange={(open) => !open && setEditingGift(null)}>
+        <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[85vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle>Përditëso Dhuratën</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleUpdateGift} className="space-y-4">
+            <div>
+              <Label htmlFor="edit_amount">Shuma (€)</Label>
+              <Input
+                id="edit_amount"
+                type="number"
+                step="0.01"
+                value={editAmount}
+                onChange={(e) => setEditAmount(e.target.value)}
+                required
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit_date">Data (DD/MM/YYYY)</Label>
+              <Input
+                id="edit_date"
+                type="text"
+                inputMode="numeric"
+                placeholder="DD/MM/YYYY"
+                value={editDateInput}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setEditDateInput(val)
+                  const iso = parseEU(val)
+                  if (iso) setEditDate(iso)
+                }}
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit_notes">Shënime</Label>
+              <Textarea
+                id="edit_notes"
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+                className="mt-1"
+                rows={3}
+              />
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button type="button" variant="outline" onClick={() => setEditingGift(null)} className="flex-1">Anulo</Button>
+              <Button type="submit" className="flex-1">Ruaj</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

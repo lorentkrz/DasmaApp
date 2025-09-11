@@ -23,7 +23,8 @@ import {
   AlertCircle,
   Clock,
   Send,
-  Eye
+  Eye,
+  Copy
 } from "lucide-react"
 import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
 
@@ -181,6 +182,39 @@ export function GuestListEnterprise({ guests, groups, onEdit }: GuestListProps) 
     return <Badge className={config.className}>{config.label}</Badge>
   }
 
+  // Invitation status inline cell (sent/opened/responded timestamps)
+  function InvitationStatusCell({ guest }: { guest: any }) {
+    const inv = Array.isArray(guest.invitations) ? guest.invitations[0] : undefined
+    if (!inv) return <span className="text-xs text-gray-500">Pa ftesë</span>
+    const fmt = (d?: string) => (d ? new Date(d).toLocaleDateString('sq-AL') : null)
+    return (
+      <div className="flex items-center gap-2 text-xs text-gray-700">
+        {inv.sent_at ? (
+          <span title={`Dërguar: ${new Date(inv.sent_at).toLocaleString('sq-AL')}`} className="flex items-center gap-1"><Send className="h-3 w-3 text-amber-500" /> {fmt(inv.sent_at) }</span>
+        ) : (
+          <span className="text-gray-500">S’është dërguar</span>
+        )}
+        {inv.opened_at && (
+          <span title={`Hapur: ${new Date(inv.opened_at).toLocaleString('sq-AL')}`} className="flex items-center gap-1"><Eye className="h-3 w-3 text-blue-500" /> {fmt(inv.opened_at)}</span>
+        )}
+        {inv.responded_at && (
+          <span title={`Përgjigjur: ${new Date(inv.responded_at).toLocaleString('sq-AL')}`} className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-emerald-600" /> {fmt(inv.responded_at)}</span>
+        )}
+      </div>
+    )
+  }
+
+  async function copyInviteUrl(token?: string) {
+    if (!token) return
+    try {
+      const url = `${window.location.origin}/invite/${token}`
+      await navigator.clipboard.writeText(url)
+      toast({ title: 'U kopjua', description: 'Lidhja e ftesës u kopjua në kujtesë.' })
+    } catch (e) {
+      toast({ title: 'Gabim', description: 'S’u arrit të kopjohet lidhja', variant: 'destructive' })
+    }
+  }
+
 
   // Calculate stats
   const stats = {
@@ -202,7 +236,12 @@ export function GuestListEnterprise({ guests, groups, onEdit }: GuestListProps) 
     { 
       key: "name", 
       header: "Emri", 
-      accessor: (guest: any) => `${guest.first_name} ${guest.last_name}`,
+      accessor: (guest: any) => (
+        <div className="flex items-center gap-1">
+          {guest.is_primary && <span title="Kryesori i grupit" className="text-amber-600">👑</span>}
+          <span>{guest.first_name} {guest.last_name}</span>
+        </div>
+      ),
       sortable: true,
       editable: false
     },
@@ -217,6 +256,13 @@ export function GuestListEnterprise({ guests, groups, onEdit }: GuestListProps) 
       header: "Telefoni", 
       sortable: true,
       editable: true
+    },
+    { 
+      key: "invitation", 
+      header: "Ftesa", 
+      accessor: (guest: any) => <InvitationStatusCell guest={guest} />, 
+      sortable: false,
+      editable: false
     },
     { 
       key: "rsvp_status", 
@@ -246,6 +292,21 @@ export function GuestListEnterprise({ guests, groups, onEdit }: GuestListProps) 
               <Link href={`/dashboard/guests/${guest.id}/edit`}>
                 <Edit className="h-3 w-3" />
               </Link>
+            </Button>
+          )}
+          {/* WhatsApp send if invitation & phone exist */}
+          {Array.isArray(guest.invitations) && guest.invitations[0] && (
+            <WhatsAppSendButton
+              invitationId={guest.invitations[0].id}
+              guestName={`${guest.first_name} ${guest.last_name}`}
+              phone={guest.phone}
+              isSent={!!guest.invitations[0].sent_at}
+            />
+          )}
+          {/* Copy invite link */}
+          {Array.isArray(guest.invitations) && guest.invitations[0]?.token && (
+            <Button size="sm" variant="outline" onClick={() => copyInviteUrl(guest.invitations[0].token)}>
+              <Copy className="h-3 w-3 mr-1" /> Kopjo
             </Button>
           )}
           <Button 
@@ -286,24 +347,49 @@ export function GuestListEnterprise({ guests, groups, onEdit }: GuestListProps) 
                         </div>
                       </div>
                     </div>
-                    {/* Group lead invitation status with times */}
-                    <div className="hidden sm:flex items-center gap-3 pr-2 text-xs text-gray-600">
+                    {/* Group lead details + quick actions (md+) */}
+                    <div className="hidden md:flex items-center gap-4 pr-2">
+                      <div className="flex items-center gap-3 text-xs text-gray-600">
+                        {(() => {
+                          const inv = Array.isArray((groupData.primary as any).invitations) ? (groupData.primary as any).invitations[0] : undefined
+                          const fmt = (d: string) => new Date(d).toLocaleString('sq-AL', { dateStyle: 'short', timeStyle: 'short' })
+                          if (!inv) return <span className="text-gray-500">Pa ftesë</span>
+                          return (
+                            <div className="flex items-center gap-3">
+                              {inv.sent_at && (
+                                <span className="flex items-center gap-1"><Send className="h-3 w-3 text-amber-500" /> Dërguar: {fmt(inv.sent_at)}</span>
+                              )}
+                              {inv.opened_at && (
+                                <span className="flex items-center gap-1"><Eye className="h-3 w-3 text-blue-500" /> Hapur: {fmt(inv.opened_at)}</span>
+                              )}
+                              {inv.responded_at && (
+                                <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-emerald-600" /> Përgjigjur: {fmt(inv.responded_at)}</span>
+                              )}
+                            </div>
+                          )
+                        })()}
+                      </div>
                       {(() => {
-                        const inv = Array.isArray((groupData.primary as any).invitations) ? (groupData.primary as any).invitations[0] : undefined
-                        if (!inv) return (
-                          <span className="text-gray-500">Pa ftesë</span>
-                        )
-                        const fmt = (d: string) => new Date(d).toLocaleString('sq-AL', { dateStyle: 'short', timeStyle: 'short' })
+                        const primary: any = groupData.primary
+                        const inv = Array.isArray(primary.invitations) ? primary.invitations[0] : undefined
+                        const phone = primary.phone
                         return (
-                          <div className="flex items-center gap-3">
-                            {inv.sent_at && (
-                              <span className="flex items-center gap-1"><Send className="h-3 w-3 text-amber-500" /> Dërguar: {fmt(inv.sent_at)}</span>
+                          <div className="flex items-center gap-2">
+                            {phone && (
+                              <span className="text-sm text-gray-700">{phone}</span>
                             )}
-                            {inv.opened_at && (
-                              <span className="flex items-center gap-1"><Eye className="h-3 w-3 text-blue-500" /> Hapur: {fmt(inv.opened_at)}</span>
+                            {inv && phone && (
+                              <WhatsAppSendButton
+                                invitationId={inv.id}
+                                guestName={`${primary.first_name} ${primary.last_name}`}
+                                phone={phone}
+                                isSent={!!inv.sent_at}
+                              />
                             )}
-                            {inv.responded_at && (
-                              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-emerald-600" /> Përgjigjur: {fmt(inv.responded_at)}</span>
+                            {inv?.token && (
+                              <Button size="sm" variant="outline" onClick={() => copyInviteUrl(inv.token)}>
+                                <Copy className="h-3 w-3 mr-1" /> Kopjo
+                              </Button>
                             )}
                           </div>
                         )
@@ -313,10 +399,11 @@ export function GuestListEnterprise({ guests, groups, onEdit }: GuestListProps) 
                 </AccordionTrigger>
                 <AccordionContent>
                   <StandardTableEnhanced
-                    data={[groupData.primary, ...groupData.members] as any}
+                    data={[{...groupData.primary, is_primary: true}, ...groupData.members.map(m => ({...m, is_primary: false}))] as any}
                     columns={guestColumns as any}
                     onRowEdit={handleRowEdit}
-                    withFilters={false}
+                    withFilters={true}
+                    filterKeys={["name","email","phone","rsvp_status","invitation"]}
                     emptyMessage="Nuk ka mysafirë në grup"
                   />
                 </AccordionContent>
@@ -335,6 +422,8 @@ export function GuestListEnterprise({ guests, groups, onEdit }: GuestListProps) 
           data={individual as any}
           columns={guestColumns as any}
           onRowEdit={handleRowEdit}
+          withFilters={true}
+          filterKeys={["name","email","phone","rsvp_status","invitation"]}
           emptyMessage="Nuk ka mysafirë individualë"
         />
       </div>

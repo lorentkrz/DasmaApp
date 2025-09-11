@@ -82,7 +82,7 @@
   --duration-medium: 220ms;
 
   --row-height-comfortable: 56px;
-  --row-height-compact: 40px;
+  --row-height-compact: 32px;
   --row-h: var(--row-height-comfortable);
   --radius-lg: 1rem;
 }
@@ -217,6 +217,11 @@
   [data-density="compact"] {
     --row-h: var(--row-height-compact);
   }
+  /* Table density details */
+  [data-density="compact"] .density-table th,
+  [data-density="compact"] .density-table td { padding-top: 4px; padding-bottom: 4px; font-size: 12.5px; }
+  [data-density="comfortable"] .density-table th,
+  [data-density="comfortable"] .density-table td { padding-top: 10px; padding-bottom: 10px; font-size: 14px; }
   [data-density="comfortable"] {
     --row-h: var(--row-height-comfortable);
   }

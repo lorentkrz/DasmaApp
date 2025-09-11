@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Switch } from "@/components/ui/switch"
 
 interface Table {
   id: string
@@ -24,6 +25,7 @@ interface Table {
   position_x: number
   position_y: number
   notes: string | null
+  enabled?: boolean
 }
 
 interface Guest {
@@ -49,8 +51,9 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
   const [isDragging, setIsDragging] = useState(false)
   const [draggedTable, setDraggedTable] = useState<string | null>(null)
   const chartRef = useRef<HTMLDivElement>(null)
-  // Zoom & pan state
-  const [scale, setScale] = useState(0.85)
+  // Zoom & pan state (BASE_SCALE normalizes 70% to display as 100%)
+  const BASE_SCALE = 0.7
+  const [scale, setScale] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState(false)
   const panStart = useRef<{ x: number; y: number } | null>(null)
@@ -74,6 +77,10 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
   const assignGuestToTable = async (guestId: string, tableId: string) => {
     const table = internalTables.find((t) => t.id === tableId)
     if (!table) return
+    if ((table as any).enabled === false) {
+      try { alert("Kjo tavolinë është e çaktivizuar. Aktivizojeni për të caktuar mysafirë.") } catch {}
+      return
+    }
     const tableGuests = getTableGuests(tableId)
     if (tableGuests.length >= table.capacity) return
     // Optimistic
@@ -169,6 +176,11 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
       const table = internalTables.find((t) => t.id === tableId)
       const tableGuests = getTableGuests(tableId)
 
+      if (table && (table as any).enabled === false) {
+        try { alert("Kjo tavolinë është e çaktivizuar. Aktivizojeni për të caktuar mysafirë.") } catch {}
+        return
+      }
+
       if (table && tableGuests.length < table.capacity) {
         // Optimistic update
         setInternalGuests((prev) => prev.map((g) => (g.id === data.data.id ? { ...g, table_assignment: tableId } : g)))
@@ -176,6 +188,21 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
           const { error } = await supabase.from("guests").update({ table_assignment: tableId }).eq("id", data.data.id)
           if (error) throw error
           onGuestAssigned?.()
+
+          // If dropped guest is group leader, prompt to seat the rest of the group here
+          if (data.data.group_id) {
+            const { data: grp } = await supabase
+              .from("guest_groups")
+              .select("primary_guest_id")
+              .eq("id", data.data.group_id)
+              .single()
+            if (grp && grp.primary_guest_id === data.data.id) {
+              const ok = typeof window !== 'undefined' ? confirm("Ky është kryesori i grupit. Dëshironi t’i uleni edhe anëtarët e grupit në këtë tavolinë?") : false
+              if (ok) {
+                await assignGroupMembersToTable(data.data.id, tableId)
+              }
+            }
+          }
         } catch (error) {
           console.error("Error assigning guest to table:", error)
         }
@@ -198,6 +225,8 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
 
   // Get table color based on occupancy
   const getTableColor = (table: Table) => {
+    // Disabled tables: show in red and dimmed
+    if ((table as any).enabled === false) return "border-red-500 bg-red-100 opacity-70"
     const tableGuests = getTableGuests(table.id)
     const occupancyRate = tableGuests.length / table.capacity
 
@@ -415,7 +444,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
       >
         <div
           className="absolute inset-0"
-          style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})`, transformOrigin: "0 0" }}
+          style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale * BASE_SCALE})`, transformOrigin: "0 0" }}
         >
           {internalTables.length === 0 ? (
             <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -456,7 +485,7 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
               <Button size="icon" variant="outline" onClick={() => setScale((s) => Math.min(3, s + 0.1))}>
                 +
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => { setScale(0.6); setPan({ x: 0, y: 0 }) }}>Fit All</Button>
+              <Button size="sm" variant="ghost" onClick={() => { setScale(1); setPan({ x: 0, y: 0 }) }}>Fit All</Button>
             </div>
           )}
         </div>
@@ -478,6 +507,29 @@ export function SeatingChart({ tables, guests, weddingId, heightClass = "h-[70vh
                 <Badge variant="outline">
                   {getTableGuests(selectedTable.id).length}/{selectedTable.capacity}
                 </Badge>
+              </div>
+            )}
+
+            {selectedTable && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Tavolina e aktivizuar</span>
+                <Switch
+                  checked={(selectedTable as any).enabled !== false}
+                  onCheckedChange={async (checked) => {
+                    try {
+                      const { error } = await supabase
+                        .from("wedding_tables")
+                        .update({ enabled: checked })
+                        .eq("id", selectedTable.id)
+                      if (error) throw error
+                      // update local state
+                      setInternalTables(prev => prev.map(t => t.id === selectedTable.id ? { ...t, enabled: checked } as any : t))
+                      setSelectedTable(prev => prev ? ({ ...prev, enabled: checked } as any) : prev)
+                    } catch (e) {
+                      console.error(e)
+                    }
+                  }}
+                />
               </div>
             )}
 

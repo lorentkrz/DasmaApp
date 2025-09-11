@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input"
 import { StandardDropdown } from "@/components/ui/standard-dropdown"
 import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { StandardTableEnhanced } from "@/components/standard-table-enhanced"
 import { CopyButton } from "@/components/copy-button"
+import { WhatsAppSendButton } from "@/components/whatsapp-send-button"
 import { buildInvitationUrl } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -196,9 +198,10 @@ export function InvitationsListEnterprise({
       return <Badge className="bg-blue-500 text-white">E hapur</Badge>
     }
     if (inv.sent_at) {
-      return <Badge className="bg-yellow-500 text-white">Derguar</Badge>
+      return <Badge className="bg-yellow-500 text-white">Dërguar</Badge>
     }
-    return <Badge className="bg-gray-500 text-white">Pa dërguar</Badge>
+    // Not sent: use muted style consistent with Guests table: "S’është dërguar"
+    return <Badge className="bg-gray-100 text-gray-700 border border-gray-200">S’është dërguar</Badge>
   }
 
   const getRsvpBadge = (status: string) => {
@@ -219,76 +222,95 @@ export function InvitationsListEnterprise({
     )
   }
 
-  const InvitationCard = ({ invitation, compact = false }: { invitation: any; compact?: boolean }) => (
-    <div className={compact ?
-      "glass rounded-lg p-3 border border-white/20 dark:border-white/10 shadow-[var(--shadow-xs)] hover:shadow-[var(--shadow-sm)] transition-all duration-[var(--duration-fast)]" :
-      "glass rounded-lg p-4 border border-white/20 dark:border-white/10 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-all duration-[var(--duration-fast)]"
-    }>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 flex-1">
-          <div className={compact ? "w-8 h-8 bg-white/80 rounded-full flex items-center justify-center shadow" : "w-10 h-10 bg-white/80 rounded-full flex items-center justify-center shadow"}>
-            <User className={compact ? "h-4 w-4 text-gray-600" : "h-5 w-5 text-gray-600"} />
-          </div>
-          <div className="flex-1">
-            <h4 className="font-medium text-gray-900">
-              {invitation.guest ? 
-                `${invitation.guest.first_name} ${invitation.guest.last_name}` : 
-                invitation.group?.name || "Grup"
-              }
-            </h4>
-            <div className="flex items-center gap-2 mt-1">
-              {getStatusBadge(invitation)}
-              {invitation.guest && getRsvpBadge(invitation.guest.rsvp_status)}
-            </div>
-            {/* Invitation Timeline */}
-            <div className="mt-2 text-xs text-gray-500 space-y-1">
-              {invitation.sent_at && (
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  Dërguar: {new Date(invitation.sent_at).toLocaleString('sq-AL', { dateStyle: 'short', timeStyle: 'short' })}
-                </div>
-              )}
-              {invitation.opened_at && (
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Hapur: {new Date(invitation.opened_at).toLocaleString('sq-AL', { dateStyle: 'short', timeStyle: 'short' })}
-                </div>
-              )}
-              {invitation.responded_at && (
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  Përgjigjur: {new Date(invitation.responded_at).toLocaleString('sq-AL', { dateStyle: 'short', timeStyle: 'short' })}
-                </div>
-              )}
-            </div>
-          </div>
+  // Inline invitation status (like Guests list)
+  const InvitationStatusCell = ({ row }: { row: any }) => {
+    const fmt = (d?: string) => (d ? new Date(d).toLocaleDateString('sq-AL') : null)
+    return (
+      <div className="flex items-center gap-2 text-xs text-gray-700">
+        {row.sent_at ? (
+          <span title={`Dërguar: ${new Date(row.sent_at).toLocaleString('sq-AL')}`} className="flex items-center gap-1"><Send className="h-3 w-3 text-amber-500" /> {fmt(row.sent_at)}</span>
+        ) : (
+          <span className="text-gray-500">S’është dërguar</span>
+        )}
+        {row.opened_at && (
+          <span title={`Hapur: ${new Date(row.opened_at).toLocaleString('sq-AL')}`} className="flex items-center gap-1"><Users className="h-3 w-3 text-blue-500" /> {fmt(row.opened_at)}</span>
+        )}
+        {row.responded_at && (
+          <span title={`Përgjigjur: ${new Date(row.responded_at).toLocaleString('sq-AL')}`} className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-emerald-600" /> {fmt(row.responded_at)}</span>
+        )}
+      </div>
+    )
+  }
+
+  // Table columns (mirror Guests list)
+  const invColumns = [
+    {
+      key: 'name',
+      header: 'Emri',
+      accessor: (row: any) => (
+        <div className="flex items-center gap-1">
+          {row.is_primary && <span title="Kryesori i grupit" className="text-amber-600">👑</span>}
+          <span>{row.guest ? `${row.guest.first_name} ${row.guest.last_name}` : row.group?.name || 'Grup'}</span>
         </div>
+      ),
+      sortable: true,
+      editable: false,
+    },
+    {
+      key: 'phone',
+      header: 'Telefoni',
+      accessor: (row: any) => row.guest?.phone || '–',
+      sortable: true,
+      editable: false,
+    },
+    {
+      key: 'invitation',
+      header: 'Ftesa',
+      accessor: (row: any) => <InvitationStatusCell row={row} />, 
+      sortable: false,
+      editable: false,
+    },
+    {
+      key: 'rsvp',
+      header: 'RSVP',
+      accessor: (row: any) => row.guest ? getRsvpBadge(row.guest.rsvp_status) : null,
+      sortable: true,
+      editable: false,
+    },
+    {
+      key: 'actions',
+      header: 'Veprime',
+      accessor: (row: any) => (
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" title="Kopjo linkun e ftesës">
-            <CopyButton text={buildInvitationUrl(invitation.token)} />
-            <span className="sr-only">Kopjo Link</span>
-          </Button>
-          <Button size="sm" variant="ghost" asChild title="Hap ftesën">
-            <a href={buildInvitationUrl(invitation.token)} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4" />
-              <span className="sr-only">Hap Ftesë</span>
-            </a>
-          </Button>
-          {!invitation.sent_at && (
-            <Button 
-              size="sm" 
-              variant="ghost" 
-              onClick={() => markAsSent(invitation.id)}
-              title="Shëno si të dërguar"
-            >
+          {row.token && (
+            <CopyButton text={buildInvitationUrl(row.token)} size="sm" variant="outline" label="Kopjo" className="h-8 px-2 focus-visible:ring-0" />
+          )}
+          {row.token && (
+            <Button size="sm" variant="ghost" asChild title="Hap ftesën">
+              <a href={buildInvitationUrl(row.token)} target="_blank" rel="noopener noreferrer">
+                <ExternalLink className="h-4 w-4" />
+                <span className="sr-only">Hap Ftesë</span>
+              </a>
+            </Button>
+          )}
+          {row.guest?.phone && row.id && (
+            <WhatsAppSendButton 
+              invitationId={row.id}
+              guestName={row.guest ? `${row.guest.first_name} ${row.guest.last_name}` : 'Mysafir'}
+              phone={row.guest.phone}
+              isSent={!!row.sent_at}
+            />
+          )}
+          {!row.sent_at && row.id && (
+            <Button size="sm" variant="ghost" onClick={() => markAsSent(row.id)} title="Shëno si të dërguar">
               <Send className="h-4 w-4" />
-              <span className="sr-only">Shëno si Dërguar</span>
             </Button>
           )}
         </div>
-      </div>
-    </div>
-  )
+      ),
+      editable: false,
+    },
+  ] as const
 
   // Calculate stats (unique recipients: groups OR individuals)
   const guestsById = new Map(guests.map(g => [g.id, g]))
@@ -432,21 +454,47 @@ export function InvitationsListEnterprise({
                             <p className="text-sm text-gray-500">{groupData.members.length + 1} anëtar</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 mr-4">
-                          {getStatusBadge(groupData.primary)}
-                          {groupData.primary.guest && getRsvpBadge(groupData.primary.guest.rsvp_status)}
+                        <div className="hidden md:flex items-center gap-3 mr-2">
+                          {(() => {
+                            const primaryGuest = groupData.primary.guest
+                            const primaryInv = (groupData.primary.id ? groupData.primary : invitations.find(i => i.guest_id === primaryGuest?.id))
+                            const phone = primaryGuest?.phone
+                            return (
+                              <>
+                                {primaryInv && getStatusBadge(primaryInv)}
+                                {primaryGuest && getRsvpBadge(primaryGuest.rsvp_status)}
+                                {phone && <span className="text-sm text-gray-700">{phone}</span>}
+                                {primaryInv && phone && (
+                                  <WhatsAppSendButton
+                                    invitationId={primaryInv.id}
+                                    guestName={`${primaryGuest.first_name} ${primaryGuest.last_name}`}
+                                    phone={phone}
+                                    isSent={!!primaryInv.sent_at}
+                                  />
+                                )}
+                                {primaryInv?.token && (
+                                  <CopyButton text={buildInvitationUrl(primaryInv.token)} size="sm" variant="outline" label="Kopjo" className="h-8 px-2 focus-visible:ring-0" />
+                                )}
+                              </>
+                            )
+                          })()}
                         </div>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4">
-                      <div className="space-y-2">
-                        <div className="bg-blue-50/80 backdrop-blur-sm rounded-lg p-2">
-                          <InvitationCard invitation={groupData.primary} />
-                        </div>
-                        {groupData.members.map((memberData, index) => (
-                          <InvitationCard key={memberData.guest?.id || index} invitation={memberData} />
-                        ))}
-                      </div>
+                      <StandardTableEnhanced
+                        data={[groupData.primary, ...groupData.members]
+                          .map((row: any, idx: number) => ({
+                            ...row,
+                            is_primary: idx === 0,
+                            first_name: row.guest?.first_name,
+                            last_name: row.guest?.last_name,
+                          })) as any}
+                        columns={invColumns as any}
+                        withFilters={true}
+                        filterKeys={["name","phone","invitation","rsvp"]}
+                        emptyMessage="Nuk ka ftesa për këtë grup"
+                      />
                     </AccordionContent>
                   </AccordionItem>
                 )
@@ -465,14 +513,19 @@ export function InvitationsListEnterprise({
               Ftesa Individuale
             </h3>
           </div>
-          <div className="density-card">
-            <div className="space-y-2">
-              {individual.filter(filterInvitation).map((invitation) => (
-                <div key={invitation.id} className="bg-gray-50/80 dark:bg-white/5 backdrop-blur-sm rounded-lg p-2 border border-white/20 dark:border-white/10">
-                  <InvitationCard invitation={invitation} compact />
-                </div>
-              ))}
-            </div>
+          <div className="density-card p-3">
+            <StandardTableEnhanced
+              data={individual.filter(filterInvitation).map((row: any) => ({
+                ...row,
+                is_primary: false,
+                first_name: row.guest?.first_name,
+                last_name: row.guest?.last_name,
+              })) as any}
+              columns={invColumns as any}
+              withFilters={true}
+              filterKeys={["name","phone","invitation","rsvp"]}
+              emptyMessage="Nuk ka ftesa individuale"
+            />
           </div>
         </div>
       )}

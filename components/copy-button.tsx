@@ -5,7 +5,16 @@ import { Button } from "@/components/ui/button"
 import { Copy, Loader2, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
-export function CopyButton({ text }: { text: string }) {
+type CopyButtonProps = {
+  text: string
+  label?: string
+  size?: "sm" | "default" | "lg"
+  variant?: "default" | "outline" | "ghost"
+  className?: string
+  iconOnly?: boolean
+}
+
+export function CopyButton({ text, label = "Kopjo", size = "sm", variant = "outline", className = "", iconOnly = false }: CopyButtonProps) {
   const [copying, setCopying] = useState(false)
   const [copied, setCopied] = useState(false)
   const { toast } = useToast()
@@ -25,28 +34,29 @@ export function CopyButton({ text }: { text: string }) {
   }
 
   return (
-    <Button 
-      type="button" 
-      variant="outline" 
+    <Button
+      type="button"
+      size={size}
+      variant={variant}
       onClick={handleCopy}
       disabled={copying}
       aria-busy={copying}
-      className="hover:bg-blue-50 border-blue-200 shadow-sm transition-all duration-200 hover:shadow-md"
+      className={`shadow-sm transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-300 ${className}`}
     >
       {copying ? (
         <>
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          Duke kopjuar...
+          <Loader2 className="h-4 w-4 animate-spin" />
+          {!iconOnly && <span className="ml-2">Duke kopjuar...</span>}
         </>
       ) : copied ? (
         <>
-          <Check className="h-4 w-4 mr-2" />
-          U kopjua!
+          <Check className="h-4 w-4" />
+          {!iconOnly && <span className="ml-2">U kopjua!</span>}
         </>
       ) : (
         <>
-          <Copy className="h-4 w-4 mr-2" />
-          Copy
+          <Copy className="h-4 w-4" />
+          {!iconOnly && <span className="ml-2">{label}</span>}
         </>
       )}
     </Button>

@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { useI18n } from "@/hooks/use-i18n"
 import {
   Select,
   SelectContent,
@@ -25,7 +24,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function TopbarEnterprise() {
-  const { locale, setLocale } = useI18n()
   const [query, setQuery] = React.useState("")
   const [density, setDensity] = React.useState<"comfortable" | "compact">("comfortable")
   const [helpOpen, setHelpOpen] = React.useState(false)
@@ -62,23 +60,7 @@ export function TopbarEnterprise() {
         {/* Search */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-          {/* Language selector */}
-          <div className="hidden sm:flex items-center rounded-md border border-[color:var(--border-2025)] dark:border-[color:var(--border-dark)] overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
-            <button
-              className={`px-3 h-9 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--border-2025)] dark:focus-visible:ring-[color:var(--border-dark)] ${locale === "al" ? "bg-white dark:bg-slate-900 font-medium" : "hover:bg-slate-50 dark:hover:bg-slate-800"}`}
-              onClick={() => setLocale("al")}
-              aria-pressed={locale === "al"}
-            >
-              AL
-            </button>
-            <button
-              className={`px-3 h-9 text-sm border-l border-[color:var(--border-2025)] dark:border-[color:var(--border-dark)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--border-2025)] dark:focus-visible:ring-[color:var(--border-dark)] ${locale === "en" ? "bg-white dark:bg-slate-900 font-medium" : "hover:bg-slate-50 dark:hover:bg-slate-800"}`}
-              onClick={() => setLocale("en")}
-              aria-pressed={locale === "en"}
-            >
-              EN
-            </button>
-          </div>
+          {/* Single-language mode (language toggle removed) */}
             <Select value={scope} onValueChange={(v: any) => { setScope(v); try { localStorage.setItem("global_search_scope", v) } catch {} }}>
               <SelectTrigger className="h-9 w-[140px]">
                 <SelectValue placeholder="Fusha" />

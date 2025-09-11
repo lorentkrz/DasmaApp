@@ -190,7 +190,7 @@ export function DashboardSidebarRefactored({ weddings }: DashboardSidebarProps) 
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900 text-sm">
-                      {currentWedding.bride_name} & {currentWedding.groom_name}
+                      {currentWedding.groom_name} <span aria-hidden>❤</span> {currentWedding.bride_name}
                     </p>
                     <p className="text-xs text-gray-600">
                       {new Date(currentWedding.wedding_date).toLocaleDateString('sq-AL', {
@@ -203,10 +203,8 @@ export function DashboardSidebarRefactored({ weddings }: DashboardSidebarProps) 
                 </div>
                 {daysUntilWedding !== null && (
                   <div className="bg-white/60 rounded-lg p-2 text-center">
-                    <p className="text-2xl font-bold text-purple-700">{daysUntilWedding}</p>
-                    <p className="text-xs text-gray-600">
-                      {daysUntilWedding === 1 ? 'ditë mbetur' : 'ditë të mbetura'}
-                    </p>
+                    <p className="text-2xl font-bold text-purple-700">{daysUntilWedding} <span role="img" aria-label="zemra me sy">😍</span></p>
+                    <p className="text-xs text-gray-600">{daysUntilWedding === 1 ? 'ditë mbetur' : 'ditë të mbetura'}</p>
                   </div>
                 )}
               </CardContent>

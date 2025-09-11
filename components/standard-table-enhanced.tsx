@@ -26,6 +26,7 @@ export type StandardTableEnhancedProps<T> = {
   loading?: boolean
   withFilters?: boolean
   scrollContainerClassName?: string
+  filterKeys?: string[]
 }
 
 export function StandardTableEnhanced<T extends { id: string }>({
@@ -38,17 +39,36 @@ export function StandardTableEnhanced<T extends { id: string }>({
   loading,
   withFilters = true,
   scrollContainerClassName,
+  filterKeys,
 }: StandardTableEnhancedProps<T>) {
   const [filters, setFilters] = React.useState<Record<string, string>>({})
   const [sortKey, setSortKey] = React.useState<string | null>(null)
   const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("asc")
   const [editing, setEditing] = React.useState<{ id: string; key: string } | null>(null)
 
+  const getColumnForKey = (key: string) => columns.find((c) => c.key === key)
+
+  const valueFor = (row: any, key: string): string => {
+    const col = getColumnForKey(key)
+    if (col?.accessor) {
+      const v = col.accessor(row)
+      return typeof v === 'string' ? v : (v as any)?.props?.children?.toString?.() ?? ''
+    }
+    // special-case combined name
+    if (key === 'name') {
+      const first = (row as any).first_name ?? ''
+      const last = (row as any).last_name ?? ''
+      return `${first} ${last}`.trim()
+    }
+    const raw = (row as any)[key]
+    return String(raw ?? '')
+  }
+
   const filtered = React.useMemo(() => {
     const activeKeys = Object.keys(filters).filter((k) => filters[k]?.trim())
     if (activeKeys.length === 0) return data
     return data.filter((row) =>
-      activeKeys.every((k) => String((row as any)[k] ?? "").toLowerCase().includes(filters[k].toLowerCase()))
+      activeKeys.every((k) => valueFor(row, k).toLowerCase().includes(filters[k].toLowerCase()))
     )
   }, [data, filters])
 
@@ -87,16 +107,29 @@ export function StandardTableEnhanced<T extends { id: string }>({
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.16, ease: [0.2, 0.9, 0.27, 1] }}
           >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5">
-              {columns.map((c) => (
-                <Input
-                  key={c.key}
-                  placeholder={`Filtro ${c.header}`}
-                  value={filters[c.key] || ""}
-                  onChange={(e) => setFilters((prev) => ({ ...prev, [c.key]: e.target.value }))}
-                  className="h-8 text-[13px] px-2 bg-white/40 dark:bg-slate-900/30 border-white/20 dark:border-white/10 placeholder:text-[color:var(--muted-2025)]"
-                />
-              ))}
+            <div className="flex flex-wrap items-center gap-2">
+              {(filterKeys && filterKeys.length > 0 ? filterKeys : columns.map(c => c.key)).map((key) => {
+                const col = getColumnForKey(key)
+                if (!col) return null
+                return (
+                  <Input
+                    key={key}
+                    placeholder={`Filtro ${col.header}`}
+                    value={filters[key] || ""}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, [key]: e.target.value }))}
+                    className="h-8 text-[13px] px-2 bg-white/30 dark:bg-slate-900/20 border-white/20 dark:border-white/10 placeholder:text-[color:var(--muted-2025)] max-w-[200px]"
+                  />
+                )
+              })}
+              {Object.keys(filters).length > 0 && (
+                <button
+                  type="button"
+                  className="text-xs ml-auto px-2 py-1 rounded border border-white/20 hover:bg-white/20 dark:hover:bg-slate-900/20"
+                  onClick={() => setFilters({})}
+                >
+                  Pastro filtrat
+                </button>
+              )}
             </div>
           </motion.div>
         </AnimatePresence>

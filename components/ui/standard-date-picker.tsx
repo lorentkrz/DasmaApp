@@ -27,7 +27,7 @@ interface StandardDatePickerProps {
 export function StandardDatePicker({
   value,
   onChange,
-  placeholder = "Select date",
+  placeholder = "YYYY-MM-DD",
   className,
   disabled = false,
   showTime = false,
@@ -89,7 +89,7 @@ export function StandardDatePicker({
         type="text"
         value={inputValue}
         onChange={handleInputChange}
-        placeholder={showTime ? "YYYY-MM-DD HH:MM" : "YYYY-MM-DD"}
+        placeholder={showTime ? "YYYY-MM-DD HH:MM" : placeholder}
         disabled={disabled}
         className="flex-1"
       />
@@ -106,21 +106,22 @@ export function StandardDatePicker({
             <CalendarIcon className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="end">
-          <div className="p-3 border-b">
+        <PopoverContent className="w-auto p-0 glass rounded-lg border border-white/20 dark:border-white/10 shadow-lg" align="end">
+          <div className="p-3 border-b border-white/20 dark:border-white/10 bg-white/50 dark:bg-slate-900/40 rounded-t-lg">
             <Button
               variant="outline"
               size="sm"
               onClick={handleToday}
               className="w-full"
             >
-              Today
+              Sot
             </Button>
           </div>
           <Calendar
             mode="single"
             selected={value}
             onSelect={handleCalendarSelect}
+            buttonVariant="outline"
             disabled={(date) => {
               if (minDate && date < minDate) return true
               if (maxDate && date > maxDate) return true
@@ -129,7 +130,7 @@ export function StandardDatePicker({
             initialFocus
           />
           {showTime && value && (
-            <div className="p-3 border-t">
+            <div className="p-3 border-t border-white/20 dark:border-white/10 bg-white/50 dark:bg-slate-900/40 rounded-b-lg">
               <div className="flex gap-2">
                 <Input
                   type="time"
