@@ -56,15 +56,15 @@ export async function notifyRsvpChange(opts: {
   )
 
   // Insert in-app notifications
-  const title = `RSVP i ri: ${statusToSq(status)}`
-  const message = `${guestNames}${guestCount > 1 ? ` (+${guestCount - 1})` : ""} → ${statusToSq(status)}`
-  // Idempotency: avoid duplicates within a short window (e.g., React strict-mode double invoke)
-  const sinceIso = new Date(Date.now() - 2 * 60 * 1000).toISOString()
+  const statusText = statusToSq(status)
+  const title = `RSVP: ${guestNames}${guestCount > 1 ? ` (+${guestCount - 1})` : ""} - ${statusText}`
+  const message = `${guestNames}${guestCount > 1 ? ` (+${guestCount - 1})` : ""} → ${statusText}`
+  // Idempotency: avoid duplicates within a 5-minute window
+  const sinceIso = new Date(Date.now() - 5 * 60 * 1000).toISOString()
   const { data: existingRows } = await svc
     .from("notifications")
     .select("user_id")
-    .eq("title", title)
-    .eq("message", message)
+    .eq("message", message) // Match on message content only
     .gt("created_at", sinceIso)
     .in("user_id", recipientIds)
   const existingSet = new Set((existingRows || []).map((r: any) => r.user_id))
@@ -88,10 +88,11 @@ export async function notifyRsvpChange(opts: {
     .split(",")
     .map((e) => e.trim())
     .filter((e) => e.length > 0)
-  const emails = Array.from(new Set([...
-    emailsFromProfiles,
-    ...extraEmails
-  ]))
+  // Always include dasmaerp@gmail.com if no other emails are specified
+  const defaultEmails = ['dasmaerp@gmail.com']
+  const emails = extraEmails.length > 0
+    ? Array.from(new Set([...extraEmails, ...defaultEmails]))
+    : Array.from(new Set([...emailsFromProfiles, ...defaultEmails]))
 
   // Send email notifications (Resend preferred; fallback to SMTP)
   try {
@@ -111,8 +112,18 @@ export async function notifyRsvpChange(opts: {
 
     if (resendEnabled) {
       const resend = new Resend(getEnv("RESEND_API_KEY")!)
-      if (emails.length > 0) {
-        await resend.emails.send({ from: fromEmail, to: emails, subject, html })
+      // Send to each email individually to match the working test script
+      for (const email of emails) {
+        try {
+          await resend.emails.send({
+            from: fromEmail,
+            to: email,
+            subject,
+            html,
+          })
+        } catch (err) {
+          console.error(`Failed to send email to ${email}:`, err)
+        }
       }
     } else if (getEnv("SMTP_HOST") && getEnv("SMTP_USER") && getEnv("SMTP_PASS")) {
       const transporter = nodemailer.createTransport({
