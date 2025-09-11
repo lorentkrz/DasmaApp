@@ -432,11 +432,12 @@ export default async function InvitationPage({ params }: { params: { token: stri
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
-    <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-rose-50 to-rose-100 p-4 md:p-8 relative">
-      {/* Subtle texture overlay */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23d6d3d1%22%20fill-opacity%3D%220.4%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%221%22/%3E%3Ccircle%20cx%3D%2253%22%20cy%3D%2253%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
-      </div>
+    <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-rose-50 to-rose-100 relative">
+      <div className="fixed inset-0 overflow-y-auto p-4 md:p-8">
+        {/* Subtle texture overlay */}
+        <div className="fixed inset-0 opacity-5 pointer-events-none">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23d6d3d1%22%20fill-opacity%3D%220.4%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%221%22/%3E%3Ccircle%20cx%3D%2253%22%20cy%3D%2253%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+        </div>
       
       {/* Floating floral elements */}
       <div className="absolute top-8 left-8 w-16 h-16 opacity-20 animate-pulse">
@@ -555,7 +556,7 @@ export default async function InvitationPage({ params }: { params: { token: stri
           </div>
           
           {/* RSVP Section - Fixed at bottom */}
-          <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-b from-stone-50/90 to-rose-50/80 backdrop-blur-sm border-t border-stone-200/50 p-4 z-10">
+          <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-b from-stone-50/90 to-rose-50/80 backdrop-blur-sm border-t border-stone-200/50 p-4 z-10">
             {isGroup ? (
               <div className="space-y-6 w-full max-w-3xl mx-auto">
                 {/* Group response */}
@@ -650,6 +651,7 @@ export default async function InvitationPage({ params }: { params: { token: stri
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
     </>
