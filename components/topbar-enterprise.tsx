@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { NotificationsBell } from "@/components/notifications-bell"
 
 export function TopbarEnterprise() {
   const [query, setQuery] = React.useState("")
@@ -57,8 +58,8 @@ export function TopbarEnterprise() {
   return (
     <header className="sticky top-0 z-30 backdrop-blur-md bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-white/10">
       <div className="mx-auto flex h-14 items-center gap-3 px-4 sm:px-6">
-        {/* Search */}
-        <div className="flex-1 min-w-0">
+        {/* Search (constrained width to make space for notifications) */}
+        <div className="flex-1 min-w-0 max-w-[640px]">
           <div className="flex items-center gap-2">
           {/* Single-language mode (language toggle removed) */}
             <Select value={scope} onValueChange={(v: any) => { setScope(v); try { localStorage.setItem("global_search_scope", v) } catch {} }}>
@@ -126,6 +127,8 @@ export function TopbarEnterprise() {
               Compact
             </button>
           </div>
+          {/* Notifications bell directly left of Profili */}
+          <NotificationsBell />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost">Profili</Button>

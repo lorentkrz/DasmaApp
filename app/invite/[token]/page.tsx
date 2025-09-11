@@ -6,6 +6,7 @@ import { Playfair_Display, Great_Vibes, Cormorant_Garamond, Dancing_Script } fro
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Heart, Sparkles, Calendar, MapPin, Clock, Users } from "lucide-react"
+import { notifyRsvpChange } from '@/lib/notify'
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400','600','700'] })
 const greatVibes = Great_Vibes({ subsets: ['latin'], weight: '400' })
@@ -189,6 +190,57 @@ export default async function InvitationPage({ params }: { params: { token: stri
           p_attendee_ids: attendeeUuids.length > 0 ? attendeeUuids : null,
         })
         if (!rpcError && rpcData && rpcData.length > 0) {
+          // Fire notifications (service role) before redirect
+          try {
+            const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+            if (serviceKey) {
+              const service = createSupabaseServiceClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                serviceKey
+              )
+              const { data: invMeta } = await service
+                .from('invitations')
+                .select('wedding_id, guest_id, group_id')
+                .eq('token', token)
+                .single()
+              let guestNames = 'Mysafirë'
+              let guestCount = 1
+              let primaryId: string | null = invMeta?.guest_id || null
+              if (!primaryId && invMeta?.group_id) {
+                const { data: gg } = await service
+                  .from('guest_groups')
+                  .select('primary_guest_id')
+                  .eq('id', invMeta.group_id)
+                  .single()
+                primaryId = gg?.primary_guest_id || null
+              }
+              if (primaryId) {
+                const { data: pg } = await service
+                  .from('guests')
+                  .select('first_name,last_name')
+                  .eq('id', primaryId)
+                  .single()
+                if (pg) guestNames = `${pg.first_name} ${pg.last_name}`
+                // Estimate group size
+                let memberIds: string[] = []
+                const { data: aRows } = await service.from('guests').select('id').eq('group_id', primaryId)
+                memberIds = [...(aRows || []).map((r: any) => r.id)]
+                if (invMeta?.group_id) {
+                  const { data: bRows } = await service.from('guests').select('id').eq('group_id', invMeta.group_id)
+                  memberIds = Array.from(new Set([...memberIds, ...((bRows || []).map((r: any) => r.id))]))
+                }
+                guestCount = 1 + memberIds.length
+              }
+              await notifyRsvpChange({
+                weddingId: invMeta?.wedding_id || '',
+                status: status as any,
+                guestNames,
+                guestCount,
+              })
+            }
+          } catch (notifyErr) {
+            console.warn('RSVP notify (RPC path) error:', notifyErr)
+          }
           const updatedParam = encodeURIComponent(
             (rpcData as { updated_id: string }[])
               .map((r) => r.updated_id)
@@ -314,6 +366,26 @@ export default async function InvitationPage({ params }: { params: { token: stri
         })
         .eq('token', token)
       if (invUpdErr) throw invUpdErr
+      
+      // Notify (service role path)
+      try {
+        let guestNames = 'Mysafirë'
+        // Use targetGuestId as primary for naming
+        const { data: pg } = await service
+          .from('guests')
+          .select('first_name,last_name')
+          .eq('id', targetGuestId as string)
+          .single()
+        if (pg) guestNames = `${pg.first_name} ${pg.last_name}`
+        await notifyRsvpChange({
+          weddingId: inv.wedding_id as string,
+          status: status as any,
+          guestNames,
+          guestCount: Math.max(1, idsToUpdate.length),
+        })
+      } catch (notifyErr) {
+        console.warn('RSVP notify (service path) error:', notifyErr)
+      }
       
       // Note: Plus-one without a dedicated guest row is ignored in per-person updates.
       // If you want separate RSVP for plus-one, we should model plus-one as a guest row in the same group.

@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import { Users, DollarSign, CheckSquare, Calendar, Clock, AlertCircle } from "lucide-react"
+import { Users, DollarSign, Euro, Calendar, Clock, AlertCircle } from "lucide-react"
 import {
   ResponsiveContainer,
   PieChart,
@@ -128,11 +128,12 @@ export function DashboardEnterprise({ wedding, guests, expenses, vendors, tasks,
 
         <Card>
           <CardHeader className="flex justify-between items-center pb-2">
-            <CardTitle className="text-sm font-medium">Detyra</CardTitle>
-            <CheckSquare className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Të ardhura të pritshme</CardTitle>
+            <Euro className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completedTasks}/{tasks.length}</div>
+            <div className="text-2xl font-bold">€{(confirmedGuests * 31).toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">{confirmedGuests} mysafirë × €31</p>
           </CardContent>
         </Card>
       </div>

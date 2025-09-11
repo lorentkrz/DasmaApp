@@ -5,8 +5,9 @@ import { DashboardEnterprise } from "@/components/dashboard-enterprise"
 import { KPIGrid } from "@/components/dashboard/KPIGrid"
 import { RecentGuestsTable } from "@/components/recent-guests-table"
 import Link from "next/link"
-import { Calendar, Users, DollarSign, CheckSquare } from "lucide-react"
+import { Calendar, Users, DollarSign, Euro } from "lucide-react"
 import { Card } from "@/components/ui/card"
+import { PushRegister } from "@/components/push-register"
 
 export async function generateMetadata() {
   return {
@@ -74,6 +75,7 @@ export default async function DashboardPage() {
   const daysUntil = Math.ceil((new Date(currentWedding.wedding_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
   const totalDeposits = (vendors || []).reduce((sum: number, v: any) => sum + Number(v.deposit_amount || 0), 0)
   const totalExpenses = Math.round(spent + totalDeposits)
+  const estimatedRevenue = Math.round(attending * 31)
 
   return (
     <DashboardLayout
@@ -81,6 +83,7 @@ export default async function DashboardPage() {
       icon="Home"
     >
       <div className="space-y-6">
+        <PushRegister />
         <KPIGrid items={kpis as any} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
@@ -127,11 +130,12 @@ export default async function DashboardPage() {
             </Card>
             <Card>
               <div className="px-3 pt-2 pb-1 flex items-center justify-between">
-                <div className="text-sm font-medium">Detyra</div>
-                <CheckSquare className="h-4 w-4 text-muted-foreground" />
+                <div className="text-sm font-medium">Shpenzime te konfirmuara per karrige</div>
+                <Euro className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="px-3 pb-2">
-                <div className="text-2xl font-bold">{tasksDone}/{tasksTotal}</div>
+                <div className="text-2xl font-bold">€{estimatedRevenue.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground">{attending} mysafirë × €31</p>
               </div>
             </Card>
           </div>
