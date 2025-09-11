@@ -75,7 +75,8 @@ class WhatsAppService extends EventEmitter {
       puppeteer: puppeteerOptions,
       webVersionCache: {
         type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+        // Use a recent stable WhatsApp Web version to avoid version mismatch issues
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1026638415.html',
       },
       takeoverOnConflict: true,
       authTimeoutMs: 90000,

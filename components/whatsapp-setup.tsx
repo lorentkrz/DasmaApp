@@ -45,6 +45,23 @@ export function WhatsAppSetup() {
     }
   }
 
+  const disconnectWhatsApp = async () => {
+    console.log('🔌 UI: Disconnecting WhatsApp...')
+    setLoading(true)
+    try {
+      const resp = await fetch('/api/whatsapp/status', { method: 'DELETE' })
+      const data = await resp.json().catch(() => ({}))
+      console.log('📥 UI: Disconnect response:', data)
+      toast({ title: 'U shkëput', description: 'Lidhja me WhatsApp u mbyll.' })
+      await checkStatus()
+    } catch (error: any) {
+      console.error('💥 UI: Disconnect error:', error)
+      toast({ title: 'Gabim', description: error.message, variant: 'destructive' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const initializeWhatsApp = async () => {
     console.log('🚀 UI: Starting WhatsApp initialization...')
     
@@ -171,14 +188,19 @@ export function WhatsAppSetup() {
           )}
 
           {status.ready && (
-            <div className="rounded-md bg-green-50 border border-green-200 p-4 text-center">
-              <div className="flex items-center justify-center gap-2 text-green-800">
-                <CheckCircle className="h-5 w-5" />
-                <span className="font-medium">WhatsApp është i lidhur!</span>
+            <div className="rounded-md bg-green-50 border border-green-200 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-green-800">
+                  <CheckCircle className="h-5 w-5" />
+                  <div>
+                    <div className="font-medium">WhatsApp është i lidhur!</div>
+                    <p className="text-green-700 mt-1 text-sm">Mund të dërgoni ftesa nga numri juaj personal.</p>
+                  </div>
+                </div>
+                <Button onClick={disconnectWhatsApp} variant="outline" className="border-red-200 text-red-700 hover:bg-red-50" size="sm" disabled={loading}>
+                  Shkëpute
+                </Button>
               </div>
-              <p className="text-green-700 mt-1 text-sm">
-                Mund të dërgoni ftesa nga numri juaj personal.
-              </p>
             </div>
           )}
 

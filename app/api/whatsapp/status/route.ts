@@ -1,4 +1,5 @@
-import { getWhatsAppService } from "@/lib/whatsapp"
+// Note: Do NOT import the WhatsApp service at the module level to keep serverless bundles light
+// We'll dynamically import it only when needed (i.e., when not proxying to an external service)
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -27,6 +28,7 @@ export async function GET() {
 
   // Fallback: use in-process service (local dev)
   try {
+    const { getWhatsAppService } = await import('@/lib/whatsapp')
     const whatsappService = getWhatsAppService()
     const status = whatsappService.getStatus()
     console.log('📤 Local GET returning status:', status)
@@ -34,6 +36,41 @@ export async function GET() {
   } catch (error: any) {
     console.error('💥 Local GET Error:', error)
     const errorResponse = { ready: false, initializing: false, error: error.message }
+    return Response.json(errorResponse, { status: 500 })
+  }
+}
+
+export async function DELETE() {
+  console.log('🌐 API DELETE /api/whatsapp/status called - DISCONNECT')
+  
+  // If external microservice configured, proxy /disconnect to it
+  if (SERVICE_URL) {
+    try {
+      const resp = await fetch(`${SERVICE_URL}/disconnect`, {
+        method: 'DELETE',
+        headers: SERVICE_KEY ? { 'X-API-KEY': SERVICE_KEY } : undefined,
+        cache: 'no-store'
+      })
+      const data = await resp.json().catch(() => ({}))
+      console.log('📤 Proxy DELETE returning:', data)
+      return Response.json(data, { status: resp.status })
+    } catch (error: any) {
+      console.error('💥 Proxy DELETE Error:', error)
+      return Response.json({ error: error.message, success: false }, { status: 502 })
+    }
+  }
+
+  // Fallback: use in-process service disconnect (local dev)
+  try {
+    const { getWhatsAppService } = await import('@/lib/whatsapp')
+    const whatsappService = getWhatsAppService()
+    await whatsappService.disconnect()
+    const response = { message: 'WhatsApp disconnected', success: true }
+    console.log('📤 Local DELETE returning:', response)
+    return Response.json(response)
+  } catch (error: any) {
+    console.error('💥 Local DELETE Error:', error)
+    const errorResponse = { error: error.message, success: false }
     return Response.json(errorResponse, { status: 500 })
   }
 }
@@ -63,6 +100,7 @@ export async function POST() {
 
   // Fallback: use in-process service restart (local dev)
   try {
+    const { getWhatsAppService } = await import('@/lib/whatsapp')
     const whatsappService = getWhatsAppService()
     console.log('🚀 Local: calling whatsappService.restart()...')
     whatsappService.restart().catch((error) => {
