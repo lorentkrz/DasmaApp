@@ -7,11 +7,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Heart, Sparkles, Calendar, MapPin, Clock, Users } from "lucide-react"
 import { notifyRsvpChange } from '@/lib/notify'
+import Head from 'next/head'
 
 const playfair = Playfair_Display({ subsets: ['latin'], weight: ['400','600','700'] })
 const greatVibes = Great_Vibes({ subsets: ['latin'], weight: '400' })
 const cormorant = Cormorant_Garamond({ subsets: ['latin'], weight: ['400','700'] })
 const dancingScript = Dancing_Script({ subsets: ['latin'], weight: ['400','600','700'] })
+
+export async function generateMetadata() {
+  return {
+    viewport: {
+      width: 'device-width',
+      initialScale: 1,
+      maximumScale: 1,
+      userScalable: false,
+    },
+  }
+}
 
 export default async function InvitationPage({ params }: { params: { token: string } }) {
   const { token } = params
@@ -416,7 +428,11 @@ export default async function InvitationPage({ params }: { params: { token: stri
   const venue = wedding.venue || 'Salla "Elegance"'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-rose-50 to-amber-50 relative">
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </Head>
+    <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-rose-50 to-rose-100 p-4 md:p-8">
       {/* Subtle texture overlay */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23d6d3d1%22%20fill-opacity%3D%220.4%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%221%22/%3E%3Ccircle%20cx%3D%2253%22%20cy%3D%2253%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
@@ -541,7 +557,7 @@ export default async function InvitationPage({ params }: { params: { token: stri
           {/* RSVP Section - No Space */}
           <div className="p-4 bg-gradient-to-b from-stone-50/50 to-rose-50/30">
             {isGroup ? (
-              <div className="space-y-3">
+              <div className="space-y-6 w-full max-w-3xl mx-auto">
                 {/* Group response */}
                 <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3">
                   <p className={`${cormorant.className} text-stone-600 text-xs mb-3 text-center font-medium`}>Përgjigja për të gjithë grupin:</p>
@@ -636,5 +652,6 @@ export default async function InvitationPage({ params }: { params: { token: stri
         </div>
       </div>
     </div>
+    </>
   )
 }

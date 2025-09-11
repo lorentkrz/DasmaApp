@@ -338,7 +338,18 @@ class WhatsAppService extends EventEmitter {
 
   async disconnect() {
     console.log('🔌 Disconnecting WhatsApp client...')
-    await this.destroyClient()
+    try {
+      await this.destroyClient()
+      this.isReady = false
+      this.qrCode = null
+      this.error = 'Disconnected by user'
+      this.emit('disconnected')
+      console.log('✅ WhatsApp client disconnected successfully')
+      return { success: true }
+    } catch (error) {
+      console.error('❌ Error during disconnect:', error)
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+    }
   }
 
   private startKeepalive() {
