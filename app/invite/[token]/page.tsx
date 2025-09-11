@@ -432,7 +432,8 @@ export default async function InvitationPage({ params }: { params: { token: stri
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </Head>
-    <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-rose-50 to-rose-100 p-4 md:p-8">
+    <div className="flex flex-col min-h-screen w-full overflow-x-hidden bg-gradient-to-b from-rose-50 to-rose-100">
+      <div className="flex-1 overflow-y-auto p-4 md:p-8">
       {/* Subtle texture overlay */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23d6d3d1%22%20fill-opacity%3D%220.4%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%221%22/%3E%3Ccircle%20cx%3D%2253%22%20cy%3D%2253%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
@@ -554,8 +555,7 @@ export default async function InvitationPage({ params }: { params: { token: stri
             
           </div>
           
-          {/* RSVP Section - No Space */}
-          <div className="p-4 bg-gradient-to-b from-stone-50/50 to-rose-50/30">
+          {/* RSVP Section - Moved to bottom of viewport */}
             {isGroup ? (
               <div className="space-y-6 w-full max-w-3xl mx-auto">
                 {/* Group response */}
@@ -650,6 +650,64 @@ export default async function InvitationPage({ params }: { params: { token: stri
             )}
           </div>
         </div>
+      </div>
+      
+      {/* RSVP Section */}
+      <div className="w-full p-4 bg-gradient-to-b from-stone-50/90 to-rose-50/80 border-t border-stone-200/50">
+        {isGroup ? (
+          <div className="space-y-4 max-w-lg mx-auto">
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-sm">
+              <p className={`${cormorant.className} text-stone-600 text-sm mb-3 text-center font-medium`}>Përgjigja për të gjithë grupin:</p>
+              <div className="grid grid-cols-1 gap-2">
+                <form action={updateRsvp}>
+                  <input type="hidden" name="apply_all" value="true" />
+                  <input type="hidden" name="status" value="attending" />
+                  <button className="w-full py-2 px-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-md text-sm font-bold transition-all duration-200 shadow hover:shadow-md">
+                    Po, vijmë të gjithë
+                  </button>
+                </form>
+                <form action={updateRsvp}>
+                  <input type="hidden" name="apply_all" value="true" />
+                  <input type="hidden" name="status" value="maybe" />
+                  <button className="w-full py-2 px-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-md text-sm font-bold transition-all duration-200 shadow hover:shadow-md">
+                    Ndoshta
+                  </button>
+                </form>
+                <form action={updateRsvp}>
+                  <input type="hidden" name="apply_all" value="true" />
+                  <input type="hidden" name="status" value="not_attending" />
+                  <button className="w-full py-2 px-4 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-md text-sm font-bold transition-all duration-200 shadow hover:shadow-md">
+                    S'mundemi
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-lg mx-auto bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-sm">
+            <p className={`${cormorant.className} text-stone-700 text-lg font-bold text-center mb-4`}>A do të merrni pjesë?</p>
+            <div className="grid grid-cols-1 gap-2">
+              <form action={updateRsvp}>
+                <input type="hidden" name="status" value="attending" />
+                <button className="w-full py-2 px-4 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-md text-sm font-bold transition-all duration-200 shadow hover:shadow-md">
+                  Po, do të vij!
+                </button>
+              </form>
+              <form action={updateRsvp}>
+                <input type="hidden" name="status" value="maybe" />
+                <button className="w-full py-2 px-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-md text-sm font-bold transition-all duration-200 shadow hover:shadow-md">
+                  Ndoshta
+                </button>
+              </form>
+              <form action={updateRsvp}>
+                <input type="hidden" name="status" value="not_attending" />
+                <button className="w-full py-2 px-4 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-md text-sm font-bold transition-all duration-200 shadow hover:shadow-md">
+                  Nuk mundem
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
     </>
