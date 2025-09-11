@@ -1,4 +1,5 @@
 "use client"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import { ReactNode } from "react"
 import { 

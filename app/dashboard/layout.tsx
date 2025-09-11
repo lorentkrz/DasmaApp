@@ -2,6 +2,7 @@ import React from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DashboardSidebarEnterprise } from "@/components/dashboard-sidebar-enterprise";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { TopbarEnterprise } from "@/components/topbar-enterprise";
 
 interface Wedding {

@@ -11,6 +11,7 @@ class WhatsAppService extends EventEmitter {
   private sessionPath: string
   private clientId: string = 'wedding-erp-client'
   private sessionData: any = null
+  private keepaliveInterval: NodeJS.Timeout | null = null
 
   constructor() {
     super()
@@ -77,8 +78,6 @@ class WhatsAppService extends EventEmitter {
         remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
       },
       takeoverOnConflict: true,
-      takeoverTimeoutMs: 30000,
-      qrTimeoutMs: 60000,
       authTimeoutMs: 90000,
       restartOnAuthFail: true,
     })
@@ -120,7 +119,8 @@ class WhatsAppService extends EventEmitter {
       this.error = null
       this.emit('ready')
       
-      // Set up periodic status check
+      // Set up periodic status check after a delay
+      setTimeout(() => {
         if (this.isReady) {
           this.startKeepalive()
         }
@@ -279,7 +279,7 @@ class WhatsAppService extends EventEmitter {
     // Clean up existing client
     if (this.client) {
       try {
-        await this.client.destroy()
+        await this.destroyClient()
       } catch (error) {
         console.log('⚠️ Error destroying client:', error)
       }
@@ -296,10 +296,9 @@ class WhatsAppService extends EventEmitter {
     try {
       const fs = require('fs')
       const path = require('path')
-      const sessionPath = path.join(process.cwd(), 'whatsapp-session')
-      if (fs.existsSync(sessionPath)) {
+      if (fs.existsSync(this.sessionPath)) {
         console.log('🗑️ Clearing session data...')
-        fs.rmSync(sessionPath, { recursive: true, force: true })
+        fs.rmSync(this.sessionPath, { recursive: true, force: true })
       }
     } catch (error) {
       console.log('⚠️ Could not clear session:', error)
@@ -309,33 +308,72 @@ class WhatsAppService extends EventEmitter {
     await this.initialize()
   }
 
-  private startKeepalive() {
-    if (this.keepaliveInterval) {
-      clearInterval(this.keepaliveInterval)
+  async destroyClient() {
+    if (!this.client) return
+    
+    console.log('🛑 Destroying WhatsApp client...')
+    this.stopKeepalive()
+    
+    try {
+      await this.client.logout()
+    } catch (error) {
+      console.error('Error during logout:', error)
     }
     
+    try {
+      await this.client.destroy()
+    } catch (error) {
+      console.error('Error destroying client:', error)
+    }
+    
+    this.client = null
+    this.isReady = false
+    this.isInitializing = false
+    this.qrCode = null
+    this.error = 'Disconnected by user'
+    this.emit('disconnected')
+    console.log('✅ WhatsApp client destroyed')
+  }
+
+  async disconnect() {
+    console.log('🔌 Disconnecting WhatsApp client...')
+    await this.destroyClient()
+  }
+
+  private startKeepalive() {
+    console.log('🔄 Starting keepalive...')
+    this.stopKeepalive()
+    
     this.keepaliveInterval = setInterval(async () => {
-      if (this.client && this.isReady) {
-        try {
-          // Lighter ping - just check if client exists
-          const state = await this.client.getState()
-          if (state !== 'CONNECTED') {
-            console.log('⚠️ Client state changed:', state)
-            this.isReady = false
-            this.error = `Connection state: ${state}`
-          }
-        } catch (error) {
-          console.log('⚠️ Keepalive check failed:', error)
-          // Don't immediately mark as disconnected, might be temporary
+      try {
+        if (this.client) {
+          await this.client.getState()
         }
+      } catch (error) {
+        console.error('Keepalive check failed:', error)
+        this.error = 'Connection lost. Please reconnect.'
+        this.isReady = false
+        this.emit('disconnected')
+        this.stopKeepalive()
       }
-    }, 60000) // Every 60 seconds - less aggressive
+    }, 30000) // Check every 30 seconds
   }
 
   private stopKeepalive() {
     if (this.keepaliveInterval) {
       clearInterval(this.keepaliveInterval)
       this.keepaliveInterval = null
+      console.log('⏹️ Keepalive stopped')
+    }
+  }
+
+  public getConnectionStatus() {
+    return {
+      isReady: this.isReady,
+      isInitializing: this.isInitializing,
+      hasQrCode: !!this.qrCode,
+      error: this.error,
+      sessionPath: this.sessionPath
     }
   }
 
