@@ -1,103 +1,126 @@
-import { Client, LocalAuth } from 'whatsapp-web.js'
+import { Client, LocalAuth, MessageMedia } from 'whatsapp-web.js'
+import qrcode from 'qrcode-terminal'
+import { EventEmitter } from 'events'
 
-class WhatsAppService {
+class WhatsAppService extends EventEmitter {
   private client: Client | null = null
   private isReady = false
   private qrCode: string | null = null
   private isInitializing = false
   private error: string | null = null
-  private keepaliveInterval: NodeJS.Timeout | null = null
+  private sessionPath: string
+  private clientId: string = 'wedding-erp-client'
+  private sessionData: any = null
 
   constructor() {
-    console.log('🚀 WhatsApp Service Constructor Called')
+    super()
+    this.sessionPath = process.env.WHATSAPP_SESSION_PATH || './whatsapp-session'
+    console.log('🚀 WhatsApp Service Initialized with session path:', this.sessionPath)
   }
 
   private async createClient() {
+    if (this.client) {
+      await this.destroyClient()
+    }
+
     console.log('📱 Creating WhatsApp Client...')
-
+    
     const isServerless = !!process.env.NETLIFY || !!process.env.VERCEL || !!process.env.AWS_REGION
-    const dataPath = process.env.WHATSAPP_DATA_PATH || (isServerless ? '/tmp/whatsapp-session' : './whatsapp-session')
+    const dataPath = this.sessionPath
+    
+    // Configure Puppeteer options
+    const puppeteerOptions: any = {
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu',
+        '--disable-software-rasterizer',
+        '--disable-features=IsolateOrigins,site-per-process',
+        '--disable-web-security',
+        '--disable-extensions',
+        '--disable-infobars',
+        '--window-size=800,800',
+      ]
+    }
 
-    // Resolve executablePath and args for serverless Chrome
-    let executablePath: string | undefined = undefined
-    let headless: boolean = true
-    let baseArgs: string[] = [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-web-security',
-      '--disable-features=VizDisplayCompositor'
-    ]
-
+    // Handle serverless environments
     if (isServerless) {
       try {
-        const chromium = await import('@sparticuz/chromium')
-        // Force boolean headless to satisfy whatsapp-web.js typings
-        headless = true
-        const chromePath = await chromium.default.executablePath()
-        executablePath = chromePath || undefined
-        baseArgs = [...chromium.default.args, ...baseArgs]
-        console.log('🧊 Using serverless Chromium at path:', executablePath)
+        const chromium = require('@sparticuz/chromium')
+        puppeteerOptions.executablePath = await chromium.executablePath()
+        puppeteerOptions.args = [...puppeteerOptions.args, ...chromium.args]
+        console.log('🧊 Using serverless Chromium at path:', puppeteerOptions.executablePath)
       } catch (e) {
         console.warn('⚠️ Failed to load @sparticuz/chromium, falling back to default Puppeteer launch')
       }
     } else if (process.env.CHROME_PATH) {
-      executablePath = process.env.CHROME_PATH
-      console.log('🧭 Using CHROME_PATH from env:', executablePath)
+      puppeteerOptions.executablePath = process.env.CHROME_PATH
+      console.log('🧭 Using CHROME_PATH from env:', puppeteerOptions.executablePath)
     }
 
-    // As a robust fallback for local/dev environments, try to use @sparticuz/chromium
-    // even when not in a serverless environment, if no executablePath has been resolved.
-    if (!executablePath) {
-      try {
-        const chromium = await import('@sparticuz/chromium')
-        // Force boolean headless to satisfy whatsapp-web.js typings
-        headless = true
-        const chromePath = await chromium.default.executablePath()
-        if (chromePath) {
-          executablePath = chromePath
-          baseArgs = [...chromium.default.args, ...baseArgs]
-          console.log('🧩 Fallback to Chromium provided by @sparticuz/chromium:', executablePath)
-        }
-      } catch (e) {
-        console.warn('⚠️ Could not resolve Chromium via @sparticuz/chromium fallback. Puppeteer will rely on system Chrome or PUPPETEER_EXECUTABLE_PATH.')
-      }
-    }
-
+    // Configure WhatsApp client
     this.client = new Client({
       authStrategy: new LocalAuth({
-        dataPath,
-        clientId: 'wedding-erp-client'
+        clientId: this.clientId,
+        dataPath: dataPath,
       }),
-      puppeteer: {
-        headless,
-        executablePath,
-        args: baseArgs,
-        timeout: 60000
-      },
+      puppeteer: puppeteerOptions,
       webVersionCache: {
         type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
-      }
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+      },
+      takeoverOnConflict: true,
+      takeoverTimeoutMs: 30000,
+      qrTimeoutMs: 60000,
+      authTimeoutMs: 90000,
+      restartOnAuthFail: true,
     })
 
     console.log('🎯 Setting up WhatsApp event listeners...')
 
-    this.client.on('qr', (qr) => {
-      console.log('🔥 QR CODE RECEIVED!')
+    this.client?.on('qr', (qr: string) => {
+      console.log('🔑 QR Code received, please scan with your phone')
       this.qrCode = qr
       this.error = null
       this.isInitializing = false
+      
+      // Display QR code in terminal if in development
+      if (process.env.NODE_ENV === 'development') {
+        qrcode.generate(qr, { small: true })
+      }
+      
+      this.emit('qr', qr)
     })
 
-    this.client.on('ready', () => {
+    this.client?.on('authenticated', (session) => {
+      console.log('🔓 WhatsApp client authenticated')
+      this.sessionData = session
+      this.emit('authenticated')
+    })
+
+    this.client?.on('auth_failure', (msg) => {
+      console.error('❌ Authentication failed:', msg)
+      this.error = `Authentication failed: ${msg}`
+      this.isReady = false
+      this.emit('auth_failure', msg)
+    })
+
+    this.client?.on('ready', () => {
       console.log('✅ WhatsApp client is READY!')
       this.isReady = true
       this.isInitializing = false
       this.qrCode = null
       this.error = null
+      this.emit('ready')
       
-      // Don't start keepalive immediately - let connection stabilize
-      setTimeout(() => {
+      // Set up periodic status check
         if (this.isReady) {
           this.startKeepalive()
         }
